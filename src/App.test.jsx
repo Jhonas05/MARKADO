@@ -90,3 +90,125 @@ describe('MARKADO student prototype', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 })
+
+function openProfessorPrototype() {
+  fireEvent.click(
+    screen.getByRole('button', { name: /professor prototype/i }),
+  )
+  return screen.getByRole('navigation', { name: /professor navigation/i })
+}
+
+describe('MARKADO professor prototype', () => {
+  it('preserves the student entry point and exposes every Phase 2 workspace', () => {
+    render(<App />)
+
+    const navigation = openProfessorPrototype()
+    expect(
+      screen.getByRole('heading', { name: /good afternoon, prof\. reyes/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/all learners, activity, scores/i)).toBeInTheDocument()
+
+    const destinations = [
+      ['My quizzes', /my quizzes/i],
+      ['Create quiz', /create a new quiz/i],
+      ['Manual editor', /manual question editor/i],
+      ['AI generation', /ai question generation/i],
+      ['Review AI drafts', /review ai drafts/i],
+      ['Timer & schedule', /timer and schedule/i],
+      ['Randomization', /question randomization/i],
+      ['Quiz preview', /quiz preview/i],
+      ['Publish & share', /publish and share/i],
+      ['Monitoring', /monitor submissions/i],
+      ['Results', /^results$/i],
+      ['PDF & Word exports', /pdf and word exports/i],
+      ['Help & guide', /how can we help/i],
+    ]
+
+    destinations.forEach(([linkName, heading]) => {
+      fireEvent.click(
+        within(navigation).getByRole('button', { name: linkName }),
+      )
+      expect(
+        screen.getByRole('heading', { level: 1, name: heading }),
+      ).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /student view/i }))
+    expect(
+      screen.getByRole('heading', { name: /welcome back, mia/i }),
+    ).toBeInTheDocument()
+  }, 15000)
+
+  it('requires source selection and human review for simulated AI drafts', () => {
+    render(<App />)
+    const navigation = openProfessorPrototype()
+
+    fireEvent.click(
+      within(navigation).getByRole('button', { name: /ai generation/i }),
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: /simulate 3-question generation/i }),
+    )
+    expect(screen.getByRole('status')).toHaveTextContent(/choose the synthetic/i)
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /use synthetic sample material/i }),
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: /simulate 3-question generation/i }),
+    )
+    expect(
+      screen.getByRole('heading', { name: /review ai drafts/i }),
+    ).toBeInTheDocument()
+
+    const draftList = screen.getByRole('complementary', {
+      name: /ai-assisted draft questions/i,
+    })
+    fireEvent.click(
+      within(draftList).getByRole('button', {
+        name: /which process returns carbon dioxide/i,
+      }),
+    )
+    fireEvent.click(screen.getByRole('button', { name: /approve draft/i }))
+    expect(screen.getByRole('status')).toHaveTextContent(/draft approved/i)
+  })
+
+  it('keeps publishing gated and presents a mock-only sharing receipt', () => {
+    render(<App />)
+    const navigation = openProfessorPrototype()
+    fireEvent.click(
+      within(navigation).getByRole('button', { name: /publish & share/i }),
+    )
+
+    const publishButton = screen.getByRole('button', {
+      name: /simulate publish/i,
+    })
+    expect(publishButton).toBeDisabled()
+    fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: /understand that publishing is simulated/i,
+      }),
+    )
+    fireEvent.click(publishButton)
+
+    expect(
+      screen.getByRole('heading', { name: /your mock quiz is ready to share/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('markado.test/join/BIO-104')).toBeInTheDocument()
+  })
+
+  it('sorts synthetic results alphabetically and by ranked score', () => {
+    render(<App />)
+    const navigation = openProfessorPrototype()
+    fireEvent.click(
+      within(navigation).getByRole('button', { name: /^results$/i }),
+    )
+
+    let resultRows = screen.getAllByTestId('result-row')
+    expect(within(resultRows[0]).getByText(/aquino, gabriel/i)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /ranked/i }))
+    resultRows = screen.getAllByTestId('result-row')
+    expect(within(resultRows[0]).getByText(/cruz, carla/i)).toBeInTheDocument()
+  })
+})

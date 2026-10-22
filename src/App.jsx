@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import Icon from './components/Icon.jsx'
+import ProfessorApp from './ProfessorApp.jsx'
 import {
   questions,
   quiz,
@@ -22,7 +23,13 @@ function formatTime(totalSeconds) {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
-function AppHeader({ currentScreen, onHelp, onNavigate, submitted }) {
+function AppHeader({
+  currentScreen,
+  onHelp,
+  onNavigate,
+  onSwitchExperience,
+  submitted,
+}) {
   const isDashboard = currentScreen === screens.dashboard
   const isAssessment = [
     screens.instructions,
@@ -82,6 +89,14 @@ function AppHeader({ currentScreen, onHelp, onNavigate, submitted }) {
         </nav>
 
         <div className="header-actions">
+          <button
+            className="student-experience-switch"
+            type="button"
+            onClick={onSwitchExperience}
+          >
+            <Icon name="dashboard" size={17} />
+            <span>Professor prototype</span>
+          </button>
           <button
             className="icon-button"
             type="button"
@@ -1038,7 +1053,7 @@ function HelpPanel({ attemptActive, onClose }) {
   )
 }
 
-export default function App() {
+function StudentPrototype({ onSwitchExperience }) {
   const [screen, setScreen] = useState(screens.dashboard)
   const [answers, setAnswers] = useState({})
   const [currentQuestion, setCurrentQuestion] = useState(0)
@@ -1174,6 +1189,7 @@ export default function App() {
         currentScreen={screen}
         onHelp={() => setHelpOpen(true)}
         onNavigate={navigate}
+        onSwitchExperience={onSwitchExperience}
         submitted={submitted}
       />
       {content}
@@ -1192,5 +1208,19 @@ export default function App() {
         />
       ) : null}
     </div>
+  )
+}
+
+export default function App() {
+  const [experience, setExperience] = useState(() =>
+    window.location.hash === '#professor' ? 'professor' : 'student',
+  )
+
+  if (experience === 'professor') {
+    return <ProfessorApp onStudent={() => setExperience('student')} />
+  }
+
+  return (
+    <StudentPrototype onSwitchExperience={() => setExperience('professor')} />
   )
 }

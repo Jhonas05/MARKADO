@@ -210,6 +210,25 @@ summary {
   gap: 0.75rem;
 }
 
+.student-experience-switch {
+  min-height: 2.55rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  color: var(--green-dark);
+  background: var(--paper);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.student-experience-switch:hover {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+
 .icon-button {
   width: 2.65rem;
   height: 2.65rem;
@@ -1878,8 +1897,15 @@ summary {
 
 @media (max-width: 920px) {
   .student-chip__copy,
-  .nav-link span {
+  .nav-link span,
+  .student-experience-switch span {
     display: none;
+  }
+
+  .student-experience-switch {
+    width: 2.65rem;
+    padding: 0;
+    justify-content: center;
   }
 
   .app-header__inner {
@@ -1965,7 +1991,8 @@ summary {
 
   .student-chip__avatar,
   .icon-button,
-  .nav-link {
+  .nav-link,
+  .student-experience-switch {
     width: 2.4rem;
     height: 2.4rem;
     min-height: 2.4rem;
