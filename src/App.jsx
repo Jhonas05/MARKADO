@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import AdminApp from './AdminApp.jsx'
 import BrandMark from './components/BrandMark.jsx'
 import Icon from './components/Icon.jsx'
 import ProfessorApp from './ProfessorApp.jsx'
@@ -28,6 +29,7 @@ function AppHeader({
   currentScreen,
   onHelp,
   onNavigate,
+  onSwitchAdmin,
   onSwitchExperience,
   submitted,
 }) {
@@ -97,6 +99,14 @@ function AppHeader({
           >
             <Icon name="dashboard" size={17} />
             <span>Professor prototype</span>
+          </button>
+          <button
+            className="student-experience-switch"
+            type="button"
+            onClick={onSwitchAdmin}
+          >
+            <Icon name="shield" size={17} />
+            <span>Administrator prototype</span>
           </button>
           <button
             className="icon-button"
@@ -1099,7 +1109,7 @@ function StudentBottomNav({ currentScreen, onHelp, onNavigate, submitted }) {
   )
 }
 
-function StudentPrototype({ onSwitchExperience }) {
+function StudentPrototype({ onSwitchAdmin, onSwitchExperience }) {
   const [screen, setScreen] = useState(screens.dashboard)
   const [answers, setAnswers] = useState({})
   const [currentQuestion, setCurrentQuestion] = useState(0)
@@ -1237,6 +1247,7 @@ function StudentPrototype({ onSwitchExperience }) {
           currentScreen={screen}
           onHelp={() => setHelpOpen(true)}
           onNavigate={navigate}
+          onSwitchAdmin={onSwitchAdmin}
           onSwitchExperience={onSwitchExperience}
           submitted={submitted}
         />
@@ -1271,15 +1282,34 @@ function StudentPrototype({ onSwitchExperience }) {
 }
 
 export default function App() {
-  const [experience, setExperience] = useState(() =>
-    window.location.hash === '#professor' ? 'professor' : 'student',
-  )
+  const [experience, setExperience] = useState(() => {
+    if (window.location.hash === '#admin') return 'admin'
+    if (window.location.hash === '#professor') return 'professor'
+    return 'student'
+  })
+
+  if (experience === 'admin') {
+    return (
+      <AdminApp
+        onProfessor={() => setExperience('professor')}
+        onStudent={() => setExperience('student')}
+      />
+    )
+  }
 
   if (experience === 'professor') {
-    return <ProfessorApp onStudent={() => setExperience('student')} />
+    return (
+      <ProfessorApp
+        onAdmin={() => setExperience('admin')}
+        onStudent={() => setExperience('student')}
+      />
+    )
   }
 
   return (
-    <StudentPrototype onSwitchExperience={() => setExperience('professor')} />
+    <StudentPrototype
+      onSwitchAdmin={() => setExperience('admin')}
+      onSwitchExperience={() => setExperience('professor')}
+    />
   )
 }

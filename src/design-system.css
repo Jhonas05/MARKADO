@@ -151,6 +151,28 @@ label:has(input:focus-visible) {
   overflow: visible;
 }
 
+.provisional-tag {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px dashed var(--warning);
+  border-radius: var(--radius-md);
+  color: var(--warning);
+  background: var(--highlight-soft);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.provisional-tag strong {
+  padding-left: 7px;
+  border-left: 1px solid color-mix(in srgb, var(--warning), transparent 65%);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
 .skip-link {
   border-radius: var(--radius-md);
   color: var(--on-primary);
