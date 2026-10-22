@@ -23,6 +23,23 @@ The prototype intentionally labels local answer state and result calculations.
 Academic expiry, release, identity, attempt, and outage policies remain open and
 are not represented as production behavior.
 
+## Professor prototype
+
+Phase 2 adds a separate Professor workspace while preserving the Student flow.
+Use the **Professor prototype** control in the Student header, or open
+`/#professor` during local development. The workspace includes:
+
+- Dashboard, quiz management, and a five-step creation workflow
+- Manual question editing and a mock AI drafting/review flow
+- Separate timer, availability, and randomization controls
+- Student preview plus simulated publishing and sharing
+- Synthetic submission monitoring and alphabetical/ranked results
+- PDF/DOCX export previews and a searchable Professor guide
+
+Every professor action is local to the browser. AI generation, publishing,
+monitoring, grading, and exports are explicitly simulated. Academic policies
+that remain open in the Context Pack are labeled rather than silently chosen.
+
 ## Local development
 
 Requirements: Node.js 22 or newer.
