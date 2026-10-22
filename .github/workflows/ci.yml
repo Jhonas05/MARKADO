@@ -78,3 +78,57 @@ jobs:
       - name: Build Laravel frontend
         run: npm run build --prefix server
 
+  postgresql:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: markado_ci
+      DB_USERNAME: markado_ci
+      DB_PASSWORD: ''
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: markado_ci
+          POSTGRES_USER: markado_ci
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U markado_ci -d markado_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up PHP with PostgreSQL support
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_pgsql, pgsql
+          coverage: none
+
+      - name: Install PHP dependencies
+        run: composer install --working-dir=server --no-interaction --no-progress --prefer-dist
+
+      - name: Prepare isolated test environment
+        run: |
+          cp server/.env.example server/.env
+          php server/artisan key:generate --ansi
+
+      - name: Verify PostgreSQL migrations
+        working-directory: server
+        run: php artisan migrate:fresh --force --ansi
+
+      - name: Test Laravel against PostgreSQL
+        working-directory: server
+        run: php artisan test --ansi
+
