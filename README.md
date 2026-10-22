@@ -8,6 +8,21 @@ This repository currently contains the rapid UI prototype foundation. Prototype
 screens use synthetic data only and do not claim server persistence,
 authoritative timing, authentication, grading, or production readiness.
 
+## Student prototype
+
+The Phase 1 flow includes:
+
+- Student overview with a ready assessment and synthetic recent results
+- Quiz-code lookup using the demo code `BIO-104`
+- Pre-start instructions and explicit acknowledgement
+- Responsive five-question quiz runner with a display-only timer
+- Answer review, submission confirmation, and local result preview
+- Answer explanations and a context-sensitive Help & Guide panel
+
+The prototype intentionally labels local answer state and result calculations.
+Academic expiry, release, identity, attempt, and outage policies remain open and
+are not represented as production behavior.
+
 ## Local development
 
 Requirements: Node.js 22 or newer.
