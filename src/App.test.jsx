@@ -23,7 +23,9 @@ describe('MARKADO student prototype', () => {
 
     fireEvent.change(codeInput, { target: { value: 'WRONG' } })
     fireEvent.click(screen.getByRole('button', { name: /find quiz/i }))
-    expect(screen.getByRole('alert')).toHaveTextContent(/try bio-104/i)
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      /check the code with your professor/i,
+    )
 
     fireEvent.change(codeInput, { target: { value: 'BIO-104' } })
     fireEvent.click(screen.getByRole('button', { name: /find quiz/i }))
@@ -49,6 +51,10 @@ describe('MARKADO student prototype', () => {
     expect(startButton).toBeEnabled()
     fireEvent.click(startButton)
 
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('navigation', { name: /mobile navigation/i }),
+    ).not.toBeInTheDocument()
     expect(
       screen.getByRole('heading', {
         name: /which statement best describes an ecosystem/i,
@@ -88,6 +94,19 @@ describe('MARKADO student prototype', () => {
       within(help).getByRole('button', { name: /close help and guide/i }),
     )
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('provides the four-item student mobile navigation structure', () => {
+    render(<App />)
+
+    const mobileNavigation = screen.getByRole('navigation', {
+      name: /mobile navigation/i,
+    })
+    expect(within(mobileNavigation).getAllByRole('button')).toHaveLength(4)
+    expect(within(mobileNavigation).getByText('Overview')).toBeInTheDocument()
+    expect(within(mobileNavigation).getByText('Quizzes')).toBeInTheDocument()
+    expect(within(mobileNavigation).getByText('Results')).toBeInTheDocument()
+    expect(within(mobileNavigation).getByText('Help')).toBeInTheDocument()
   })
 })
 

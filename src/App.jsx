@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import BrandMark from './components/BrandMark.jsx'
 import Icon from './components/Icon.jsx'
 import ProfessorApp from './ProfessorApp.jsx'
 import {
@@ -46,7 +47,7 @@ function AppHeader({
           onClick={() => onNavigate(screens.dashboard)}
           aria-label="MARKADO dashboard"
         >
-          <span className="brand__mark">M</span>
+          <BrandMark />
           <span className="brand__name">MARKADO</span>
         </button>
 
@@ -280,7 +281,9 @@ function JoinQuiz({ onBack, onFound }) {
     const normalized = code.trim().toUpperCase()
 
     if (normalized !== quiz.code) {
-      setError(`That code is not in this prototype. Try ${quiz.code}.`)
+      setError(
+        "We couldn't find an open quiz with that code. Check the code with your professor.",
+      )
       return
     }
 
@@ -1053,6 +1056,49 @@ function HelpPanel({ attemptActive, onClose }) {
   )
 }
 
+function StudentBottomNav({ currentScreen, onHelp, onNavigate, submitted }) {
+  const isQuizArea = [
+    screens.join,
+    screens.instructions,
+  ].includes(currentScreen)
+
+  return (
+    <nav className="student-bottom-nav" aria-label="Mobile navigation">
+      <button
+        className={currentScreen === screens.dashboard ? 'is-active' : ''}
+        type="button"
+        onClick={() => onNavigate(screens.dashboard)}
+        aria-current={currentScreen === screens.dashboard ? 'page' : undefined}
+      >
+        <Icon name="home" size={20} />
+        <span>Overview</span>
+      </button>
+      <button
+        className={isQuizArea ? 'is-active' : ''}
+        type="button"
+        onClick={() => onNavigate(screens.join)}
+        aria-current={isQuizArea ? 'page' : undefined}
+      >
+        <Icon name="book" size={20} />
+        <span>Quizzes</span>
+      </button>
+      <button
+        className={currentScreen === screens.results ? 'is-active' : ''}
+        type="button"
+        onClick={() => onNavigate(submitted ? screens.results : screens.dashboard)}
+        aria-current={currentScreen === screens.results ? 'page' : undefined}
+      >
+        <Icon name="medal" size={20} />
+        <span>Results</span>
+      </button>
+      <button type="button" onClick={onHelp}>
+        <Icon name="help" size={20} />
+        <span>Help</span>
+      </button>
+    </nav>
+  )
+}
+
 function StudentPrototype({ onSwitchExperience }) {
   const [screen, setScreen] = useState(screens.dashboard)
   const [answers, setAnswers] = useState({})
@@ -1111,6 +1157,7 @@ function StudentPrototype({ onSwitchExperience }) {
 
   const unansweredCount = questions.length - Object.keys(answers).length
   const attemptActive = attemptStarted && !submitted
+  const focusMode = [screens.quiz, screens.review].includes(screen)
 
   let content
   if (showExplanations) {
@@ -1181,22 +1228,34 @@ function StudentPrototype({ onSwitchExperience }) {
   }
 
   return (
-    <div className="app">
+    <div className={focusMode ? 'app app--focus' : 'app'}>
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
-      <AppHeader
-        currentScreen={screen}
-        onHelp={() => setHelpOpen(true)}
-        onNavigate={navigate}
-        onSwitchExperience={onSwitchExperience}
-        submitted={submitted}
-      />
+      {!focusMode ? (
+        <AppHeader
+          currentScreen={screen}
+          onHelp={() => setHelpOpen(true)}
+          onNavigate={navigate}
+          onSwitchExperience={onSwitchExperience}
+          submitted={submitted}
+        />
+      ) : null}
       {content}
-      <footer className="app-footer">
-        <span>MARKADO prototype · 2026</span>
-        <span>Built for clear, calm assessment experiences.</span>
-      </footer>
+      {!focusMode ? (
+        <>
+          <footer className="app-footer">
+            <span>MARKADO prototype · 2026</span>
+            <span>Built for clear, calm assessment experiences.</span>
+          </footer>
+          <StudentBottomNav
+            currentScreen={screen}
+            onHelp={() => setHelpOpen(true)}
+            onNavigate={navigate}
+            submitted={submitted}
+          />
+        </>
+      ) : null}
       {helpOpen ? (
         <HelpPanel attemptActive={attemptActive} onClose={() => setHelpOpen(false)} />
       ) : null}
