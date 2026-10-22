@@ -110,7 +110,11 @@ Laravel and Inertia. `/login` supports provisioned accounts only, and
 `/workspace` demonstrates a protected session. Provisioned instructors can use
 `/professor/quizzes` for PostgreSQL-backed, owner-scoped draft authoring with
 single-answer MCQ and True/False questions. Access codes are reserved but no
-public attempt route is registered. There is no public registration route and
-no role can be self-assigned. Authoritative timing, eligibility, publishing,
-attempt activation, scoring, AI generation, and result release actions remain
-unimplemented pending their remaining policy decisions.
+public attempt route is registered. Authenticated students can open the
+rate-limited `/student/quizzes/join` preflight; draft, unknown, and unauthorized
+codes do not disclose quiz details. The production eligibility gate remains
+closed, and its audit events contain identifiers and outcomes but no code,
+question, choice, or answer content. There is no public registration route and
+no role can be self-assigned. Authoritative timing, eligibility, publication
+transitions, attempt activation, scoring, AI generation, and result release
+actions remain unimplemented pending their remaining policy decisions.

@@ -3,9 +3,10 @@
 **Status:** PREPARATION ONLY — not authorization to enable student attempts,
 timers, scoring, publishing, registration, or grade changes.
 
-**Prepared:** 22 October 2026
+**Prepared:** 22 October 2026; integration references updated 23 October 2026
 
-**Intended base:** Phase 5B (`feat/v1-quiz-authoring`)
+**Implementation base:** integrated `main` at
+`f626f330b31c567dea7fcb55ee3a241d217727c9`
 
 ## Purpose
 
@@ -178,20 +179,19 @@ not be used to smuggle an unresolved policy into an earlier one.
 
 ## Pull-request integration gate
 
-- [ ] Merge the existing stack one pull request at a time, only with explicit
-  authorization for that PR.
-- [ ] After each parent merge, retarget only its direct child to `main` and run
-  fresh CI against the recalculated diff.
-- [ ] Preserve feature branches until the stacked history is fully integrated.
-- [ ] Before every merge, repeat conflict, secret, personal-data, and unintended
-  diff review.
-- [ ] Phase 5C implementation starts from the fully integrated approved base, or
-  remains explicitly stacked if integration is still pending.
+- [x] PR #1–#8 were integrated into `main` under separate approvals.
+- [x] Phase 5C starts from the verified integrated commit
+  `f626f330b31c567dea7fcb55ee3a241d217727c9`.
+- [x] Existing feature branches and ancestry were preserved during integration.
+- [x] The active local development checkout and ignored `.env` were preserved;
+  Phase 5C work uses an isolated worktree.
+- [ ] Repeat conflict, secret, personal-data, and unintended-diff review for the
+  Phase 5C pull request before any future merge approval.
 - [ ] Never force-push, rewrite the stack, or auto-merge a dependent PR.
 
-Current dependency order after PR #1 integration:
-
-`PR #2 -> PR #3 -> PR #4 -> PR #5 -> PR #6 -> PR #7 -> Phase 5C readiness`
+The former PR #1–#8 dependency chain is complete. The current delivery is a new
+pull request from `feat/phase-5c-join-preflight` to `main`; it must not be merged
+without separate authorization.
 
 ## Phase 5C exit criteria
 

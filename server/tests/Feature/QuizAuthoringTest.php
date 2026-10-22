@@ -291,6 +291,30 @@ class QuizAuthoringTest extends TestCase
         $this->get("/quiz/{$quiz->access_code}")->assertNotFound();
     }
 
+    public function test_published_state_is_immutable_through_draft_authoring_routes(): void
+    {
+        $owner = $this->instructor();
+        $quiz = $this->quizFor($owner);
+        $quiz->status = QuizStatus::Published;
+        $quiz->save();
+
+        $this->actingAs($owner)
+            ->put("/professor/quizzes/{$quiz->id}", $this->validQuizPayload())
+            ->assertForbidden();
+        $this->actingAs($owner)
+            ->post("/professor/quizzes/{$quiz->id}/questions", $this->validQuestionPayload())
+            ->assertForbidden();
+        $this->actingAs($owner)
+            ->delete("/professor/quizzes/{$quiz->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('quizzes', [
+            'id' => $quiz->id,
+            'status' => QuizStatus::Published->value,
+        ]);
+        $this->assertDatabaseCount('quiz_questions', 0);
+    }
+
     private function instructor(): User
     {
         return User::factory()->create(['role' => AccountRole::Instructor]);
