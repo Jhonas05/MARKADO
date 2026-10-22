@@ -9,25 +9,26 @@ The source PDF left deployment and all implementation technologies unspecified. 
 - **D26:** PostgreSQL is the relational database engine; service hosting, backups and placement remain D28 [OPEN].
 - **D27:** React with Inertia.js is the frontend integration; versions, design system and optional tooling remain [OPEN].
 - **D24 [NOT_APPLICABLE]:** Local isolated-device data synchronization is not required for this online deployment. Temporary internet outages still need an explicit reconnection policy under D09.
+- **ADR-003 (22 October 2026):** The product owner approved a single-school V1; single-answer MCQ and True/False; one resumable attempt; Asia/Manila display timezone; professor-controlled manual result release; student number and email as future registration requirements; and limited permission-based administrator access. Only those exact boundaries are decided. See `../decisions/ADR-003-phase-5b-approved-v1-boundaries.md` for the remaining sub-policies.
 
 ## Decision register
 | ID | Decision / question | Status | Owner or reviewer |
 |---|---|---|---|
 | D01 | Online internet-hosted web application; not LAN-only or fully offline per-device | **DECIDED** | Product (user) |
-| D02 | Single school vs multiple institutions/sections | **OPEN** | To assign |
-| D03 | V1 question formats | **OPEN** | To assign |
+| D02 | Single school vs multiple institutions/sections | **PARTIALLY DECIDED** - single school; section and eligibility rules remain open | Product (user) |
+| D03 | V1 question formats | **DECIDED** - single-answer MCQ and True/False | Product (user) |
 | D04 | Per-question and whole-quiz timer interaction | **OPEN** | To assign |
 | D05 | Behavior on per-question expiry | **OPEN** | To assign |
 | D06 | Quiz-time expiry behavior | **OPEN** | To assign |
 | D07 | In-progress attempts when quiz closes | **OPEN** | To assign |
-| D08 | Allowed attempts and resume rules | **OPEN** | To assign |
+| D08 | Allowed attempts and resume rules | **PARTIALLY DECIDED** - one resumable attempt; retry/lifecycle details remain open | Product (user) |
 | D09 | Late saves, outage and reconnection policy | **OPEN** | To assign |
-| D10 | Timezone standard and open/close semantics | **OPEN** | To assign |
-| D11 | Result release timing and answer feedback | **OPEN** | To assign |
+| D10 | Timezone standard and open/close semantics | **PARTIALLY DECIDED** - Asia/Manila display; schedule semantics remain open | Product (user) |
+| D11 | Result release timing and answer feedback | **PARTIALLY DECIDED** - professor-controlled manual release; feedback details remain open | Product (user) |
 | D12 | Ranking/scoring/tie and repeat-attempt aggregation rules | **OPEN** | To assign |
-| D13 | Student number issuance and verification | **OPEN** | To assign |
-| D14 | Email verification and duplicate recovery | **OPEN** | To assign |
-| D15 | Instructor/administrator privileges | **OPEN** | To assign |
+| D13 | Student number issuance and verification | **PARTIALLY DECIDED** - required field; issuance/verification remain open | Product (user) |
+| D14 | Email verification and duplicate recovery | **PARTIALLY DECIDED** - required field; verification/recovery remain open | Product (user) |
+| D15 | Instructor/administrator privileges | **PARTIALLY DECIDED** - limited permission-based administration; exact grants remain open | Product (user) |
 | D16 | Live quiz edits, revision handling and unpublish | **OPEN** | To assign |
 | D17 | Uploads: file types, OCR and size limits | **OPEN** | To assign |
 | D18 | AI provider and upload-processing permissions | **OPEN** | To assign |

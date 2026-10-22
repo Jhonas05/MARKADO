@@ -6,6 +6,7 @@ use App\Enums\AccountRole;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -48,5 +49,20 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => AccountRole::class,
         ];
+    }
+
+    public function ownedQuizzes(): HasMany
+    {
+        return $this->hasMany(Quiz::class, 'owner_id');
+    }
+
+    public function quizAttempts(): HasMany
+    {
+        return $this->hasMany(QuizAttempt::class, 'student_id');
+    }
+
+    public function releasedQuizResults(): HasMany
+    {
+        return $this->hasMany(QuizAttempt::class, 'result_released_by');
     }
 }

@@ -70,6 +70,12 @@ export default function Workspace({ foundation }) {
           <span>Policy status</span>
           <strong>{foundation.policyStatus}</strong>
         </section>
+
+        {foundation.quizAuthoringUrl ? (
+          <Link className="button button--primary workspace-authoring-link" href={foundation.quizAuthoringUrl}>
+            Open Professor Quiz Builder
+          </Link>
+        ) : null}
       </main>
     </div>
   )

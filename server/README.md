@@ -24,6 +24,12 @@ Set the `DB_*` variables in the untracked `.env` file for a local PostgreSQL
 instance. Never commit credentials. The regular local test suite uses in-memory
 SQLite; the dedicated CI job runs the complete suite against PostgreSQL.
 
+For a local PostgreSQL test run without touching development tables, create a
+schema owned by `markado_app` (for example, `markado_test`) and run the suite with
+`DB_CONNECTION=pgsql` and `DB_SCHEMA=markado_test`. `config/database.php` defaults
+to the normal `public` schema when `DB_SCHEMA` is not set. Never point a
+`RefreshDatabase` test run at a schema containing development data.
+
 ## Windows PostgreSQL setup
 
 Confirm that PHP can load the driver before installing a server:
@@ -101,7 +107,10 @@ npm run build
 
 The `/` and `/foundation` routes serve a synthetic Student Dashboard through
 Laravel and Inertia. `/login` supports provisioned accounts only, and
-`/workspace` demonstrates a protected session. There is no public registration
-route and no role can be self-assigned. Quiz persistence, resource-scoped
-authorization, authoritative timing, grading, AI generation, and result-release
-policy remain unimplemented pending approval.
+`/workspace` demonstrates a protected session. Provisioned instructors can use
+`/professor/quizzes` for PostgreSQL-backed, owner-scoped draft authoring with
+single-answer MCQ and True/False questions. Access codes are reserved but no
+public attempt route is registered. There is no public registration route and
+no role can be self-assigned. Authoritative timing, eligibility, publishing,
+attempt activation, scoring, AI generation, and result release actions remain
+unimplemented pending their remaining policy decisions.
