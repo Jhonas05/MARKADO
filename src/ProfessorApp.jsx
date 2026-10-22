@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import BrandMark from './components/BrandMark.jsx'
 import Icon from './components/Icon.jsx'
 import {
   generatedDrafts,
@@ -122,7 +123,7 @@ function ProfessorHeader({ currentScreen, onMenu, onStudent }) {
         >
           <Icon name="menu" />
         </button>
-        <span className="brand__mark">M</span>
+        <BrandMark />
         <span>
           <strong>MARKADO</strong>
           <small>Professor workspace</small>
