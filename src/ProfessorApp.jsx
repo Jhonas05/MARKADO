@@ -111,7 +111,7 @@ function MetricCard({ icon, label, value, detail, tone = 'green' }) {
   )
 }
 
-function ProfessorHeader({ currentScreen, onMenu, onStudent }) {
+function ProfessorHeader({ currentScreen, onAdmin, onMenu, onStudent }) {
   return (
     <header className="prof-header">
       <div className="prof-header__brand">
@@ -137,6 +137,10 @@ function ProfessorHeader({ currentScreen, onMenu, onStudent }) {
         <button className="prof-view-switch" type="button" onClick={onStudent}>
           <Icon name="user" size={17} />
           <span>Student view</span>
+        </button>
+        <button className="prof-view-switch" type="button" onClick={onAdmin}>
+          <Icon name="shield" size={17} />
+          <span>Administrator view</span>
         </button>
         <div className="prof-profile" aria-label={`Signed in as ${professor.name}`}>
           <span>{professor.initials}</span>
@@ -1624,7 +1628,7 @@ function ProfessorHelp({ onNavigate }) {
   )
 }
 
-export default function ProfessorApp({ onStudent }) {
+export default function ProfessorApp({ onAdmin, onStudent }) {
   const [screen, setScreen] = useState(screens.dashboard)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [toast, setToast] = useState('')
@@ -1727,6 +1731,7 @@ export default function ProfessorApp({ onStudent }) {
       <a className="skip-link" href="#main-content">Skip to main content</a>
       <ProfessorHeader
         currentScreen={screen}
+        onAdmin={onAdmin}
         onMenu={() => setMobileNavOpen(true)}
         onStudent={onStudent}
       />

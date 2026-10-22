@@ -231,3 +231,156 @@ describe('MARKADO professor prototype', () => {
     expect(within(resultRows[0]).getByText(/cruz, carla/i)).toBeInTheDocument()
   })
 })
+
+function openAdminPrototype() {
+  fireEvent.click(
+    screen.getByRole('button', { name: /administrator prototype/i }),
+  )
+  return screen.getByRole('navigation', { name: /administrator navigation/i })
+}
+
+describe('MARKADO administrator prototype', () => {
+  it('exposes every Phase 3 workspace and preserves cross-experience navigation', () => {
+    render(<App />)
+
+    const navigation = openAdminPrototype()
+    expect(
+      screen.getByRole('heading', { name: /good afternoon, admin mendoza/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/administrator ui prototype/i)).toBeInTheDocument()
+
+    const destinations = [
+      ['User management', /user management/i],
+      ['Assessment oversight', /assessment oversight/i],
+      ['Reporting overview', /reporting overview/i],
+      ['Help & guide', /how can we help/i],
+    ]
+
+    destinations.forEach(([linkName, heading]) => {
+      fireEvent.click(
+        within(navigation).getByRole('button', { name: linkName }),
+      )
+      expect(
+        screen.getByRole('heading', { level: 1, name: heading }),
+      ).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /professor view/i }))
+    expect(
+      screen.getByRole('heading', { name: /good afternoon, prof\. reyes/i }),
+    ).toBeInTheDocument()
+    fireEvent.click(
+      screen.getByRole('button', { name: /administrator view/i }),
+    )
+    fireEvent.click(screen.getByRole('button', { name: /student view/i }))
+    expect(
+      screen.getByRole('heading', { name: /welcome back, mia/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('filters the synthetic account directory and presents an empty state', () => {
+    render(<App />)
+    const navigation = openAdminPrototype()
+    fireEvent.click(
+      within(navigation).getByRole('button', { name: /user management/i }),
+    )
+
+    fireEvent.change(screen.getByRole('combobox', { name: /role/i }), {
+      target: { value: 'Instructor' },
+    })
+    expect(screen.getAllByTestId('admin-user-row')).toHaveLength(3)
+    expect(screen.queryByText('Mia Santos')).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('textbox', { name: /search accounts/i }), {
+      target: { value: 'Elena' },
+    })
+    expect(screen.getAllByTestId('admin-user-row')).toHaveLength(1)
+    expect(screen.getByText('Prof. Elena Reyes')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByRole('textbox', { name: /search accounts/i }), {
+      target: { value: 'no-such-synthetic-account' },
+    })
+    expect(screen.getByRole('status')).toHaveTextContent(/no accounts match/i)
+    fireEvent.click(screen.getByRole('button', { name: /clear filters/i }))
+    expect(screen.getAllByTestId('admin-user-row')).toHaveLength(8)
+  })
+
+  it('keeps account-management actions provisional and simulated', () => {
+    render(<App />)
+    const navigation = openAdminPrototype()
+    fireEvent.click(
+      within(navigation).getByRole('button', { name: /user management/i }),
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: /inspect mia santos/i }),
+    )
+
+    const accountDialog = screen.getByRole('dialog', { name: /mia santos/i })
+    expect(accountDialog).toHaveTextContent(/no grades, answers, passwords/i)
+    fireEvent.click(
+      within(accountDialog).getByRole('button', {
+        name: /preview support action/i,
+      }),
+    )
+
+    const confirmation = screen.getByRole('dialog', {
+      name: /preview this support action/i,
+    })
+    expect(confirmation).toHaveTextContent(/will not approve, disable, edit/i)
+    fireEvent.click(
+      within(confirmation).getByRole('button', {
+        name: /confirm mock preview/i,
+      }),
+    )
+    expect(screen.getByRole('status')).toHaveTextContent(/no account was changed/i)
+  })
+
+  it('filters assessments and opens a privacy-conscious detail preview', () => {
+    render(<App />)
+    const navigation = openAdminPrototype()
+    fireEvent.click(
+      within(navigation).getByRole('button', { name: /assessment oversight/i }),
+    )
+    fireEvent.change(screen.getByRole('combobox', { name: /status/i }), {
+      target: { value: 'Published' },
+    })
+    expect(screen.getByText('Ecosystems checkpoint')).toBeInTheDocument()
+    expect(screen.queryByText('Cell division review')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /view details/i }))
+
+    const detail = screen.getByRole('dialog', {
+      name: /ecosystems checkpoint/i,
+    })
+    expect(detail).toHaveTextContent(/omits learner grades, responses/i)
+    expect(detail).toHaveTextContent(/27 of 32 submitted/i)
+  })
+
+  it('validates reporting dates and confirms mock-only aggregate exports', () => {
+    render(<App />)
+    const navigation = openAdminPrototype()
+    fireEvent.click(
+      within(navigation).getByRole('button', { name: /reporting overview/i }),
+    )
+
+    fireEvent.change(screen.getByLabelText('From'), {
+      target: { value: '2026-10-25' },
+    })
+    expect(screen.getByRole('alert')).toHaveTextContent(/end date must be/i)
+    expect(screen.getByRole('button', { name: /apply range/i })).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText('From'), {
+      target: { value: '2026-10-01' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /preview mock export/i }))
+    const exportDialog = screen.getByRole('dialog', {
+      name: /prepare an aggregate report preview/i,
+    })
+    expect(exportDialog).toHaveTextContent(/no individual grades/i)
+    fireEvent.click(
+      within(exportDialog).getByRole('button', {
+        name: /prepare mock summary/i,
+      }),
+    )
+    expect(screen.getByRole('status')).toHaveTextContent(/no file was generated/i)
+  })
+})

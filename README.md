@@ -40,6 +40,31 @@ Every professor action is local to the browser. AI generation, publishing,
 monitoring, grading, and exports are explicitly simulated. Academic policies
 that remain open in the Context Pack are labeled rather than silently chosen.
 
+## Administrator prototype
+
+Phase 3 adds a scoped Administrator workspace using the same MARKADO Ink &
+Marker design system. Use the **Administrator prototype** control from the
+Student or Professor header, or open `/#admin` during local development. The
+workspace includes:
+
+- An operational dashboard with synthetic account and assessment metrics
+- Searchable user management with role/status filters and protected details
+- Assessment oversight with ownership, schedule, state, and participation data
+- Aggregate reporting, accessible chart summaries, date validation, and mock exports
+- Context-sensitive administrator help and privacy reminders
+
+Administrator permissions remain an open product decision. Management actions
+are confirmation-gated mock previews, and generic administrator views do not
+expose learner grades, responses, answer keys, passwords, or unnecessary
+contact information.
+
+## Design system
+
+Student, Professor, and Administrator experiences share the Claude-derived
+**MARKADO — Ink & Marker** design system in `src/design-system.css`, including
+light/dark tokens, Lexend and Atkinson typography, responsive navigation,
+visible focus states, and reduced-motion support.
+
 ## Local development
 
 Requirements: Node.js 22 or newer.
