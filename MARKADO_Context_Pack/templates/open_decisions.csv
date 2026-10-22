@@ -1,0 +1,30 @@
+id,decision,owner,status,approval_date,notes
+D01,Online internet-hosted web application; not LAN-only or fully offline per-device,Product (user),DECIDED,2026-10-22,Confirmed by user 22 Oct 2026
+D02,Single school vs multiple institutions/sections,unassigned,OPEN,,Student uniqueness and ownership scope
+D03,V1 question formats,unassigned,OPEN,,"UI, scoring and schema"
+D04,Per-question and whole-quiz timer interaction,unassigned,OPEN,,Deadline precedence
+D05,Behavior on per-question expiry,unassigned,OPEN,,"Auto-advance, lock or other"
+D06,Quiz-time expiry behavior,unassigned,OPEN,,Submit/expire outcome
+D07,In-progress attempts when quiz closes,unassigned,OPEN,,Fairness and grade integrity
+D08,Allowed attempts and resume rules,unassigned,OPEN,,State model
+D09,"Late saves, outage and reconnection policy",unassigned,OPEN,,Connectivity and deadline trust
+D10,Timezone standard and open/close semantics,unassigned,OPEN,,Correct timestamp interpretation
+D11,Result release timing and answer feedback,unassigned,OPEN,,Result privacy
+D12,Ranking/scoring/tie and repeat-attempt aggregation rules,unassigned,OPEN,,Report reproducibility
+D13,Student number issuance and verification,unassigned,OPEN,,Identity authority
+D14,Email verification and duplicate recovery,unassigned,OPEN,,Identity recovery
+D15,Instructor/administrator privileges,unassigned,OPEN,,RBAC
+D16,"Live quiz edits, revision handling and unpublish",unassigned,OPEN,,Attempt immutability
+D17,"Uploads: file types, OCR and size limits",unassigned,OPEN,,File processing
+D18,AI provider and upload-processing permissions,unassigned,OPEN,,"Data, privacy, budget"
+D19,Retention/export expiry and backup periods,unassigned,OPEN,,Privacy and storage
+D20,Learning material ownership and copyright,unassigned,OPEN,,Content rights
+D21,Supported devices/browsers/accessibility level,unassigned,OPEN,,HCI QA
+D22,Student class/section quiz eligibility,unassigned,OPEN,,Authorized quiz access
+D23,"Manual grading, regrading and appeal permissions",unassigned,OPEN,,Grade integrity
+D24,Per-device offline synchronization (out of current scope),Product (scope),NOT_APPLICABLE,,Online system only; reconsider only if product scope changes
+D25,Laravel PHP application/backend framework,Product (user),DECIDED,2026-10-22,Confirmed by user 22 Oct 2026; version not chosen
+D26,PostgreSQL database engine (hosting/location tracked in D28),Product (user),DECIDED,2026-10-22,Confirmed by user 22 Oct 2026; host/provider not selected
+D27,React frontend integrated using Inertia.js,Product (user),DECIDED,2026-10-22,Confirmed by user 22 Oct 2026; versions/additional UI tooling open
+D28,"Production hosting, queues, storage and recovery goals",Technical + operations,OPEN,,Reliability and operating cost
+D29,Laravel version/PHP runtime and dependency support,Technical lead,OPEN,,Version compatibility

@@ -1,0 +1,5 @@
+student_number,student_name,attempt_status,earned_points,max_points
+SYN-0001,Aya Santos,SUBMITTED,9,10
+SYN-0002,Bea Reyes,SUBMITTED,8,10
+SYN-0003,Carlo Cruz,SUBMITTED,8,10
+SYN-0004,Carla Cruz,NOT_STARTED,,10

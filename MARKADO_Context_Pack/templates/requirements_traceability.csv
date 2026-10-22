@@ -1,0 +1,9 @@
+requirement_id,category,description,linked_qa_id,owner,status,evidence
+F01,REQ,Dual timers,QA-015,unassigned,proposed,
+F02,REQ,Results and exports,QA-049,unassigned,proposed,
+F03,REQ,Quiz code and link,QA-006,unassigned,proposed,
+F04,REQ,Material based question generation,QA-038,unassigned,proposed,
+F05,REQ,Date time availability,QA-012,unassigned,proposed,
+F06,REQ,Student number and email registration,QA-004,unassigned,proposed,
+F07,REQ,Randomized questions and choices,QA-031,unassigned,proposed,
+F08,REQ,Help and guide,QA-055,unassigned,proposed,
