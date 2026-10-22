@@ -9,7 +9,7 @@ import '../css/foundation.css'
 createInertiaApp({
   title: (title) => (title ? `${title} · MARKADO` : 'MARKADO'),
   resolve: (name) =>
-    resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob('./Pages/**/*.jsx')),
+    resolvePageComponent(`./pages/${name}.jsx`, import.meta.glob('./pages/**/*.jsx')),
   setup({ el, App, props }) {
     createRoot(el).render(
       <StrictMode>
