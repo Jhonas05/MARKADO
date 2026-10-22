@@ -4,9 +4,10 @@ MARKADO is an online quiz and assessment management system for students,
 instructors, and authorized academic administrators. The approved production
 direction is Laravel, PostgreSQL, React, and Inertia.js.
 
-This repository currently contains the rapid UI prototype foundation. Prototype
-screens use synthetic data only and do not claim server persistence,
-authoritative timing, authentication, grading, or production readiness.
+This repository contains the rapid UI prototype plus an incremental Laravel
+foundation in `server/`. Prototype screens use synthetic data only and do not
+claim server persistence, authoritative timing, authentication, grading, or
+production readiness.
 
 ## Student prototype
 
@@ -74,11 +75,29 @@ npm install
 npm run dev
 ```
 
+## Laravel + Inertia foundation
+
+Phase 4 adds a separate Laravel 12 application under `server/` so the verified
+prototype remains intact during migration. Laravel now serves a synthetic
+Student Dashboard at `/` through Inertia and React while reusing the Ink &
+Marker tokens and shared brand/icon components from `src/`.
+
+PostgreSQL is the configured application database in `server/.env.example`, but
+credentials remain local and untracked. Automated foundation tests use
+in-memory SQLite and do not imply a successful PostgreSQL connection. See
+`server/README.md` for setup and `docs/phase-4-decision-sheet.md` for the policy
+choices that must be approved before building the quiz engine.
+
 ## Verification
 
 ```bash
 npm run lint
 npm test
+npm run build
+
+cd server
+vendor/bin/pint --test
+php artisan test
 npm run build
 ```
 
