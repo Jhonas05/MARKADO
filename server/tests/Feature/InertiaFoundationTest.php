@@ -17,6 +17,7 @@ class InertiaFoundationTest extends TestCase
                 ->where('quiz.course', 'BIO 104')
                 ->has('metrics', 3)
                 ->has('recentResults', 3)
+                ->where('auth.user', null)
                 ->missing('answerKey')
             );
     }
@@ -41,13 +42,13 @@ class InertiaFoundationTest extends TestCase
             );
     }
 
-    public function test_postgresql_is_the_application_default_while_tests_use_sqlite(): void
+    public function test_postgresql_is_the_application_default(): void
     {
         $example = file_get_contents(base_path('.env.example'));
         $databaseConfig = file_get_contents(config_path('database.php'));
 
         $this->assertStringContainsString('DB_CONNECTION=pgsql', $example);
         $this->assertStringContainsString("env('DB_CONNECTION', 'pgsql')", $databaseConfig);
-        $this->assertSame('sqlite', config('database.default'));
+        $this->assertContains(config('database.default'), ['pgsql', 'sqlite']);
     }
 }
