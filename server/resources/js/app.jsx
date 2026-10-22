@@ -4,6 +4,7 @@ import { createInertiaApp } from '@inertiajs/react'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import '@prototype/styles.css'
 import '@prototype/design-system.css'
+import '@prototype/professor.css'
 import '../css/foundation.css'
 
 createInertiaApp({

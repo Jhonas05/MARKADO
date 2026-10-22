@@ -1,9 +1,10 @@
 # Phase 5B product-owner approval checklist
 
-This checklist proposes small, practical MVP defaults. Every item is **OPEN**.
-Checking an option here is not sufficient approval: record the selected option,
-approver, and date in `MARKADO_Context_Pack/context/18_open-decisions.md` before
-implementing the policy.
+This checklist proposes small, practical MVP defaults. On **22 October 2026**,
+the product owner approved a narrower Phase 5B scope recorded in
+`MARKADO_Context_Pack/decisions/ADR-003-phase-5b-approved-v1-boundaries.md`.
+Only the exact boundaries in that ADR are decided; unchecked options and their
+additional bundled policies remain open.
 
 ## Identity and registration — D02, D13, D14
 

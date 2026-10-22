@@ -295,6 +295,12 @@
   text-transform: uppercase;
 }
 
+.workspace-authoring-link {
+  width: fit-content;
+  margin-top: 20px;
+  text-decoration: none;
+}
+
 @media (max-width: 780px) {
   .auth-shell,
   .workspace-grid {
@@ -332,5 +338,199 @@
 
   .foundation-app .student-chip__copy {
     display: none;
+  }
+}
+
+/* Phase 5B database-backed professor authoring additions. */
+.prof-app a.prof-nav-link,
+.prof-app a.prof-view-switch,
+.prof-app a.button {
+  text-decoration: none;
+}
+
+.prof-nav-link--disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.prof-success-banner {
+  border-color: #89b49f;
+  background: #e4f3ea;
+}
+
+.prof-empty__action {
+  width: fit-content;
+  margin: 1.25rem auto 0;
+}
+
+.prof-builder-step--locked {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.prof-details-card {
+  margin-bottom: 0.9rem;
+  padding: 1.35rem;
+}
+
+.prof-authoring-summary {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.75fr) minmax(12rem, 1fr) minmax(9rem, 0.7fr) auto auto;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+  padding: 1rem 1.2rem;
+}
+
+.prof-authoring-summary > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.prof-authoring-summary > div > span:not(.section-kicker) {
+  color: var(--ink-faint);
+  font-size: 0.58rem;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.prof-authoring-summary > div > strong {
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prof-authoring-summary > div:first-child > strong {
+  color: var(--green-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.3rem;
+  letter-spacing: 0.12em;
+}
+
+.prof-database-editor {
+  margin-top: 0.9rem;
+}
+
+.prof-field-error {
+  color: var(--red, #9f352c) !important;
+  font-weight: 750;
+}
+
+.prof-field input[aria-invalid="true"],
+.prof-field textarea[aria-invalid="true"] {
+  border-color: var(--red, #9f352c);
+}
+
+.prof-field--question-id code {
+  min-height: 2.8rem;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: 0.68rem 0.78rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: 0.38rem;
+  color: var(--ink-faint);
+  background: #f4f2eb;
+  font-size: 0.62rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prof-choice-editor label {
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+}
+
+.prof-choice-editor input[readonly] {
+  color: var(--ink-soft);
+  background: #f4f2eb;
+}
+
+.prof-remove-choice {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #dcaaa4;
+  border-radius: 50%;
+  color: var(--red, #9f352c);
+  background: var(--red-light, #f8e6e3);
+}
+
+.prof-add-choice {
+  margin-top: 0.8rem;
+}
+
+.prof-question-safety {
+  max-width: 30rem;
+  color: var(--ink-faint);
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+
+.prof-policy-locks {
+  display: grid;
+  grid-template-columns: minmax(17rem, 0.55fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 0.9rem;
+  padding: 1.2rem 1.35rem;
+  border-style: dashed;
+  background: var(--amber-light);
+}
+
+.prof-policy-locks > div {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #795716;
+}
+
+.prof-policy-locks h2,
+.prof-policy-locks p {
+  margin: 0;
+}
+
+.prof-policy-locks h2 {
+  font-size: 1.2rem;
+}
+
+.prof-policy-locks > p {
+  color: #604b24;
+  font-size: 0.68rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 1060px) {
+  .prof-authoring-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .prof-authoring-summary > .prof-status,
+  .prof-authoring-summary > .button {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 620px) {
+  .prof-authoring-summary,
+  .prof-policy-locks {
+    grid-template-columns: 1fr;
+  }
+
+  .prof-authoring-summary > .button {
+    width: 100%;
+  }
+
+  .prof-choice-editor label {
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
+
+  .prof-remove-choice {
+    grid-column: 3;
+    justify-self: end;
   }
 }

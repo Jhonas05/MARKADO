@@ -5,8 +5,9 @@ instructors, and authorized academic administrators. The approved production
 direction is Laravel, PostgreSQL, React, and Inertia.js.
 
 This repository contains the rapid UI prototype plus an incremental Laravel
-foundation in `server/`. Prototype screens use synthetic data only and do not
-claim server persistence, authoritative timing, authentication, grading, or
+application in `server/`. The Phase 5B Professor Quiz Builder persists private
+drafts and approved question formats; the standalone prototype screens still
+use synthetic data and do not claim authoritative timing, grading, or
 production readiness.
 
 ## Student prototype
@@ -37,9 +38,10 @@ Use the **Professor prototype** control in the Student header, or open
 - Synthetic submission monitoring and alphabetical/ranked results
 - PDF/DOCX export previews and a searchable Professor guide
 
-Every professor action is local to the browser. AI generation, publishing,
-monitoring, grading, and exports are explicitly simulated. Academic policies
-that remain open in the Context Pack are labeled rather than silently chosen.
+The standalone Professor prototype remains local to the browser. The authenticated
+Laravel workspace at `/professor/quizzes` now provides real owner-scoped draft,
+MCQ, and True/False authoring. AI generation, publishing, student attempts,
+monitoring, grading, and exports remain disabled or explicitly simulated.
 
 ## Administrator prototype
 
@@ -75,18 +77,18 @@ npm install
 npm run dev
 ```
 
-## Laravel + Inertia foundation
+## Laravel + Inertia application
 
-Phase 4 adds a separate Laravel 12 application under `server/` so the verified
-prototype remains intact during migration. Laravel now serves a synthetic
-Student Dashboard at `/` through Inertia and React while reusing the Ink &
-Marker tokens and shared brand/icon components from `src/`.
+The Laravel 12 application under `server/` preserves the verified prototype
+while features migrate incrementally. Laravel serves the Student Dashboard at
+`/` and the authenticated Professor Quiz Builder at `/professor/quizzes`
+through Inertia and React, reusing the Ink & Marker design system.
 
-PostgreSQL is the configured application database in `server/.env.example`, but
-credentials remain local and untracked. Automated foundation tests use
-in-memory SQLite and do not imply a successful PostgreSQL connection. See
-`server/README.md` for setup and `docs/phase-4-decision-sheet.md` for the policy
-choices that must be approved before building the quiz engine.
+PostgreSQL is the configured application database in `server/.env.example`, and
+credentials remain local and untracked. Fast tests use in-memory SQLite; the
+dedicated CI job and documented isolated local schema run the complete suite on
+PostgreSQL. See `server/README.md` for setup and ADR-003 for the exact approved
+Phase 5B boundaries.
 
 ## Verification
 
