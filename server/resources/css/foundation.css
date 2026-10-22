@@ -1,0 +1,75 @@
+.foundation-app .brand,
+.foundation-app .nav-link {
+  text-decoration: none;
+}
+
+.foundation-nav-placeholder {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.foundation-notice {
+  border-radius: var(--radius-md);
+}
+
+.foundation-guide {
+  margin-top: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-radius: var(--radius-lg);
+}
+
+.foundation-guide h2 {
+  margin-bottom: 0.65rem;
+}
+
+.foundation-guide p:last-child {
+  max-width: 70rem;
+  margin-bottom: 0;
+  color: var(--ink-muted);
+  line-height: 1.7;
+}
+
+.foundation-error {
+  width: min(42rem, calc(100% - 2rem));
+  min-height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.85rem;
+}
+
+.foundation-error h1,
+.foundation-error p {
+  margin-bottom: 0;
+}
+
+.foundation-error h1 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+}
+
+.foundation-error > p:not(.section-kicker) {
+  max-width: 34rem;
+  color: var(--ink-muted);
+  font-size: 1.08rem;
+}
+
+.foundation-error .button {
+  margin-top: 0.75rem;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .foundation-app .primary-nav {
+    display: none;
+  }
+
+  .foundation-app .app-header__inner {
+    grid-template-columns: 1fr auto;
+  }
+
+  .foundation-app .student-chip__copy {
+    display: none;
+  }
+}
