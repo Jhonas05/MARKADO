@@ -11,10 +11,11 @@ final class AssessmentEngineCapabilities
     public function toArray(): array
     {
         return [
-            'attemptCreation' => ['enabled' => false, 'blockers' => ['D04', 'D07', 'D09']],
-            'timers' => ['enabled' => false, 'blockers' => ['D05', 'D06', 'D07']],
-            'answerSaving' => ['enabled' => false, 'blockers' => ['D04', 'D07']],
-            'submission' => ['enabled' => false, 'blockers' => ['D07']],
+            'attemptCreation' => ['enabled' => false, 'blockers' => ['D04', 'D06', 'D08', 'D09']],
+            'timers' => ['enabled' => false, 'blockers' => ['D04', 'D05', 'D06']],
+            'answerSaving' => ['enabled' => false, 'blockers' => ['D04', 'D05', 'D06', 'D09']],
+            'submission' => ['enabled' => false, 'blockers' => ['D04', 'D06', 'D09']],
+            'hardCloseFinalization' => ['enabled' => false, 'blockers' => ['D04', 'D06', 'D08', 'D09']],
             'scoring' => ['enabled' => false, 'blockers' => ['D09', 'D12']],
             'resultRelease' => ['enabled' => false, 'blockers' => ['D09', 'D12']],
         ];

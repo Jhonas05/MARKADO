@@ -10,23 +10,24 @@ These are **three distinct concepts**. They must not be conflated in UI text or 
 ## Deadline model [REC]
 For the approved **online Laravel deployment [DECIDED]**, persist `started_at` from an authoritative server clock and calculate `quiz_deadline = started_at + quiz_duration`. If both timers operate, persist the question's actual activation time and deadline as well; effective answer acceptance uses the configured policy. On reconnect, the client fetches the stored deadlines; it never reissues new ones.
 
-**Important [OPEN]:** Whether the global closing time truncates the attempt deadline; whether per-question expiry auto-advances; whether quiz expiry auto-submits; whether timers pause for accommodation/outage; whether both timers may be set concurrently. Implement none of these as invisible defaults.
+**D07 [DECIDED]:** The global closing time truncates every attempt deadline. A student may start strictly before close even if the configured session duration will not fit. At close, active attempts are automatically submitted using the latest server-acknowledged answers. Per-question expiry, general session-duration expiry, accommodation/outage behavior, and whether both timers may be set concurrently remain [OPEN].
 
 ## Example - competing clocks [REC]
-Availability: 09:00 to 10:00, timezone Asia/Manila; attempt starts 09:50; 20-minute quiz duration. Possible policies: **A** deny start because remaining window insufficient; **B** allow attempt until 10:10; **C** allow start but enforce 10:00 finish. This pack does **not** choose among them. The chosen policy must appear in pre-start instructions.
+Availability: 09:00 to 10:00, timezone Asia/Manila; attempt starts 09:50; 20-minute quiz duration. ADR-005 selects a hard close: the attempt may start and receives an effective deadline of 10:00. At 10:00 the server automatically submits it. A start at exactly 10:00 is denied.
 
 ## Trusted clock in the approved online Laravel app [DECIDED + REC]
-Use the **central Laravel application/database time** as the source for accepted start, save, submit and expiry decisions; store deadline timestamps durably, preferably in UTC with explicit display conversion. The JavaScript/browser timer is **display-only** and cannot extend an attempt. All Laravel web workers and queue workers must interpret the same persisted instants and policy. A delayed scheduled expiry job must not extend the allowed deadline: attempt requests still check authoritative deadlines themselves. The precise timezone and boundary semantics remain D10 [OPEN].
+Use the **central Laravel application/database time** as the source for accepted start, save, submit and expiry decisions; store deadline timestamps durably, preferably in UTC with explicit display conversion. The JavaScript/browser timer is **display-only** and cannot extend an attempt. All Laravel web workers and queue workers must interpret the same persisted instants and policy. A delayed close job must preserve the scheduled close as the logical submission deadline; request-time enforcement remains authoritative. D07 fixes the exact close boundary, while other D10 schedule semantics remain [OPEN].
 
 ## Online connectivity and reconciliation [REC; outage policy OPEN]
 - On refresh, tab change or reconnection, fetch the current attempt, saved answers, and unchanged persisted deadlines from Laravel.
+- At or after the D07 close, reconnection returns the same automatically submitted terminal attempt; it never reopens or extends it.
 - If the network drops, distinguish **unsaved locally displayed input** from **server-confirmed saved answers**; do not promise offline assessment or automatic acceptance of late work.
 - Retrying an answer save or final submit must never create a second attempt or grade.
 - Whether to allow any late retry/grace period or administrator accommodation remains D09 [OPEN].
 
 ## Race-condition scenarios [REC]
-- **Boundary start:** Two starts at the close timestamp must be checked against the same authoritative rule.
-- **Submit/expire race:** Submission and timeout handler must perform an atomic state transition; exactly one final outcome.
+- **Boundary start:** A start strictly before close may proceed; a start at or after close is denied by the authoritative server clock.
+- **Submit/close race:** Student submission and hard-close finalization must perform one atomic state transition; exactly one terminal outcome.
 - **Answer save/expiry race:** Stale requests cannot rewrite a locked answer or extend a question deadline.
 - **Multiple tab race:** Active attempt/answer state cannot fork into two independent timelines.
 - **Edit/live attempt race:** Content revisions cannot alter already-issued question snapshots invisibly.

@@ -290,7 +290,7 @@ Authorization must depend on **actor + action + resource scope**, not role strin
 - **DRAFT:** editable, not joinable.
 - **READY_FOR_REVIEW:** passes validation, awaiting publish approval.
 - **PUBLISHED:** joinable when schedule and eligibility permit; schedule need not be currently open.
-- **CLOSED:** new starts disabled; treatment of active attempts is [OPEN].
+- **CLOSED:** new starts disabled. At a scheduled D07 close, active attempts are automatically submitted using acknowledged answers. Instructor-initiated unpublish and other exceptional closure paths remain separately governed.
 - **ARCHIVED:** historical only; retrieval/retention governed by policy.
 - **Reopen / unpublish / revise:** [OPEN]; do not add edges until product owner approves.
 
@@ -404,10 +404,10 @@ These are **three distinct concepts**. They must not be conflated in UI text or 
 ## Deadline model [REC]
 For the approved **online Laravel deployment [DECIDED]**, persist `started_at` from an authoritative server clock and calculate `quiz_deadline = started_at + quiz_duration`. If both timers operate, persist the question's actual activation time and deadline as well; effective answer acceptance uses the configured policy. On reconnect, the client fetches the stored deadlines; it never reissues new ones.
 
-**Important [OPEN]:** Whether the global closing time truncates the attempt deadline; whether per-question expiry auto-advances; whether quiz expiry auto-submits; whether timers pause for accommodation/outage; whether both timers may be set concurrently. Implement none of these as invisible defaults.
+**D07 [DECIDED]:** The global closing time truncates every attempt deadline. A student may start strictly before close even if the configured session duration will not fit. At close, active attempts are automatically submitted using the latest server-acknowledged answers. Per-question expiry, general session-duration expiry, accommodation/outage behavior, and whether both timers may be set concurrently remain [OPEN].
 
 ## Example - competing clocks [REC]
-Availability: 09:00 to 10:00, timezone Asia/Manila; attempt starts 09:50; 20-minute quiz duration. Possible policies: **A** deny start because remaining window insufficient; **B** allow attempt until 10:10; **C** allow start but enforce 10:00 finish. This pack does **not** choose among them. The chosen policy must appear in pre-start instructions.
+Availability: 09:00 to 10:00, timezone Asia/Manila; attempt starts 09:50; 20-minute quiz duration. ADR-005 selects a hard close: the attempt may start and receives an effective deadline of 10:00. At 10:00 the server automatically submits it. A start at exactly 10:00 is denied.
 
 ## Trusted clock in the approved online Laravel app [DECIDED + REC]
 Use the **central Laravel application/database time** as the source for accepted start, save, submit and expiry decisions; store deadline timestamps durably, preferably in UTC with explicit display conversion. The JavaScript/browser timer is **display-only** and cannot extend an attempt. All Laravel web workers and queue workers must interpret the same persisted instants and policy. A delayed scheduled expiry job must not extend the allowed deadline: attempt requests still check authoritative deadlines themselves. The precise timezone and boundary semantics remain D10 [OPEN].
@@ -419,7 +419,7 @@ Use the **central Laravel application/database time** as the source for accepted
 - Whether to allow any late retry/grace period or administrator accommodation remains D09 [OPEN].
 
 ## Race-condition scenarios [REC]
-- **Boundary start:** Two starts at the close timestamp must be checked against the same authoritative rule.
+- **Boundary start:** A start strictly before close may proceed; a start at or after close is denied by the authoritative server clock.
 - **Submit/expire race:** Submission and timeout handler must perform an atomic state transition; exactly one final outcome.
 - **Answer save/expiry race:** Stale requests cannot rewrite a locked answer or extend a question deadline.
 - **Multiple tab race:** Active attempt/answer state cannot fork into two independent timelines.
@@ -1098,6 +1098,7 @@ The source PDF left deployment and all implementation technologies unspecified. 
 - **D24 [NOT_APPLICABLE]:** Local isolated-device data synchronization is not required for this online deployment. Temporary internet outages still need an explicit reconnection policy under D09.
 - **ADR-003 (22 October 2026):** Single-school V1; single-answer MCQ and True/False; one resumable attempt; Asia/Manila display timezone; professor-controlled manual result release; student number and email requirements; limited permission-based administration.
 - **ADR-004 (23 October 2026):** D16 immutable published revisions and D22 verified school-managed direct/section eligibility are approved. Running-attempt behavior and D13-D15 verification/mutation authority remain unresolved.
+- **ADR-005 (23 October 2026):** D07 is decided as a hard global close. Eligible students may start strictly before close even when the full session duration will not fit; no start is accepted at or after close; every active attempt is automatically submitted at close using the latest server-acknowledged answers.
 
 ## Decision register
 | ID | Decision / question | Status | Owner or reviewer |
@@ -1108,7 +1109,7 @@ The source PDF left deployment and all implementation technologies unspecified. 
 | D04 | Per-question and whole-quiz timer interaction | **OPEN** | To assign |
 | D05 | Behavior on per-question expiry | **OPEN** | To assign |
 | D06 | Quiz-time expiry behavior | **OPEN** | To assign |
-| D07 | In-progress attempts when quiz closes | **OPEN** | To assign |
+| D07 | In-progress attempts when quiz closes | **DECIDED** - hard close with automatic submission; starts allowed strictly before close | Product (user), 23 Oct 2026 |
 | D08 | Allowed attempts and resume rules | **PARTIALLY DECIDED** - one resumable attempt | Product (user) |
 | D09 | Late saves, outage and reconnection policy | **OPEN** | To assign |
 | D10 | Timezone standard and open/close semantics | **PARTIALLY DECIDED** - Asia/Manila display | Product (user) |
@@ -1134,7 +1135,7 @@ The source PDF left deployment and all implementation technologies unspecified. 
 
 ## Architecture-dependent blockers [OPEN]
 - **Platform:** PostgreSQL (D26) and React/Inertia.js (D27) are **DECIDED**. D28 hosting/managed PostgreSQL/queues/storage/backups and D29 Laravel/PHP plus React/Inertia dependency versions remain OPEN. Do not silently swap the database/frontend or infer Railway, AWS, Supabase, Tailwind, TypeScript or any provider/package.
-- **Academic policy:** D03-D12 and D23 determine core scoring, deadline and result behavior. Laravel implementation must be policy-neutral until approved.
+- **Academic policy:** D04-D06, the unresolved portions of D08-D12, and D23 still determine timer, outage, scoring, and result behavior. D07 is fixed by ADR-005 and must not be weakened by implementation defaults.
 - **Identity/privacy:** D13-D15 and D19-D21 still affect verification authority, privileged mutations, retention and accessibility. D22 eligibility evaluation is decided.
 - **AI/material workflow:** D17, D18 and D20 must be settled before transferring educational source material to any service.
 
@@ -1149,11 +1150,11 @@ The source PDF left deployment and all implementation technologies unspecified. 
 **Validation:** acceptance tests and approval evidence  
 **Revisit criteria:** change that warrants reconsideration
 
-## Sample unresolved deadline policy - D07
-**Question:** A quiz closes at 10:00; student started a 20-minute attempt at 09:50. Does the attempt continue after 10:00? **Option A:** deny that start; **Option B:** allow until 10:10; **Option C:** auto-end at 10:00. **Status: OPEN.** Academic lead must choose and document UI messages/tests before implementation.
+## Decided deadline policy - D07
+At a 10:00 close, a student may start at 09:50 even with a 20-minute configured session, but the effective deadline is 10:00. The server automatically submits at close. A start at exactly 10:00 is denied. See ADR-005; D04-D06 and D09 remain open.
 
 ## Meeting agenda [REC]
-**Do not re-open D01/D25/D26/D27 just by guessing alternatives.** First choose D28/D29 for the Laravel setup and D02/D13/D14 for registration. Next settle D03-D12 for the attempt engine, D15/D16/D22/D23 for permissions and live edits, D17/D18/D20 for uploaded learning materials/AI, D19 for retention and D21 for HCI. Record named approver/date for each new decision.
+**Do not re-open D01/D07/D25/D26/D27 just by guessing alternatives.** First choose D28/D29 for the Laravel setup and D02/D13/D14 for registration. Next settle D04-D06 and the unresolved portions of D08-D12 for the attempt engine, D15/D16/D22/D23 for permissions and live edits, D17/D18/D20 for uploaded learning materials/AI, D19 for retention and D21 for HCI. Record named approver/date for each new decision.
 
 ---
 

@@ -5,7 +5,7 @@ D03,V1 question formats,Product (user),DECIDED,2026-10-22,Single-answer MCQ and 
 D04,Per-question and whole-quiz timer interaction,unassigned,OPEN,,Deadline precedence
 D05,Behavior on per-question expiry,unassigned,OPEN,,"Auto-advance, lock or other"
 D06,Quiz-time expiry behavior,unassigned,OPEN,,Submit/expire outcome
-D07,In-progress attempts when quiz closes,unassigned,OPEN,,Fairness and grade integrity
+D07,In-progress attempts when quiz closes,Product (user),DECIDED,2026-10-23,Hard close with automatic submission; starts allowed strictly before close; ADR-005
 D08,Allowed attempts and resume rules,Product (user),PARTIALLY_DECIDED,2026-10-22,One resumable attempt; lifecycle details open
 D09,"Late saves, outage and reconnection policy",unassigned,OPEN,,Connectivity and deadline trust
 D10,Timezone standard and open/close semantics,Product (user),PARTIALLY_DECIDED,2026-10-22,Asia/Manila display; boundary semantics open

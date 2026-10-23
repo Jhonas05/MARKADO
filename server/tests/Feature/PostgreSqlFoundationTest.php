@@ -29,9 +29,11 @@ class PostgreSqlFoundationTest extends TestCase
     {
         $pdo = DB::connection()->getPdo();
         $database = DB::selectOne('select current_database() as database_name');
+        $timezone = DB::selectOne("select current_setting('TIMEZONE') as timezone");
 
         $this->assertSame('pgsql', $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME));
         $this->assertSame(config('database.connections.pgsql.database'), $database->database_name);
+        $this->assertSame('UTC', $timezone->timezone);
         $this->assertTrue(Schema::hasColumns('users', ['id', 'email', 'password', 'role']));
         $this->assertTrue(Schema::hasTable('sessions'));
         $this->assertTrue(Schema::hasTable('jobs'));
