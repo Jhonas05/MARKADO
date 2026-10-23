@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react'
 import BrandMark from '@prototype/components/BrandMark.jsx'
+import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
 export default function Workspace({ foundation }) {
   const { auth } = usePage().props
@@ -13,22 +14,25 @@ export default function Workspace({ foundation }) {
       </a>
 
       <header className="auth-topbar">
-        <Link className="auth-brand" href="/" aria-label="MARKADO prototype home">
+        <Link className="auth-brand" href="/" aria-label="MARKADO home">
           <BrandMark />
           <span>MARKADO</span>
         </Link>
-        <Link className="button button--secondary" href="/logout" method="delete" as="button">
-          Sign out
-        </Link>
+        <div className="auth-topbar__actions">
+          <ThemeToggle compact />
+          <Link className="button button--secondary" href="/logout" method="delete" as="button">
+            Sign out
+          </Link>
+        </div>
       </header>
 
       <main className="workspace-shell" id="main-content">
         <section className="workspace-hero">
-          <p className="section-kicker">Authenticated foundation</p>
+          <p className="section-kicker">Authenticated workspace</p>
           <h1>Welcome, {user.name}.</h1>
           <p>
-            Your secure session is active. Product access stays intentionally limited until
-            institution, eligibility, and permission decisions are approved for Phase 5B.
+            Your secure session is active. Available tools are determined by your
+            server-stored role and resource permissions.
           </p>
         </section>
 

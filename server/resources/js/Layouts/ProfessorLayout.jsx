@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import BrandMark from '@prototype/components/BrandMark.jsx'
 import Icon from '@prototype/components/Icon.jsx'
+import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
 const navigation = [
   {
@@ -60,7 +61,7 @@ export default function ProfessorLayout({ children, title }) {
         <div className="prof-header__actions">
           <Link className="prof-view-switch" href="/">
             <Icon name="user" size={17} />
-            <span>Student prototype</span>
+            <span>Student area</span>
           </Link>
           <Link className="prof-view-switch" href="/logout" method="delete" as="button">
             <Icon name="lock" size={17} />
@@ -86,10 +87,17 @@ export default function ProfessorLayout({ children, title }) {
           />
         ) : null}
         <aside className={`prof-sidebar${mobileOpen ? ' prof-sidebar--open' : ''}`} aria-label="Professor navigation">
+          <Link className="prof-sidebar__brand" href="/professor/quizzes" onClick={() => setMobileOpen(false)}>
+            <BrandMark size={34} />
+            <span>
+              <strong>MARKADO</strong>
+              <small>Professor workspace</small>
+            </span>
+          </Link>
           <div className="prof-sidebar__intro">
-            <span>Phase 5D</span>
-            <strong>Quiz publication</strong>
-            <small>PostgreSQL · Immutable revisions</small>
+            <span>Professor</span>
+            <strong>Assessment workspace</strong>
+            <small>PostgreSQL · Secure authoring</small>
           </div>
           <nav aria-label="Professor navigation">
             {navigation.map((group) => (
@@ -128,6 +136,10 @@ export default function ProfessorLayout({ children, title }) {
               </div>
             ))}
           </nav>
+          <div className="prof-sidebar__appearance">
+            <p>Appearance</p>
+            <ThemeToggle />
+          </div>
           <div className="prof-sidebar__policy">
             <Icon name="shield" size={18} />
             <div>
@@ -146,8 +158,8 @@ export default function ProfessorLayout({ children, title }) {
           ) : null}
           {children}
           <footer className="prof-footer">
-            <span>MARKADO Professor workspace · Phase 5D</span>
-            <span>Immutable revisions · synthetic test data · school-managed eligibility</span>
+            <span>MARKADO Professor workspace</span>
+            <span>Immutable revisions · school-managed eligibility</span>
           </footer>
         </main>
       </div>

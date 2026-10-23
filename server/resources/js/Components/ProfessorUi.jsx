@@ -22,9 +22,10 @@ export function PolicyBanner() {
     <div className="prof-prototype-banner" role="note">
       <Icon name="shield" size={17} />
       <p>
-        <strong>Controlled publication boundary.</strong> D16 immutable revisions and D22
-        school-managed eligibility are active. Attempts, timers, scoring, result release,
-        and roster mutation remain disabled.
+        <strong>Controlled assessment boundary.</strong> Immutable revisions and
+        school-managed eligibility are active. Timer and resume policies are approved,
+        while production attempt activation, scoring, result feedback, and privileged
+        roster changes remain gated until their implementation and security checks pass.
       </p>
     </div>
   )

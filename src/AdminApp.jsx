@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import BrandMark from './components/BrandMark.jsx'
 import Icon from './components/Icon.jsx'
+import ThemeToggle from './components/ThemeToggle.jsx'
 import ProvisionalTag from './components/ProvisionalTag.jsx'
 import {
   adminActivity,
@@ -97,6 +98,7 @@ function AdminHeader({ currentScreen, onMenu, onProfessor, onStudent }) {
         <strong>{screenLabels[currentScreen]}</strong>
       </div>
       <div className="admin-header__actions">
+        <ThemeToggle compact />
         <button className="admin-view-switch" type="button" onClick={onStudent}>
           <Icon name="user" size={17} />
           <span>Student view</span>

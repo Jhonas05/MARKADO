@@ -1,6 +1,12 @@
-import { Head, Link, usePage } from '@inertiajs/react'
-import BrandMark from '@prototype/components/BrandMark.jsx'
-import StudentQuizNavigation from '../Components/StudentQuizNavigation.jsx'
+import { usePage } from '@inertiajs/react'
+import StudentShell from './StudentShell.jsx'
+
+const navigation = [
+  { href: '/workspace', icon: 'home', label: 'Workspace', key: 'workspace' },
+  { href: '/student/quizzes/join', icon: 'book', label: 'Join a quiz', key: 'join' },
+  { icon: 'medal', label: 'Results', key: 'results', disabled: true },
+  { href: '/workspace#account', icon: 'user', label: 'Account', key: 'account' },
+]
 
 export default function StudentQuizLayout({ active = 'join', children, title }) {
   const { auth } = usePage().props
@@ -14,32 +20,15 @@ export default function StudentQuizLayout({ active = 'join', children, title }) 
     .toUpperCase()
 
   return (
-    <div className="app foundation-app student-preflight-app">
-      <Head title={title} />
-      <a className="skip-link" href="#main-content">Skip to content</a>
-
-      <header className="app-header">
-        <div className="app-header__inner student-preflight-header">
-          <Link className="brand" href="/workspace" aria-label="MARKADO authenticated workspace">
-            <BrandMark />
-            <span className="brand__name">MARKADO</span>
-          </Link>
-
-          <StudentQuizNavigation active={active} />
-
-          <div className="header-actions">
-            <div className="student-chip" aria-label={`Signed in as ${user.name}`}>
-              <span className="student-chip__avatar">{initials}</span>
-              <span className="student-chip__copy">
-                <strong>{user.name}</strong>
-                <small>Student account</small>
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <StudentShell
+      active={active}
+      authenticated
+      homeHref="/workspace"
+      navigation={navigation}
+      profile={{ detail: user.roleLabel || 'Student', initials, name: user.name }}
+      title={title}
+    >
       {children}
-    </div>
+    </StudentShell>
   )
 }

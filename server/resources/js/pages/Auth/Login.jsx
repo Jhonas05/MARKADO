@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react'
 import BrandMark from '@prototype/components/BrandMark.jsx'
+import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
 export default function Login({ registration }) {
   const form = useForm({
@@ -23,23 +24,26 @@ export default function Login({ registration }) {
 
       <main className="auth-shell">
         <section className="auth-story" aria-labelledby="auth-heading">
-          <Link className="auth-brand" href="/" aria-label="MARKADO prototype home">
-            <BrandMark size={48} />
-            <span>MARKADO</span>
-          </Link>
+          <div className="auth-brand-row">
+            <Link className="auth-brand" href="/" aria-label="MARKADO home">
+              <BrandMark size={42} />
+              <span>MARKADO</span>
+            </Link>
+            <ThemeToggle compact />
+          </div>
 
           <div>
-            <p className="section-kicker">Secure assessment foundation</p>
+            <p className="section-kicker">Secure assessment access</p>
             <h1 id="auth-heading">A focused place for every assessment.</h1>
             <p>
-              This sign-in foundation uses Laravel sessions, server validation, and
-              protected Inertia routes while academic account policies remain under review.
+              Sign in through the server-protected MARKADO workspace for your assigned
+              student, professor, or academic-administration role.
             </p>
           </div>
 
           <div className="auth-boundary" role="note">
-            <strong>Phase 5A boundary</strong>
-            <span>No quiz, grading, timing, or eligibility policy is activated here.</span>
+            <strong>Institution-managed access</strong>
+            <span>Staff accounts are provisioned securely. Public privileged registration is unavailable.</span>
           </div>
         </section>
 
@@ -100,7 +104,7 @@ export default function Login({ registration }) {
           </div>
 
           <Link className="auth-back-link" href="/">
-            Return to the synthetic Student prototype
+            Return to MARKADO home
           </Link>
         </section>
       </main>
