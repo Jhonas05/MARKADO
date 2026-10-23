@@ -18,7 +18,7 @@ MARKADO is a digital quiz and assessment management system for students, instruc
 - **Frontend:** **React + Inertia.js** [DECIDED]. Laravel handles server routes and authorization; React renders Inertia pages. TypeScript, styling library, SSR strategy and bundler specifics are recommendations/pending verification, not locked choices.
 - **Expected architectural consequence [REC]:** centrally persisted student identities, quizzes, answer saves, deadlines, grades and reports; the server enforces timing and access, while the browser displays state.
 - **Connection-loss behavior [OPEN]:** determine precisely what happens when the learner disconnects or a server is unavailable; never imply that unacknowledged work was saved.
-- **Decision references:** D01, D25, D26, and D27 are DECIDED; D24 (offline-only synchronization) is NOT APPLICABLE. See `../decisions/ADR-001-online-laravel.md` and `../decisions/ADR-002-postgresql-react-inertia.md`.
+- **Decision references:** D01-D10, D16, D22, and D25-D27 have approved boundaries across ADR-001 through ADR-006; D24 (offline-only synchronization) is NOT APPLICABLE. Read every applicable file under `../decisions/` and preserve each ADR's explicit exclusions.
 
 ## Confirmed requested feature index
 | ID | Requested capability | High-level outcome |

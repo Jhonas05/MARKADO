@@ -3,8 +3,8 @@
 This checklist proposes small, practical MVP defaults. On **22 October 2026**,
 the product owner approved a narrower Phase 5B scope recorded in
 `MARKADO_Context_Pack/decisions/ADR-003-phase-5b-approved-v1-boundaries.md`.
-Only the exact boundaries in that ADR are decided; unchecked options and their
-additional bundled policies remain open.
+Later approvals are recorded in ADR-004 through ADR-006. Unchecked options are
+historical proposals and do not override those dated ADRs.
 
 ## Identity and registration — D02, D13, D14
 
@@ -29,18 +29,24 @@ is mandatory, and how duplicate or changed identities are reviewed and merged.
 
 ## Timers — D04–D06
 
+**Decision update — 23 October 2026:** Combined timers are approved under the
+precise precedence and expiry rules in ADR-006. This selection does not decide
+the final-question per-question-expiry edge.
+
 - [ ] **Option A — whole-quiz timer (recommended):** one server deadline; warn in
   the UI and auto-submit the latest server-saved answers at expiry.
 - [ ] **Option B — no timer MVP:** schedule controls availability, but attempts have
   no countdown.
-- [ ] **Option C — combined timers:** per-question plus whole-quiz limits, requiring
+- [x] **Option C — combined timers:** per-question plus whole-quiz limits, requiring
   precedence, navigation, accommodation, and expiry decisions.
 
 ## Attempts, closing, connectivity, and timezone — D07–D10
 
-**D07 decision update — 23 October 2026:** Option B hard close is approved only
-for the exact behavior in ADR-005. D08 exceptions, D09 connectivity, and the
-remaining D10 schedule semantics are still unresolved.
+**D07-D10 decision update — 23 October 2026:** Option B hard close is approved
+only for the exact ADR-005 behavior. ADR-006 approves ordinary one-attempt
+resume, acknowledgement-only saves with no automatic grace, and inclusive-open/
+exclusive-close UTC/Asia-Manila schedule semantics. Staff reset/accommodation
+and institution-wide outage remedies remain unresolved.
 
 - [ ] **Option A — REJECTED/SUPERSEDED for D07:** one resumable attempt;
   deny starts that cannot finish before close; save each answer; reject writes
@@ -50,7 +56,8 @@ remaining D10 schedule semantics are still unresolved.
 - [ ] **Option C — grace policy:** allow a documented grace/reconnection window and
   record late events for instructor review.
 
-Also approve what the student sees during an outage and who may grant a retry.
+ADR-006 defines truthful outage states. Who may grant a retry, accommodation,
+or institution-wide remedy remains unresolved.
 
 ## Results and ranking — D11, D12
 

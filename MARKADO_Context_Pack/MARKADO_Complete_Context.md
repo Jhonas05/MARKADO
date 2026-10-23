@@ -141,7 +141,7 @@ The eight features below are **requested**. Their detailed implementation criter
 - **F01.2 [REQ]** Student sees remaining time clearly.
 - **F01.3 [REC]** The authoritative attempt timer is computed by the trusted assessment runtime, never from client display time alone.
 - **F01.4 [REC]** Reload, second tab, clock adjustment, or reconnection cannot grant an extension.
-- **F01.5 [OPEN]** Whether both timers run simultaneously, whether expiration locks/advances/submits, and which deadline wins.
+- **F01.5 [DECIDED]** Both timers may run simultaneously. The earliest persisted server deadline wins; question expiry locks/preserves/advances without backward navigation, and whole-session or global expiry finalizes atomically. The final-question per-question-expiry transition remains open.
 - **Accept:** A cross-device refresh preserves deadlines; expired answer mutations are rejected; UI announces time warnings accessibly.
 
 ## F02 - Result listing, ranking and export
@@ -402,21 +402,23 @@ Transferred student; two institutions using identical student numbers; one stude
 These are **three distinct concepts**. They must not be conflated in UI text or database fields.
 
 ## Deadline model [REC]
-For the approved **online Laravel deployment [DECIDED]**, persist `started_at` from an authoritative server clock and calculate `quiz_deadline = started_at + quiz_duration`. If both timers operate, persist the question's actual activation time and deadline as well; effective answer acceptance uses the configured policy. On reconnect, the client fetches the stored deadlines; it never reissues new ones.
+For the approved **online Laravel deployment [DECIDED]**, persist `started_at` from an authoritative server clock and calculate the whole-session deadline from it. Both timers may run simultaneously. Persist each question's actual activation time and deadline; the earliest applicable persisted question, session, or global-close deadline wins. A question deadline never exceeds the effective attempt deadline. On resume or reconnect, the client fetches the stored deadlines and never reissues new ones.
 
-**D07 [DECIDED]:** The global closing time truncates every attempt deadline. A student may start strictly before close even if the configured session duration will not fit. At close, active attempts are automatically submitted using the latest server-acknowledged answers. Per-question expiry, general session-duration expiry, accommodation/outage behavior, and whether both timers may be set concurrently remain [OPEN].
+**D04-D06 [DECIDED by ADR-006]:** Question expiry locks the question, preserves its last acknowledged answer, rejects later mutations, and advances once to the next available question with no backward navigation. Whole-session expiry atomically finalizes the attempt using acknowledged answers and returns a stable receipt. The final-question per-question-expiry transition remains [OPEN] and must stay gated.
+
+**D07 [DECIDED by ADR-005]:** The global closing time truncates every attempt deadline. A student may start strictly before close even if the configured session duration will not fit. At close, active attempts are automatically submitted using the latest server-acknowledged answers.
 
 ## Example - competing clocks [REC]
 Availability: 09:00 to 10:00, timezone Asia/Manila; attempt starts 09:50; 20-minute quiz duration. ADR-005 selects a hard close: the attempt may start and receives an effective deadline of 10:00. At 10:00 the server automatically submits it. A start at exactly 10:00 is denied.
 
 ## Trusted clock in the approved online Laravel app [DECIDED + REC]
-Use the **central Laravel application/database time** as the source for accepted start, save, submit and expiry decisions; store deadline timestamps durably, preferably in UTC with explicit display conversion. The JavaScript/browser timer is **display-only** and cannot extend an attempt. All Laravel web workers and queue workers must interpret the same persisted instants and policy. A delayed scheduled expiry job must not extend the allowed deadline: attempt requests still check authoritative deadlines themselves. The precise timezone and boundary semantics remain D10 [OPEN].
+Use the **central Laravel application/database time** as the source for accepted start, save, submit and expiry decisions. Store authoritative instants in UTC and display school-facing values in `Asia/Manila`. Opening is inclusive and closing is exclusive for new starts: `opens_at <= authoritative_now < closes_at`. The JavaScript/browser timer is **display-only** and cannot extend an attempt. All Laravel web and queue workers interpret the same persisted instants and policy. A delayed scheduled expiry job must not extend the allowed deadline: attempt requests still check authoritative deadlines themselves.
 
-## Online connectivity and reconciliation [REC; outage policy OPEN]
-- On refresh, tab change or reconnection, fetch the current attempt, saved answers, and unchanged persisted deadlines from Laravel.
-- If the network drops, distinguish **unsaved locally displayed input** from **server-confirmed saved answers**; do not promise offline assessment or automatic acceptance of late work.
-- Retrying an answer save or final submit must never create a second attempt or grade.
-- Whether to allow any late retry/grace period or administrator accommodation remains D09 [OPEN].
+## Online connectivity and reconciliation [DECIDED]
+- On refresh, sign-in, browser restart, tab/device change or reconnection, resume the same attempt and fetch its unchanged identifiers, ordering, acknowledged answers and persisted deadlines from Laravel.
+- If the network drops, timers continue and the UI distinguishes **Saving**, **Saved**, **Connection Lost** and **Save Failed**. It never labels local input as saved without a Laravel acknowledgement.
+- Stable idempotency keys and version-aware updates make save/finalize retries safe and reject stale or late mutations.
+- No automatic grace period or offline-exam promise is approved. Institution-wide outage remedies and staff accommodations remain [OPEN].
 
 ## Race-condition scenarios [REC]
 - **Boundary start:** A start strictly before close may proceed; a start at or after close is denied by the authoritative server clock.
@@ -679,7 +681,7 @@ This is **not** a final SQL schema. MARKADO uses **PostgreSQL** as its centraliz
 - Define foreign keys, unique constraints and check constraints in version-controlled Laravel migrations; application validation alone is not a substitute.
 - For student number identity, choose the school/tenant uniqueness scope **first** (D02/D13); then enforce that canonical value using a unique index. Do not implement an across-all-schools uniqueness rule by accident.
 - Establish a documented email normalization policy before using a functional unique index, generated canonical column or case-insensitive type. Avoid assuming `email` comparisons are case-insensitive by default.
-- Use `timestamptz`/equivalent correctly, store authoritative instants in UTC and convert in the UI to the approved display timezone (D10 still OPEN).
+- Use `timestamptz`/equivalent correctly, store authoritative instants in UTC and convert school-facing values to `Asia/Manila` under approved D10.
 - For attempt finalization, protect a single transition with a database transaction and appropriate row lock/conditional update, and enforce a unique result per attempt as needed. Consider retries and deadlocks.
 - PostgreSQL JSONB can store non-authoritative structured metadata where useful; avoid putting all grading rules or relational invariants into an unvalidated JSON blob.
 - Name and test indexes against real queries (quiz code lookup, attempt owner/status, roster sorting, student email/number uniqueness, reporting). Avoid speculative indexes before the query shape is known.
@@ -1099,6 +1101,7 @@ The source PDF left deployment and all implementation technologies unspecified. 
 - **ADR-003 (22 October 2026):** Single-school V1; single-answer MCQ and True/False; one resumable attempt; Asia/Manila display timezone; professor-controlled manual result release; student number and email requirements; limited permission-based administration.
 - **ADR-004 (23 October 2026):** D16 immutable published revisions and D22 verified school-managed direct/section eligibility are approved. Running-attempt behavior and D13-D15 verification/mutation authority remain unresolved.
 - **ADR-005 (23 October 2026):** D07 is decided as a hard global close. Eligible students may start strictly before close even when the full session duration will not fit; no start is accepted at or after close; every active attempt is automatically submitted at close using the latest server-acknowledged answers.
+- **ADR-006 (23 October 2026):** D04-D06 and D08-D10 are decided for V1. Dual timers use the earliest persisted server deadline; question expiry locks and advances; whole-session expiry finalizes atomically; one stable attempt resumes across sessions/devices; saves require acknowledgement with no automatic outage grace; opening is inclusive, closing exclusive, storage UTC, and display Asia/Manila. The final-question expiry transition and exceptional staff/institution-wide remedies remain unresolved.
 
 ## Decision register
 | ID | Decision / question | Status | Owner or reviewer |
@@ -1106,13 +1109,13 @@ The source PDF left deployment and all implementation technologies unspecified. 
 | D01 | Online internet-hosted web application; not LAN-only or fully offline per-device | **DECIDED** | Product (user) |
 | D02 | Single school vs multiple institutions/sections | **DECIDED** - single-school V1 | Product (user) |
 | D03 | V1 question formats | **DECIDED** - single-answer MCQ and True/False | Product (user) |
-| D04 | Per-question and whole-quiz timer interaction | **OPEN** | To assign |
-| D05 | Behavior on per-question expiry | **OPEN** | To assign |
-| D06 | Quiz-time expiry behavior | **OPEN** | To assign |
+| D04 | Per-question and whole-quiz timer interaction | **DECIDED** - both may run; earliest persisted question/session/global deadline wins | Product (user), 23 Oct 2026 |
+| D05 | Behavior on per-question expiry | **DECIDED WITH ONE OPEN EDGE** - lock, preserve acknowledged answer, auto-advance, no back navigation; final-question transition unresolved | Product (user), 23 Oct 2026 |
+| D06 | Quiz-time expiry behavior | **DECIDED** - atomically finalize once with acknowledged answers and stable receipt | Product (user), 23 Oct 2026 |
 | D07 | In-progress attempts when quiz closes | **DECIDED** - hard close with automatic submission; starts allowed strictly before close | Product (user), 23 Oct 2026 |
-| D08 | Allowed attempts and resume rules | **PARTIALLY DECIDED** - one resumable attempt | Product (user) |
-| D09 | Late saves, outage and reconnection policy | **OPEN** | To assign |
-| D10 | Timezone standard and open/close semantics | **PARTIALLY DECIDED** - Asia/Manila display | Product (user) |
+| D08 | Allowed attempts and resume rules | **DECIDED WITH EXCEPTIONS OPEN** - same attempt resumes with stable state; staff reset/accommodation authority unresolved | Product (user), 23 Oct 2026 |
+| D09 | Late saves, outage and reconnection policy | **DECIDED WITH INSTITUTIONAL REMEDIES OPEN** - timers continue, no automatic grace, acknowledgement-only/versioned saves | Product (user), 23 Oct 2026 |
+| D10 | Timezone standard and open/close semantics | **DECIDED** - inclusive open, exclusive close, UTC persistence, Asia/Manila display | Product (user), 23 Oct 2026 |
 | D11 | Result release timing and answer feedback | **PARTIALLY DECIDED** - professor-controlled manual release | Product (user) |
 | D12 | Ranking/scoring/tie and repeat-attempt aggregation rules | **OPEN** | To assign |
 | D13 | Student number issuance and verification | **PARTIALLY DECIDED** - student number required; authority remains open | Product (user) |
@@ -1135,7 +1138,7 @@ The source PDF left deployment and all implementation technologies unspecified. 
 
 ## Architecture-dependent blockers [OPEN]
 - **Platform:** PostgreSQL (D26) and React/Inertia.js (D27) are **DECIDED**. D28 hosting/managed PostgreSQL/queues/storage/backups and D29 Laravel/PHP plus React/Inertia dependency versions remain OPEN. Do not silently swap the database/frontend or infer Railway, AWS, Supabase, Tailwind, TypeScript or any provider/package.
-- **Academic policy:** D04-D06, the unresolved portions of D08-D12, and D23 still determine timer, outage, scoring, and result behavior. D07 is fixed by ADR-005 and must not be weakened by implementation defaults.
+- **Academic policy:** ADR-006 resolves ordinary V1 D04-D06/D08-D10 behavior. The D05 final-question edge, D08/D09 exceptional remedies, D11 feedback, D12 scoring/ranking, and D23 overrides remain unresolved. D07 is fixed by ADR-005 and must not be weakened by implementation defaults.
 - **Identity/privacy:** D13-D15 and D19-D21 still affect verification authority, privileged mutations, retention and accessibility. D22 eligibility evaluation is decided.
 - **AI/material workflow:** D17, D18 and D20 must be settled before transferring educational source material to any service.
 
@@ -1150,11 +1153,11 @@ The source PDF left deployment and all implementation technologies unspecified. 
 **Validation:** acceptance tests and approval evidence  
 **Revisit criteria:** change that warrants reconsideration
 
-## Decided deadline policy - D07
-At a 10:00 close, a student may start at 09:50 even with a 20-minute configured session, but the effective deadline is 10:00. The server automatically submits at close. A start at exactly 10:00 is denied. See ADR-005; D04-D06 and D09 remain open.
+## Decided deadline and attempt policies - D04-D10
+At a 10:00 close, a student may start at 09:50 even with a 20-minute configured session, but the effective deadline is 10:00. The server automatically submits at close. A start at exactly 10:00 is denied. When both timer types are enabled, the earliest persisted question, session, or global deadline controls. Question expiry locks and advances; session/global expiry finalizes. Resume and reconnect never regenerate ordering or deadlines, and only server-acknowledged answers count. See ADR-005 and ADR-006.
 
 ## Meeting agenda [REC]
-**Do not re-open D01/D07/D25/D26/D27 just by guessing alternatives.** First choose D28/D29 for the Laravel setup and D02/D13/D14 for registration. Next settle D04-D06 and the unresolved portions of D08-D12 for the attempt engine, D15/D16/D22/D23 for permissions and live edits, D17/D18/D20 for uploaded learning materials/AI, D19 for retention and D21 for HCI. Record named approver/date for each new decision.
+**Do not re-open D01/D04-D10/D25-D27 just by guessing alternatives.** First choose D28/D29 for production operations and D13/D14 for identity authority. Next settle the D05 final-question edge, exceptional D08/D09 remedies, D11-D12 result/scoring rules, D15/D23 privileged actions, D17/D18/D20 uploaded learning materials/AI, D19 retention, and D21 HCI. Record named approver/date for each new decision.
 
 ---
 
@@ -1224,7 +1227,7 @@ A class roster has Bea (8/10), Carlo (8/10), Aya (9/10). Descending-score order 
 A student taps Submit as the timer expires. The server handles submission and expiry atomically and records one final state. UI refresh must show the same authoritative result rather than producing two score rows.
 
 ## Scenario E - internet connection drops during an online quiz [REC; outage rules OPEN]
-MARKADO runs online with Laravel and a central server [DECIDED]. If a learner loses internet access while typing an answer, the interface must not label that answer "Saved" unless Laravel acknowledged persistence. On reconnect, load the authoritative attempt state and original deadlines. Whether any late-save grace policy applies remains D09 [OPEN]; a fully offline-device examination mode is **not** part of the chosen scope.
+MARKADO runs online with Laravel and a central server [DECIDED]. If a learner loses internet access while typing an answer, the interface must not label that answer "Saved" unless Laravel acknowledged persistence. Timers continue with no automatic grace. On reconnect, load the authoritative attempt state, stable ordering, acknowledged answers, and original deadlines; reject late or stale mutations. A fully offline-device examination mode is **not** part of the chosen scope. Institution-wide outage remedies remain [OPEN].
 
 ## Discussion prompts for CHI presentation [REC]
 1. How do visible progress and timer feedback reduce uncertainty while respecting accessibility?

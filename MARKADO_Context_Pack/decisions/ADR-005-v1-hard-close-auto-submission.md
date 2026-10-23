@@ -89,3 +89,9 @@ approved and tested.
 
 **Revisit** only through another dated product-owner decision that explicitly
 changes D07.
+
+## Subsequent decision
+
+ADR-006, approved 23 October 2026, resolves the ordinary V1 D04-D06 and D08-D10
+policies excluded above. ADR-005 remains authoritative for D07 and its global
+close continues to cap every question and session deadline.

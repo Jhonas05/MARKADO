@@ -30,7 +30,7 @@ A class roster has Bea (8/10), Carlo (8/10), Aya (9/10). Descending-score order 
 A student taps Submit as the timer expires. The server handles submission and expiry atomically and records one final state. UI refresh must show the same authoritative result rather than producing two score rows.
 
 ## Scenario E - internet connection drops during an online quiz [REC; outage rules OPEN]
-MARKADO runs online with Laravel and a central server [DECIDED]. If a learner loses internet access while typing an answer, the interface must not label that answer "Saved" unless Laravel acknowledged persistence. On reconnect, load the authoritative attempt state and original deadlines. Whether any late-save grace policy applies remains D09 [OPEN]; a fully offline-device examination mode is **not** part of the chosen scope.
+MARKADO runs online with Laravel and a central server [DECIDED]. If a learner loses internet access while typing an answer, the interface must not label that answer "Saved" unless Laravel acknowledged persistence. Timers continue with no automatic grace. On reconnect, load the authoritative attempt state, stable ordering, acknowledged answers, and original deadlines; reject late or stale mutations. A fully offline-device examination mode is **not** part of the chosen scope. Institution-wide outage remedies remain [OPEN].
 
 ## Discussion prompts for CHI presentation [REC]
 1. How do visible progress and timer feedback reduce uncertainty while respecting accessibility?
