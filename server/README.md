@@ -122,3 +122,19 @@ Access codes are reserved but no public attempt route is registered. Audit event
 contain identifiers and outcomes but no code, question, choice, or answer
 content. Attempt activation, scoring, AI generation, and result release actions
 remain gated by their implementation and policy boundaries.
+
+## Internal assessment-engine foundation
+
+The route-gated engine now has database-backed services for one-attempt
+creation/resume, immutable question snapshots, stable seeded permutations,
+server-authoritative session and question deadlines, versioned idempotent answer
+saves, and atomic terminal receipts. The implementation preserves the approved
+hard-close cap and never derives time from the browser.
+
+These services are intentionally not exposed through Start, answer-save, or
+submit routes. D13/D14 identity authority, the D05 final-question-expiry edge,
+and the scheduler/route security review must be resolved before activation;
+scoring and result release remain separately gated by D11/D12. The additive
+assessment migration can be previewed with `php artisan migrate --pretend`.
+Run PostgreSQL-backed tests only against a dedicated disposable test schema,
+never the local development schema.

@@ -2,12 +2,14 @@
 
 namespace App\Assessment\Contracts;
 
-use App\Assessment\Data\FinalizationReceipt;
+use App\Assessment\Data\AttemptFinalizationReceipt;
 use App\Models\QuizAttempt;
 
 interface AttemptFinalizer
 {
-    public function submit(QuizAttempt $attempt): FinalizationReceipt;
+    public function submitByStudent(QuizAttempt $attempt): AttemptFinalizationReceipt;
 
-    public function expire(QuizAttempt $attempt): FinalizationReceipt;
+    public function finalizeAtEffectiveDeadline(QuizAttempt $attempt): AttemptFinalizationReceipt;
+
+    public function finalizeAtQuizClose(QuizAttempt $attempt): AttemptFinalizationReceipt;
 }

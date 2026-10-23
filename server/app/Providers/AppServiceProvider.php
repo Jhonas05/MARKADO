@@ -2,10 +2,18 @@
 
 namespace App\Providers;
 
+use App\Assessment\Contracts\AnswerStore;
+use App\Assessment\Contracts\AttemptFinalizer;
+use App\Assessment\Contracts\AttemptSessionManager;
+use App\Assessment\Contracts\AuthoritativeClock;
 use App\Assessment\Contracts\QuizEligibilityGate;
 use App\Assessment\Contracts\SchoolEligibilitySource;
+use App\Assessment\Support\AttemptFinalizationCoordinator;
+use App\Assessment\Support\DatabaseAnswerStore;
+use App\Assessment\Support\DatabaseAttemptSessionManager;
 use App\Assessment\Support\DatabaseQuizEligibilityGate;
 use App\Assessment\Support\DatabaseSchoolEligibilitySource;
+use App\Assessment\Support\SystemAuthoritativeClock;
 use App\Models\Quiz;
 use App\Models\QuizRevision;
 use App\Policies\QuizPolicy;
@@ -25,6 +33,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(SchoolEligibilitySource::class, DatabaseSchoolEligibilitySource::class);
         $this->app->bind(QuizEligibilityGate::class, DatabaseQuizEligibilityGate::class);
+        $this->app->bind(AuthoritativeClock::class, SystemAuthoritativeClock::class);
+        $this->app->bind(AttemptFinalizer::class, AttemptFinalizationCoordinator::class);
+        $this->app->bind(AttemptSessionManager::class, DatabaseAttemptSessionManager::class);
+        $this->app->bind(AnswerStore::class, DatabaseAnswerStore::class);
     }
 
     /**

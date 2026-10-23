@@ -85,6 +85,12 @@ final class QuizPublicationService
                 'course_name' => $source->course_name,
                 'instructions' => $source->instructions,
                 'display_timezone' => $source->display_timezone,
+                'opens_at' => $source->opens_at,
+                'closes_at' => $source->closes_at,
+                'whole_quiz_duration_seconds' => $source->whole_quiz_duration_seconds,
+                'per_question_duration_seconds' => $source->per_question_duration_seconds,
+                'randomize_questions' => $source->randomize_questions,
+                'randomize_choices' => $source->randomize_choices,
             ]);
             $revision->quiz()->associate($lockedQuiz);
             $revision->sourceRevision()->associate($source);

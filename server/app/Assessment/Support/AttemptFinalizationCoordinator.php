@@ -2,59 +2,90 @@
 
 namespace App\Assessment\Support;
 
+use App\Assessment\Contracts\AttemptFinalizer;
 use App\Assessment\Contracts\AuthoritativeClock;
 use App\Assessment\Data\AttemptFinalizationReceipt;
 use App\Models\QuizAttempt;
 use DateTimeImmutable;
 use DomainException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
- * Dormant Phase 5E transaction seam. No route, scheduler, or container binding
- * activates this coordinator while Start/save/expiry prerequisites remain open.
+ * Atomic terminal-state coordinator. It remains route-gated, but is exercised
+ * by trusted assessment-engine services and database-backed tests.
  */
-final class AttemptFinalizationCoordinator
+final class AttemptFinalizationCoordinator implements AttemptFinalizer
 {
     public function __construct(private readonly AuthoritativeClock $clock) {}
 
     public function submitByStudent(QuizAttempt $attempt): AttemptFinalizationReceipt
     {
-        return $this->transition($attempt, false);
+        return $this->transition($attempt);
     }
 
     public function finalizeAtQuizClose(QuizAttempt $attempt): AttemptFinalizationReceipt
     {
-        return $this->transition($attempt, true);
+        $closesAt = $attempt->quiz_closes_at;
+
+        if (! $closesAt instanceof DateTimeImmutable) {
+            throw new DomainException('The attempt has no persisted quiz closing timestamp.');
+        }
+
+        if ($this->clock->now() < $closesAt) {
+            throw new DomainException('The quiz closing timestamp has not been reached.');
+        }
+
+        return $this->transition($attempt, requireDeadline: true);
     }
 
-    private function transition(QuizAttempt $attempt, bool $closingOperation): AttemptFinalizationReceipt
+    public function finalizeAtEffectiveDeadline(QuizAttempt $attempt): AttemptFinalizationReceipt
     {
-        return DB::transaction(function () use ($attempt, $closingOperation): AttemptFinalizationReceipt {
+        return $this->transition($attempt, requireDeadline: true);
+    }
+
+    private function transition(QuizAttempt $attempt, bool $requireDeadline = false): AttemptFinalizationReceipt
+    {
+        return DB::transaction(function () use ($attempt, $requireDeadline): AttemptFinalizationReceipt {
             $lockedAttempt = QuizAttempt::query()->lockForUpdate()->findOrFail($attempt->id);
 
             if ($lockedAttempt->status !== 'in_progress') {
+                if ($lockedAttempt->terminal_receipt_id === null) {
+                    $lockedAttempt->terminal_receipt_id = (string) Str::uuid();
+                    $lockedAttempt->save();
+                }
+
                 return $this->receipt($lockedAttempt, true);
             }
 
             $now = $this->clock->now();
             $closesAt = $lockedAttempt->quiz_closes_at;
+            $effectiveDeadlineAt = $lockedAttempt->effective_deadline_at;
 
-            if ($closesAt === null) {
-                throw new DomainException('The attempt has no persisted quiz closing timestamp.');
+            if (! $closesAt instanceof DateTimeImmutable || ! $effectiveDeadlineAt instanceof DateTimeImmutable) {
+                throw new DomainException('The attempt is missing persisted authoritative deadlines.');
             }
 
-            if ($closingOperation && $now < $closesAt) {
-                throw new DomainException('The quiz closing timestamp has not been reached.');
+            $deadlineReached = $now >= $effectiveDeadlineAt;
+
+            if ($requireDeadline && ! $deadlineReached) {
+                throw new DomainException('The effective attempt deadline has not been reached.');
             }
 
-            $closed = $now >= $closesAt;
-            $logicalSubmissionAt = $closed ? $closesAt : $now;
+            $closed = $deadlineReached && $effectiveDeadlineAt >= $closesAt;
+            $logicalSubmissionAt = $deadlineReached ? $effectiveDeadlineAt : $now;
+            $reason = $deadlineReached
+                ? ($closed ? 'quiz_closed' : 'session_expired')
+                : 'student_submitted';
 
             $lockedAttempt->forceFill([
                 'status' => 'submitted',
                 'submitted_at' => $logicalSubmissionAt,
                 'finalized_at' => $now,
-                'finalization_reason' => $closed ? 'quiz_closed' : 'student_submitted',
+                'finalization_reason' => $reason,
+                'terminal_receipt_id' => (string) Str::uuid(),
+                'progress_state' => 'finalized',
+                'lock_version' => $lockedAttempt->lock_version + 1,
             ])->save();
 
             return $this->receipt($lockedAttempt, false);
@@ -71,6 +102,7 @@ final class AttemptFinalizationCoordinator
         }
 
         return new AttemptFinalizationReceipt(
+            $attempt->terminal_receipt_id,
             $attempt->id,
             $attempt->status,
             $attempt->finalization_reason ?? 'existing_terminal_state',

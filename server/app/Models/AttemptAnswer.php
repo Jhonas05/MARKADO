@@ -12,6 +12,7 @@ class AttemptAnswer extends Model
 
     protected $fillable = [
         'selected_choice_id',
+        'version',
         'saved_at',
     ];
 
@@ -19,6 +20,7 @@ class AttemptAnswer extends Model
     {
         return [
             'saved_at' => 'immutable_datetime',
+            'version' => 'integer',
         ];
     }
 
