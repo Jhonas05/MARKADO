@@ -534,3 +534,209 @@
     justify-self: end;
   }
 }
+
+/* Phase 5C authenticated student join preflight. */
+.student-preflight-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.student-preflight-shell {
+  width: min(920px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 76px) 0;
+}
+
+.student-preflight-hero {
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+.student-preflight-hero h1 {
+  margin: 0.4rem 0 0.75rem;
+  font-size: clamp(2.25rem, 5vw, 4rem);
+}
+
+.student-preflight-hero > p:last-child {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.student-preflight-grid,
+.student-instructions-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: 20px;
+}
+
+.student-join-card,
+.student-policy-card,
+.student-quiz-info,
+.student-instructions,
+.student-unavailable {
+  padding: clamp(22px, 4vw, 34px);
+}
+
+.student-join-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.student-join-card__icon,
+.student-unavailable > span {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.student-join-card label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.student-join-card p,
+.student-policy-card p,
+.student-policy-card li,
+.student-instructions p,
+.student-unavailable p {
+  color: var(--ink-muted);
+  line-height: 1.6;
+}
+
+.student-join-card p {
+  margin: 0.25rem 0 0;
+}
+
+.student-join-card input,
+.student-join-card .auth-error,
+.student-join-card .button {
+  grid-column: 1 / -1;
+}
+
+.student-join-card input {
+  width: 100%;
+  min-height: 64px;
+  padding: 0 18px;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.student-join-card input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.student-join-card .button {
+  justify-content: center;
+}
+
+.student-policy-card h2,
+.student-quiz-info h2,
+.student-instructions h2,
+.student-unavailable h2 {
+  margin: 1rem 0 0.65rem;
+}
+
+.student-policy-card ul {
+  margin: 1rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.student-quiz-course {
+  color: var(--ink-muted);
+}
+
+.student-quiz-info dl {
+  margin: 1.4rem 0 0;
+}
+
+.student-quiz-info dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.student-quiz-info dt {
+  color: var(--ink-muted);
+}
+
+.student-quiz-info dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.student-unavailable {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  border-style: dashed;
+}
+
+.student-unavailable h2,
+.student-unavailable p {
+  margin-top: 0;
+}
+
+.student-preflight-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.student-preflight-actions a {
+  text-decoration: none;
+}
+
+.student-preflight-actions p {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--warning);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 800px) {
+  .student-preflight-nav {
+    display: none;
+  }
+
+  .student-preflight-header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .student-preflight-grid,
+  .student-instructions-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .student-preflight-header .student-chip__copy {
+    display: none;
+  }
+
+  .student-preflight-actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+}

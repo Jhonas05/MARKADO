@@ -44,4 +44,9 @@ class Quiz extends Model
     {
         return $this->hasMany(QuizAttempt::class);
     }
+
+    public function accessEvents(): HasMany
+    {
+        return $this->hasMany(QuizAccessEvent::class);
+    }
 }

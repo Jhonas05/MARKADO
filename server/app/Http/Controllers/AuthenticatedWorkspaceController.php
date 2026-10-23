@@ -12,6 +12,7 @@ class AuthenticatedWorkspaceController extends Controller
     public function __invoke(Request $request): Response
     {
         $isInstructor = $request->user()?->role === AccountRole::Instructor;
+        $isStudent = $request->user()?->role === AccountRole::Student;
 
         return Inertia::render('Auth/Workspace', [
             'foundation' => [
@@ -23,6 +24,7 @@ class AuthenticatedWorkspaceController extends Controller
                     ? 'Phase 5B authoring active'
                     : 'Role-limited foundation',
                 'quizAuthoringUrl' => $isInstructor ? route('professor.quizzes.index') : null,
+                'quizJoinUrl' => $isStudent ? route('student.quizzes.join') : null,
             ],
         ]);
     }

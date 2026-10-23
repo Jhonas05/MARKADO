@@ -65,4 +65,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(QuizAttempt::class, 'result_released_by');
     }
+
+    public function quizAccessEvents(): HasMany
+    {
+        return $this->hasMany(QuizAccessEvent::class);
+    }
 }

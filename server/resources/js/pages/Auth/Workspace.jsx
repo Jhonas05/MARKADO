@@ -76,6 +76,11 @@ export default function Workspace({ foundation }) {
             Open Professor Quiz Builder
           </Link>
         ) : null}
+        {foundation.quizJoinUrl ? (
+          <Link className="button button--primary workspace-authoring-link" href={foundation.quizJoinUrl}>
+            Open secure quiz preflight
+          </Link>
+        ) : null}
       </main>
     </div>
   )

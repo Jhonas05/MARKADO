@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthenticatedWorkspaceController;
 use App\Http\Controllers\ProfessorQuizController;
 use App\Http\Controllers\ProfessorQuizQuestionController;
 use App\Http\Controllers\StudentDashboardController;
+use App\Http\Controllers\StudentQuizJoinController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/workspace', AuthenticatedWorkspaceController::class)->name('workspace');
     Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
+
+Route::middleware(['auth', 'account-role:student', 'throttle:quiz-join'])
+    ->prefix('student/quizzes')
+    ->name('student.quizzes.')
+    ->group(function () {
+        Route::get('join', [StudentQuizJoinController::class, 'index'])->name('join');
+        Route::post('preflight', [StudentQuizJoinController::class, 'store'])->name('preflight.store');
+        Route::get('join/{code}', [StudentQuizJoinController::class, 'show'])->name('preflight.show');
+    });
 
 Route::middleware(['auth', 'account-role:instructor'])
     ->prefix('professor')
