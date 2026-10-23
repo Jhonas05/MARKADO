@@ -20,7 +20,8 @@ export default function BrandMark({ size = 40 }) {
       <path
         d="M9.5 31.1c6.7-1.1 13.5-1.1 20.5-.1"
         fill="none"
-        stroke="var(--highlight)"
+        opacity="0.52"
+        stroke="var(--on-primary)"
         strokeLinecap="round"
         strokeWidth="3.5"
       />

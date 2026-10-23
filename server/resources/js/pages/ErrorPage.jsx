@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react'
 import BrandMark from '@prototype/components/BrandMark.jsx'
+import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
 const messages = {
   403: ['Access restricted', 'You do not have permission to view this MARKADO page.'],
@@ -14,6 +15,7 @@ export default function ErrorPage({ status = 500 }) {
   return (
     <main className="foundation-error" id="main-content">
       <Head title={`${status} ${title}`} />
+      <ThemeToggle compact />
       <BrandMark size={52} />
       <p className="section-kicker">Error {status}</p>
       <h1>{title}</h1>

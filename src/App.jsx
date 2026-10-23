@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import AdminApp from './AdminApp.jsx'
 import BrandMark from './components/BrandMark.jsx'
 import Icon from './components/Icon.jsx'
+import ThemeToggle from './components/ThemeToggle.jsx'
 import ProfessorApp from './ProfessorApp.jsx'
 import {
   questions,
@@ -92,6 +93,7 @@ function AppHeader({
         </nav>
 
         <div className="header-actions">
+          <ThemeToggle compact />
           <button
             className="student-experience-switch"
             type="button"

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import BrandMark from './components/BrandMark.jsx'
 import Icon from './components/Icon.jsx'
+import ThemeToggle from './components/ThemeToggle.jsx'
 import {
   generatedDrafts,
   managedQuizzes,
@@ -134,6 +135,7 @@ function ProfessorHeader({ currentScreen, onAdmin, onMenu, onStudent }) {
         <strong>{screenLabels[currentScreen]}</strong>
       </div>
       <div className="prof-header__actions">
+        <ThemeToggle compact />
         <button className="prof-view-switch" type="button" onClick={onStudent}>
           <Icon name="user" size={17} />
           <span>Student view</span>
