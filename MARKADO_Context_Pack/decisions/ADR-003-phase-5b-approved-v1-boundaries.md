@@ -43,8 +43,10 @@ account creation.
 - Access codes and links may be reserved, but no public attempt route is enabled.
 - Attempt snapshots are immutable once created and saved answers are constrained
   to a snapshot belonging to the same attempt.
-- D04-D07, D09, D12, D16, D22, and D23 still block production attempt, timer,
-  publishing, scoring, eligibility, and grade-change workflows.
+- At this ADR's approval date, D04-D07, D09, D12, D16, D22, and D23 still
+  blocked production attempt, timer, publishing, scoring, eligibility, and
+  grade-change workflows. ADR-004 later resolved D16/D22; ADR-005 later
+  resolved D07 only.
 
 ## Acceptance and verification
 
@@ -57,3 +59,9 @@ account creation.
   action is introduced by Phase 5B.
 
 **Revisit** when the product owner explicitly resolves the remaining sub-policies.
+
+## Subsequent decision
+
+ADR-005, approved 23 October 2026, resolves D07 as a hard close with automatic
+submission. The earlier statement that D07 remained open is historical and is
+superseded only for the exact D07 behavior recorded in ADR-005.

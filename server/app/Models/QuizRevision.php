@@ -21,6 +21,7 @@ class QuizRevision extends Model
         'course_name',
         'instructions',
         'display_timezone',
+        'closes_at',
         'published_at',
     ];
 
@@ -28,6 +29,7 @@ class QuizRevision extends Model
     {
         return [
             'status' => QuizRevisionStatus::class,
+            'closes_at' => 'immutable_datetime',
             'published_at' => 'immutable_datetime',
         ];
     }

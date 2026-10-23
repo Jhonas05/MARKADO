@@ -37,7 +37,9 @@
 - **DRAFT:** editable, not joinable.
 - **READY_FOR_REVIEW:** passes validation, awaiting publish approval.
 - **PUBLISHED:** joinable when schedule and eligibility permit; schedule need not be currently open.
-- **CLOSED:** new starts disabled; treatment of active attempts is [OPEN].
+- **CLOSED:** new starts disabled. At a scheduled D07 close, active attempts are
+  automatically submitted using acknowledged answers. Instructor-initiated
+  unpublish and other exceptional closure paths remain separately governed.
 - **ARCHIVED:** historical only; retrieval/retention governed by policy.
 - **Reopen / unpublish / revise:** [OPEN]; do not add edges until product owner approves.
 

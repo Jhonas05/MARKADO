@@ -14,8 +14,13 @@ class QuizAttempt extends Model
     protected $fillable = [
         'status',
         'started_at',
+        'quiz_closes_at',
+        'session_deadline_at',
+        'effective_deadline_at',
         'last_saved_at',
         'submitted_at',
+        'finalized_at',
+        'finalization_reason',
         'result_released_at',
         'result_released_by',
     ];
@@ -24,8 +29,12 @@ class QuizAttempt extends Model
     {
         return [
             'started_at' => 'immutable_datetime',
+            'quiz_closes_at' => 'immutable_datetime',
+            'session_deadline_at' => 'immutable_datetime',
+            'effective_deadline_at' => 'immutable_datetime',
             'last_saved_at' => 'immutable_datetime',
             'submitted_at' => 'immutable_datetime',
+            'finalized_at' => 'immutable_datetime',
             'result_released_at' => 'immutable_datetime',
         ];
     }

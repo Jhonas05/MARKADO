@@ -94,6 +94,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => env('DB_SCHEMA', 'public'),
+            'timezone' => env('DB_TIMEZONE', 'UTC'),
             'sslmode' => 'prefer',
         ],
 

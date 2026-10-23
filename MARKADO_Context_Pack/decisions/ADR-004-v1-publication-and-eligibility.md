@@ -112,3 +112,9 @@ register. ADR-003 remains authoritative for its earlier approved boundaries.
 **Revisit** if the school changes its eligibility source, needs multi-school
 tenancy, approves privileged roster operations, or changes attempt behavior
 during unpublish.
+
+## Subsequent decision
+
+ADR-005, approved 23 October 2026, now defines the D07 global hard-close rule.
+This does not change ADR-004's publication or eligibility boundaries and does
+not decide any other attempt behavior during an instructor-initiated unpublish.

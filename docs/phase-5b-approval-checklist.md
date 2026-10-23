@@ -38,10 +38,14 @@ is mandatory, and how duplicate or changed identities are reviewed and merged.
 
 ## Attempts, closing, connectivity, and timezone — D07–D10
 
-- [ ] **Option A — conservative online MVP (recommended):** one resumable attempt;
+**D07 decision update — 23 October 2026:** Option B hard close is approved only
+for the exact behavior in ADR-005. D08 exceptions, D09 connectivity, and the
+remaining D10 schedule semantics are still unresolved.
+
+- [ ] **Option A — REJECTED/SUPERSEDED for D07:** one resumable attempt;
   deny starts that cannot finish before close; save each answer; reject writes
   after the server deadline; store UTC and display the course timezone.
-- [ ] **Option B — hard close:** allow starts until close, then auto-submit at the
+- [x] **Option B — hard close:** allow starts strictly before close, then auto-submit at the
   closing instant; one resumable attempt.
 - [ ] **Option C — grace policy:** allow a documented grace/reconnection window and
   record late events for instructor review.

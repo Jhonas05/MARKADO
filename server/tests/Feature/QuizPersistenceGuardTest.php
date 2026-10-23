@@ -27,8 +27,13 @@ class QuizPersistenceGuardTest extends TestCase
         $this->assertTrue(Schema::hasColumns('quiz_attempts', [
             'quiz_id',
             'student_id',
+            'quiz_closes_at',
+            'session_deadline_at',
+            'effective_deadline_at',
             'last_saved_at',
             'submitted_at',
+            'finalized_at',
+            'finalization_reason',
             'result_released_at',
             'result_released_by',
         ]));

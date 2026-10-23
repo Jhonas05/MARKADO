@@ -1,6 +1,6 @@
 # Phase 5C assessment-engine readiness checklist
 
-**Status:** D16 publication and D22 eligibility are approved; this checklist is
+**Status:** D16 publication, D22 eligibility, and D07 hard close are approved; this checklist is
 not authorization to enable student attempts, timers, scoring, registration,
 roster mutation, or grade changes.
 
@@ -34,6 +34,8 @@ must not be treated as approval for any still-open academic policy.
   authorized unpublish are implemented and locally tested.
 - [x] D22 trusted direct/section assignment evaluation is connected to preflight
   with deny-by-default behavior and no assignment mutation routes.
+- [x] D07 defines a strict hard close: starts are allowed only before close and
+  active attempts are automatically submitted at close without extending time.
 - [x] Student attempts, registration, scoring, timers, and privileged roster
   mutation remain disabled.
 
@@ -47,7 +49,7 @@ boundary semantics, student-facing wording, and acceptance-test examples.
 | D04 | Whether per-question and whole-quiz timers may coexist and which deadline wins | OPEN |
 | D05 | Per-question expiry behavior, navigation, and answer acceptance | OPEN |
 | D06 | Whole-quiz expiry behavior, including whether expiry submits or locks | OPEN |
-| D07 | Whether an in-progress attempt may continue after the quiz closes | OPEN |
+| D07 | Hard close, strict no-start boundary, and automatic submission of acknowledged answers | APPROVED — ADR-005 |
 | D08 | Retry/reset authority and lifecycle details around the approved one resumable attempt | PARTIAL |
 | D09 | Offline, reconnection, late-save, and grace-period behavior | OPEN |
 | D10 | Inclusive/exclusive schedule boundaries and storage/display conversion details | PARTIAL |
@@ -67,7 +69,8 @@ copy, mock data, framework conventions, or this document.
 ### Policy and UX contract
 
 - [ ] Record the approved attempt state machine and every permitted transition.
-- [ ] Define the exact start, save, submit, close, and expiry boundary rules.
+- [ ] Define the remaining start, save, and non-close expiry rules. D07 already
+  fixes the close boundary and automatic close submission.
 - [ ] Define what `resume` means after refresh, sign-out, reconnect, and use of a
   second tab or device.
 - [ ] Define the authoritative save acknowledgement and unsaved-answer warning.
@@ -125,8 +128,8 @@ copy, mock data, framework conventions, or this document.
 - [ ] React countdowns and client validations are display aids only.
 - [ ] No correct-answer flag, rubric, foreign attempt data, or unreleased score
   reaches the student payload.
-- [ ] A delayed queue worker cannot extend a persisted deadline; request-time
-  enforcement remains authoritative.
+- [x] D07 requires that a delayed close worker cannot extend the persisted
+  global close; request-time enforcement remains authoritative.
 - [ ] Refresh and reconnection rehydrate the server attempt, saved answers,
   fixed ordering, and unchanged deadlines.
 - [ ] UI distinguishes `Saving`, `Saved`, `Not saved`, `Submitted`, and
@@ -220,6 +223,7 @@ separate authorization.
 
 - `MARKADO_Context_Pack/decisions/ADR-003-phase-5b-approved-v1-boundaries.md`
 - `MARKADO_Context_Pack/decisions/ADR-004-v1-publication-and-eligibility.md`
+- `MARKADO_Context_Pack/decisions/ADR-005-v1-hard-close-auto-submission.md`
 - `MARKADO_Context_Pack/context/04_user-journeys-and-states.md`
 - `MARKADO_Context_Pack/context/07_timers-schedules-and-attempts.md`
 - `MARKADO_Context_Pack/context/08_questions-randomization-and-scoring.md`
