@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AccountRole;
+use App\Enums\AccountStatus;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,6 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'account_status',
     ];
 
     /**
@@ -49,6 +51,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => AccountRole::class,
+            'account_status' => AccountStatus::class,
         ];
     }
 

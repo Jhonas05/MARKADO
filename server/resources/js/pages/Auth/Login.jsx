@@ -75,7 +75,10 @@ export default function Login({ registration }) {
             </div>
 
             <div className="auth-field">
-              <label htmlFor="password">Password</label>
+              <div className="auth-field__label-row">
+                <label htmlFor="password">Password</label>
+                <Link href="/forgot-password">Forgot password?</Link>
+              </div>
               <input
                 id="password"
                 name="password"
@@ -101,6 +104,7 @@ export default function Login({ registration }) {
           <div className="auth-registration-note" role="note">
             <strong>Registration is not open.</strong>
             <span>{registration.message}</span>
+            <Link href="/register">Review student registration requirements</Link>
           </div>
 
           <Link className="auth-back-link" href="/">

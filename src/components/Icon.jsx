@@ -108,6 +108,12 @@ const paths = {
       <path d="M8 10V7a4 4 0 0 1 8 0v3" />
     </>
   ),
+  mail: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m3 7 9 6 9-6" />
+    </>
+  ),
   medal: (
     <>
       <circle cx="12" cy="15" r="5" />

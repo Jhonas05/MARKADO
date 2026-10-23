@@ -955,6 +955,339 @@
   }
 }
 
+/* Production entry and role-authenticated account surfaces. */
+.welcome-page,
+.admin-workspace {
+  min-height: 100vh;
+  color: var(--ink);
+  background: var(--canvas);
+}
+
+.welcome-header,
+.auth-topbar {
+  min-height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px clamp(16px, 4vw, 48px);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--canvas-raised), transparent 4%);
+  backdrop-filter: blur(14px);
+}
+
+.welcome-header__actions,
+.auth-card__topline,
+.auth-field__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.welcome-hero,
+.welcome-boundaries,
+.admin-workspace__main {
+  width: min(1180px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.welcome-hero {
+  min-height: min(660px, calc(100vh - var(--topbar-height)));
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.65fr);
+  align-items: center;
+  gap: clamp(32px, 7vw, 96px);
+  padding-block: clamp(56px, 9vw, 112px);
+}
+
+.welcome-hero h1 {
+  max-width: 12ch;
+  margin: 10px 0 20px;
+  font-size: clamp(3rem, 7vw, 6.5rem);
+  letter-spacing: -0.065em;
+  line-height: 0.94;
+}
+
+.welcome-hero > div > p:not(.section-kicker) {
+  max-width: 650px;
+  color: var(--ink-muted);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+
+.welcome-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.welcome-security-card,
+.welcome-boundaries__grid article,
+.auth-card--registration,
+.auth-state-card,
+.student-account-card,
+.admin-boundary-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.welcome-security-card {
+  padding: clamp(24px, 4vw, 40px);
+}
+
+.welcome-security-card h2 {
+  margin: 8px 0 24px;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  line-height: 1.06;
+}
+
+.welcome-security-card ul {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.welcome-security-card li {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  font-weight: 650;
+}
+
+.welcome-boundaries {
+  padding-block: 48px 80px;
+  border-top: 1px solid var(--line);
+}
+
+.welcome-boundaries > div:first-child {
+  max-width: 620px;
+  margin-bottom: 24px;
+}
+
+.welcome-boundaries h2 {
+  margin-top: 8px;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+.welcome-boundaries__grid,
+.admin-boundary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.welcome-boundaries__grid article,
+.admin-boundary-card {
+  padding: 24px;
+}
+
+.welcome-boundaries__grid h3,
+.admin-boundary-card h2 {
+  margin: 18px 0 8px;
+  text-transform: capitalize;
+}
+
+.welcome-boundaries__grid p,
+.admin-boundary-card p,
+.auth-card__intro,
+.auth-state-card > p:not(.section-kicker),
+.student-account-hero > div > p,
+.student-account-card > p:not(.section-kicker) {
+  color: var(--ink-muted);
+}
+
+.welcome-boundaries__grid article > span {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  color: var(--ink-mid);
+  background: var(--surface-strong);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.auth-shell--single {
+  width: min(560px, calc(100% - 32px));
+  margin-inline: auto;
+  grid-template-columns: 1fr;
+}
+
+.auth-card--registration,
+.auth-state-card {
+  width: 100%;
+  padding: clamp(24px, 5vw, 40px);
+}
+
+.auth-card--registration h1,
+.auth-state-card h1 {
+  margin: 8px 0 12px;
+  font-size: clamp(2rem, 6vw, 3rem);
+  line-height: 1.05;
+}
+
+.auth-card--registration .auth-form {
+  margin-top: 24px;
+}
+
+.auth-card__footer {
+  margin: 20px 0 0;
+  text-align: center;
+}
+
+.auth-card__footer a,
+.auth-field__label-row a,
+.auth-registration-note a {
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.auth-registration-note a {
+  margin-top: 6px;
+}
+
+.auth-state-page {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.auth-state-card {
+  max-width: 540px;
+}
+
+.auth-state-card__icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  margin: 44px 0 18px;
+  border-radius: var(--radius-md);
+  background: var(--primary-soft);
+}
+
+.auth-state-card .auth-field {
+  margin: 24px 0;
+}
+
+.student-account-page {
+  width: min(1100px, calc(100% - 32px));
+  margin-inline: auto;
+  padding: clamp(32px, 6vw, 64px) 0 80px;
+}
+
+.student-account-hero {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.student-account-hero h1,
+.admin-workspace__main h1 {
+  margin: 8px 0 10px;
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  line-height: 1;
+}
+
+.student-account-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.student-account-card h2 {
+  margin: 8px 0 16px;
+}
+
+.student-account-card dl {
+  margin: 20px 0 0;
+}
+
+.student-account-card dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+
+.student-account-card dt {
+  color: var(--ink-muted);
+}
+
+.student-account-card dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.student-account-callout,
+.admin-policy-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-size: 0.875rem;
+}
+
+.admin-workspace__main {
+  padding-block: clamp(40px, 7vw, 80px);
+}
+
+.admin-workspace__main .workspace-hero {
+  max-width: 760px;
+  margin-bottom: 32px;
+}
+
+.admin-policy-note {
+  margin-top: 18px;
+}
+
+@media (max-width: 760px) {
+  .welcome-header .button {
+    display: none;
+  }
+
+  .welcome-hero,
+  .welcome-boundaries__grid,
+  .student-account-grid,
+  .admin-boundary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-hero {
+    min-height: 0;
+    gap: 32px;
+    padding-block: 48px;
+  }
+
+  .welcome-hero h1 {
+    font-size: clamp(3rem, 15vw, 4.5rem);
+  }
+
+  .student-account-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .student-account-hero .button {
+    width: 100%;
+  }
+}
+
 /* Phase 5C authenticated student join preflight. */
 .student-preflight-nav {
   display: flex;

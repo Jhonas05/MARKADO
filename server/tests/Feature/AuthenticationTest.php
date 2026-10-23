@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\AccountRole;
+use App\Enums\AccountStatus;
 use App\Models\User;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,7 +16,7 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_login_screen_exposes_no_registration_action(): void
+    public function test_login_and_gated_registration_surfaces_are_available_without_registration_mutation(): void
     {
         $this->get('/login')
             ->assertOk()
@@ -25,7 +26,17 @@ class AuthenticationTest extends TestCase
                 ->where('auth.user', null)
             );
 
-        $this->assertFalse(Route::has('register'));
+        $this->get('/register')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Auth/Register')
+                ->where('registration.available', false)
+            );
+
+        $this->assertTrue(Route::has('register'));
+        $this->assertFalse(collect(Route::getRoutes())->contains(
+            fn ($route) => $route->uri() === 'register' && in_array('POST', $route->methods(), true),
+        ));
     }
 
     public function test_provisioned_user_can_log_in_and_receive_only_safe_props(): void
@@ -38,20 +49,81 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'valid-test-credential',
-        ])->assertRedirect('/workspace');
+        ])->assertRedirect('/student/dashboard');
 
         $this->assertAuthenticatedAs($user);
 
-        $this->get('/workspace')
+        $this->get('/student/dashboard')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Auth/Workspace')
+                ->component('Student/Workspace')
                 ->where('auth.user.id', $user->id)
                 ->where('auth.user.email', $user->email)
                 ->where('auth.user.role', AccountRole::Student->value)
                 ->missing('auth.user.password')
                 ->missing('auth.user.remember_token')
             );
+    }
+
+    public function test_each_server_stored_role_receives_its_own_destination(): void
+    {
+        $destinations = [
+            AccountRole::Student->value => '/student/dashboard',
+            AccountRole::Instructor->value => '/professor/quizzes',
+            AccountRole::AcademicAdministrator->value => '/admin/dashboard',
+        ];
+
+        foreach ($destinations as $role => $destination) {
+            $user = User::factory()->create([
+                'email' => "{$role}@example.test",
+                'password' => Hash::make('valid-test-credential'),
+                'role' => $role,
+            ]);
+
+            $this->post('/login', [
+                'email' => $user->email,
+                'password' => 'valid-test-credential',
+            ])->assertRedirect($destination);
+
+            $this->delete('/logout');
+        }
+    }
+
+    public function test_pending_disabled_and_unassigned_accounts_never_receive_a_workspace_session(): void
+    {
+        $cases = [
+            ['status' => AccountStatus::Pending, 'role' => AccountRole::Student, 'destination' => '/account/pending'],
+            ['status' => AccountStatus::Disabled, 'role' => AccountRole::Student, 'destination' => '/account/disabled'],
+            ['status' => AccountStatus::Active, 'role' => null, 'destination' => '/account/pending'],
+        ];
+
+        foreach ($cases as $index => $case) {
+            $user = User::factory()->create([
+                'email' => "restricted-{$index}@example.test",
+                'password' => Hash::make('valid-test-credential'),
+                'role' => $case['role'],
+                'account_status' => $case['status'],
+            ]);
+
+            $this->post('/login', [
+                'email' => $user->email,
+                'password' => 'valid-test-credential',
+            ])->assertRedirect($case['destination']);
+
+            $this->assertGuest();
+        }
+    }
+
+    public function test_role_routes_cannot_be_escalated_by_changing_the_url(): void
+    {
+        $student = User::factory()->create(['role' => AccountRole::Student]);
+        $instructor = User::factory()->create(['role' => AccountRole::Instructor]);
+        $administrator = User::factory()->create(['role' => AccountRole::AcademicAdministrator]);
+
+        $this->actingAs($student)->get('/professor/quizzes')->assertForbidden();
+        $this->actingAs($student)->get('/admin/dashboard')->assertForbidden();
+        $this->actingAs($instructor)->get('/student/dashboard')->assertForbidden();
+        $this->actingAs($administrator)->get('/student/dashboard')->assertForbidden();
     }
 
     public function test_invalid_credentials_return_a_generic_error(): void

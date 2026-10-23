@@ -7,22 +7,20 @@ use Tests\TestCase;
 
 class InertiaFoundationTest extends TestCase
 {
-    public function test_student_dashboard_is_served_through_inertia(): void
+    public function test_public_entry_is_a_production_style_inertia_page(): void
     {
         $this->get('/')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Student/Dashboard')
-                ->where('student.firstName', 'Mika')
-                ->where('quiz.course', 'BIO 104')
-                ->has('metrics', 3)
-                ->has('recentResults', 3)
+                ->component('Welcome')
+                ->where('accountPolicies.publicStudentRegistration', false)
+                ->where('accountPolicies.publicStaffRegistration', false)
+                ->where('accountPolicies.passwordRecovery', false)
                 ->where('auth.user', null)
-                ->missing('answerKey')
             );
     }
 
-    public function test_foundation_route_uses_the_same_safe_dashboard_contract(): void
+    public function test_foundation_route_retains_the_safe_synthetic_fixture(): void
     {
         $this->get('/foundation')
             ->assertOk()

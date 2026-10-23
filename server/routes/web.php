@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdministratorDashboardController;
+use App\Http\Controllers\Auth\AccountAccessController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AuthenticatedWorkspaceController;
 use App\Http\Controllers\ProfessorQuizController;
@@ -9,26 +11,43 @@ use App\Http\Controllers\ProfessorQuizRevisionController;
 use App\Http\Controllers\ProfessorQuizRevisionQuestionController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentQuizJoinController;
+use App\Http\Controllers\StudentWorkspaceController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', StudentDashboardController::class)->name('student.dashboard');
+Route::get('/', WelcomeController::class)->name('home');
 
 Route::get('/foundation', StudentDashboardController::class)->name('foundation.demo');
+
+Route::get('/account/pending', [AccountAccessController::class, 'pending'])->name('account.pending');
+Route::get('/account/disabled', [AccountAccessController::class, 'disabled'])->name('account.disabled');
+Route::get('/session-expired', [AccountAccessController::class, 'sessionExpired'])->name('session.expired');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
         ->middleware(ValidateCsrfToken::class)
         ->name('login.store');
+    Route::get('/register', [AccountAccessController::class, 'register'])->name('register');
+    Route::get('/forgot-password', [AccountAccessController::class, 'forgotPassword'])->name('password.request');
+    Route::get('/reset-password', [AccountAccessController::class, 'resetPassword'])->name('password.reset.unavailable');
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('/workspace', AuthenticatedWorkspaceController::class)->name('workspace');
     Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
+
+Route::middleware(['auth', 'account-role:student'])
+    ->get('/student/dashboard', StudentWorkspaceController::class)
+    ->name('student.dashboard');
+
+Route::middleware(['auth', 'account-role:academic_administrator'])
+    ->get('/admin/dashboard', AdministratorDashboardController::class)
+    ->name('administrator.dashboard');
 
 Route::middleware(['auth', 'account-role:student', 'throttle:quiz-join'])
     ->prefix('student/quizzes')
