@@ -15,7 +15,7 @@ class StudentQuizJoinController extends Controller
     public function index(): Response
     {
         return Inertia::render('Student/Quizzes/Join', [
-            'policyNotice' => 'Quiz access remains closed until publication and student eligibility rules are approved.',
+            'policyNotice' => 'Quiz information is available only for published quizzes assigned through verified school records. Starting an attempt remains disabled.',
         ]);
     }
 

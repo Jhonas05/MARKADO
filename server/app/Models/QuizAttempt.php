@@ -40,6 +40,11 @@ class QuizAttempt extends Model
         return $this->belongsTo(User::class, 'student_id');
     }
 
+    public function revision(): BelongsTo
+    {
+        return $this->belongsTo(QuizRevision::class, 'quiz_revision_id');
+    }
+
     public function resultReleasedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'result_released_by');

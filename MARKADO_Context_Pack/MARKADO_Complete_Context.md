@@ -1096,32 +1096,34 @@ The source PDF left deployment and all implementation technologies unspecified. 
 - **D26:** PostgreSQL is the relational database engine; service hosting, backups and placement remain D28 [OPEN].
 - **D27:** React with Inertia.js is the frontend integration; versions, design system and optional tooling remain [OPEN].
 - **D24 [NOT_APPLICABLE]:** Local isolated-device data synchronization is not required for this online deployment. Temporary internet outages still need an explicit reconnection policy under D09.
+- **ADR-003 (22 October 2026):** Single-school V1; single-answer MCQ and True/False; one resumable attempt; Asia/Manila display timezone; professor-controlled manual result release; student number and email requirements; limited permission-based administration.
+- **ADR-004 (23 October 2026):** D16 immutable published revisions and D22 verified school-managed direct/section eligibility are approved. Running-attempt behavior and D13-D15 verification/mutation authority remain unresolved.
 
 ## Decision register
 | ID | Decision / question | Status | Owner or reviewer |
 |---|---|---|---|
 | D01 | Online internet-hosted web application; not LAN-only or fully offline per-device | **DECIDED** | Product (user) |
-| D02 | Single school vs multiple institutions/sections | **OPEN** | To assign |
-| D03 | V1 question formats | **OPEN** | To assign |
+| D02 | Single school vs multiple institutions/sections | **DECIDED** - single-school V1 | Product (user) |
+| D03 | V1 question formats | **DECIDED** - single-answer MCQ and True/False | Product (user) |
 | D04 | Per-question and whole-quiz timer interaction | **OPEN** | To assign |
 | D05 | Behavior on per-question expiry | **OPEN** | To assign |
 | D06 | Quiz-time expiry behavior | **OPEN** | To assign |
 | D07 | In-progress attempts when quiz closes | **OPEN** | To assign |
-| D08 | Allowed attempts and resume rules | **OPEN** | To assign |
+| D08 | Allowed attempts and resume rules | **PARTIALLY DECIDED** - one resumable attempt | Product (user) |
 | D09 | Late saves, outage and reconnection policy | **OPEN** | To assign |
-| D10 | Timezone standard and open/close semantics | **OPEN** | To assign |
-| D11 | Result release timing and answer feedback | **OPEN** | To assign |
+| D10 | Timezone standard and open/close semantics | **PARTIALLY DECIDED** - Asia/Manila display | Product (user) |
+| D11 | Result release timing and answer feedback | **PARTIALLY DECIDED** - professor-controlled manual release | Product (user) |
 | D12 | Ranking/scoring/tie and repeat-attempt aggregation rules | **OPEN** | To assign |
-| D13 | Student number issuance and verification | **OPEN** | To assign |
-| D14 | Email verification and duplicate recovery | **OPEN** | To assign |
-| D15 | Instructor/administrator privileges | **OPEN** | To assign |
-| D16 | Live quiz edits, revision handling and unpublish | **OPEN** | To assign |
+| D13 | Student number issuance and verification | **PARTIALLY DECIDED** - student number required; authority remains open | Product (user) |
+| D14 | Email verification and duplicate recovery | **PARTIALLY DECIDED** - email required; verification/recovery remain open | Product (user) |
+| D15 | Instructor/administrator privileges | **PARTIALLY DECIDED** - limited permission-based administration | Product (user) |
+| D16 | Live quiz edits, revision handling and unpublish | **DECIDED** - immutable revisions, separate drafts, explicit publish, unpublish blocks starts | Product (user), 23 Oct 2026 |
 | D17 | Uploads: file types, OCR and size limits | **OPEN** | To assign |
 | D18 | AI provider and upload-processing permissions | **OPEN** | To assign |
 | D19 | Retention/export expiry and backup periods | **OPEN** | To assign |
 | D20 | Learning material ownership and copyright | **OPEN** | To assign |
 | D21 | Supported devices/browsers/accessibility level | **OPEN** | To assign |
-| D22 | Student class/section quiz eligibility | **OPEN** | To assign |
+| D22 | Student class/section quiz eligibility | **DECIDED** - verified school record plus active direct or assigned-section eligibility | Product (user), 23 Oct 2026 |
 | D23 | Manual grading, regrading and appeal permissions | **OPEN** | To assign |
 | D24 | Per-device offline synchronization (out of current scope) | **NOT_APPLICABLE** | Product (scope) |
 | D25 | Laravel PHP application/backend framework | **DECIDED** | Product (user) |
@@ -1133,7 +1135,7 @@ The source PDF left deployment and all implementation technologies unspecified. 
 ## Architecture-dependent blockers [OPEN]
 - **Platform:** PostgreSQL (D26) and React/Inertia.js (D27) are **DECIDED**. D28 hosting/managed PostgreSQL/queues/storage/backups and D29 Laravel/PHP plus React/Inertia dependency versions remain OPEN. Do not silently swap the database/frontend or infer Railway, AWS, Supabase, Tailwind, TypeScript or any provider/package.
 - **Academic policy:** D03-D12 and D23 determine core scoring, deadline and result behavior. Laravel implementation must be policy-neutral until approved.
-- **Identity/privacy:** D02, D13-D15, D19-D22 affect access and records handling.
+- **Identity/privacy:** D13-D15 and D19-D21 still affect verification authority, privileged mutations, retention and accessibility. D22 eligibility evaluation is decided.
 - **AI/material workflow:** D17, D18 and D20 must be settled before transferring educational source material to any service.
 
 ## Decision record template [REC]

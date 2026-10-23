@@ -12,9 +12,9 @@ const navigation = [
     ],
   },
   {
-    label: 'Next policy gate',
+    label: 'Assessment operations',
     items: [
-      { label: 'Publishing', icon: 'send', disabled: true },
+      { href: '/professor/quizzes', label: 'Publishing', icon: 'send' },
       { label: 'Submissions', icon: 'users', disabled: true },
       { label: 'Results', icon: 'barChart', disabled: true },
     ],
@@ -54,7 +54,7 @@ export default function ProfessorLayout({ children, title }) {
           </span>
         </div>
         <div className="prof-header__context">
-          <small>Database-backed authoring</small>
+          <small>Revision-backed authoring</small>
           <strong>{title}</strong>
         </div>
         <div className="prof-header__actions">
@@ -87,9 +87,9 @@ export default function ProfessorLayout({ children, title }) {
         ) : null}
         <aside className={`prof-sidebar${mobileOpen ? ' prof-sidebar--open' : ''}`} aria-label="Professor navigation">
           <div className="prof-sidebar__intro">
-            <span>Phase 5B</span>
-            <strong>Quiz authoring</strong>
-            <small>PostgreSQL · Private drafts</small>
+            <span>Phase 5D</span>
+            <strong>Quiz publication</strong>
+            <small>PostgreSQL · Immutable revisions</small>
           </div>
           <nav aria-label="Professor navigation">
             {navigation.map((group) => (
@@ -131,8 +131,8 @@ export default function ProfessorLayout({ children, title }) {
           <div className="prof-sidebar__policy">
             <Icon name="shield" size={18} />
             <div>
-              <strong>Owner-only drafts</strong>
-              <span>Attempt access and publishing remain disabled pending policy approval.</span>
+              <strong>Owner-only publishing</strong>
+              <span>Eligibility uses verified school records. Attempts remain disabled.</span>
             </div>
           </div>
         </aside>
@@ -146,8 +146,8 @@ export default function ProfessorLayout({ children, title }) {
           ) : null}
           {children}
           <footer className="prof-footer">
-            <span>MARKADO Professor workspace · Phase 5B</span>
-            <span>Private drafts · synthetic test data · policy-aware access</span>
+            <span>MARKADO Professor workspace · Phase 5D</span>
+            <span>Immutable revisions · synthetic test data · school-managed eligibility</span>
           </footer>
         </main>
       </div>

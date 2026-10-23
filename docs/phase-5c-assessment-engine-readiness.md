@@ -1,12 +1,13 @@
 # Phase 5C assessment-engine readiness checklist
 
-**Status:** PREPARATION ONLY — not authorization to enable student attempts,
-timers, scoring, publishing, registration, or grade changes.
+**Status:** D16 publication and D22 eligibility are approved; this checklist is
+not authorization to enable student attempts, timers, scoring, registration,
+roster mutation, or grade changes.
 
 **Prepared:** 22 October 2026; integration references updated 23 October 2026
 
 **Implementation base:** integrated `main` at
-`f626f330b31c567dea7fcb55ee3a241d217727c9`
+`84ff7eba418e600d816e0c092063516569b6300b`
 
 ## Purpose
 
@@ -29,8 +30,12 @@ must not be treated as approval for any still-open academic policy.
 - [x] Manual result release state is represented without activating release or
   scoring behavior.
 - [x] Quiz codes and links are reserved without exposing a public attempt route.
-- [x] Student attempts, registration, scoring, timers, and publishing remain
-  disabled.
+- [x] D16 immutable publication revisions, explicit draft-from-published, and
+  authorized unpublish are implemented and locally tested.
+- [x] D22 trusted direct/section assignment evaluation is connected to preflight
+  with deny-by-default behavior and no assignment mutation routes.
+- [x] Student attempts, registration, scoring, timers, and privileged roster
+  mutation remain disabled.
 
 ## Product decisions required before implementation
 
@@ -50,8 +55,8 @@ boundary semantics, student-facing wording, and acceptance-test examples.
 | D12 | Points, final score, rounding, ties, ranking, and incomplete-grade rules | OPEN |
 | D13–D14 | Student-number/email issuance, verification, uniqueness, recovery, and duplicate handling | PARTIAL |
 | D15 | Exact administrator permission matrix and audit requirements | PARTIAL |
-| D16 | Publish snapshot point, live edits, revisions, and unpublish behavior | OPEN |
-| D22 | Enrollment, section membership, and quiz eligibility source of truth | OPEN |
+| D16 | Immutable publication, separate draft revisions, and unpublish boundaries | APPROVED — ADR-004 |
+| D22 | Verified school-managed direct/section eligibility with deny-by-default behavior | APPROVED — ADR-004 |
 | D23 | Regrade, override, appeal, and adjustment authority | OPEN |
 
 Until the applicable rows are approved, do not infer defaults from prototype
@@ -75,8 +80,9 @@ copy, mock data, framework conventions, or this document.
 
 ### Identity, access, and privacy
 
-- [ ] Approve the student identity verification and eligibility source used at
-  quiz join and attempt start.
+- [x] Approve the school-managed eligibility source used at quiz preflight and
+  future attempt start. Exact D13-D15 verification/mutation authority remains
+  open and no mutation UI is enabled.
 - [ ] Define administrator, instructor, and support access at resource level;
   role names alone are insufficient.
 - [ ] Define access-code entropy, rotation/revocation, lookup throttling, and
@@ -97,7 +103,8 @@ copy, mock data, framework conventions, or this document.
   Asia/Manila; never accept browser time as authority.
 - [ ] Persist the approved deadline values once and do not regenerate them on
   refresh or reconnect.
-- [ ] Choose and document the immutable quiz revision/snapshot creation point.
+- [x] Choose and document the immutable quiz revision/snapshot creation point
+  in ADR-004.
 - [ ] Persist randomized question and choice order by stable IDs, never display
   letters or array indexes.
 - [ ] Validate every submitted choice against the attempt's immutable snapshot.
@@ -179,19 +186,19 @@ not be used to smuggle an unresolved policy into an earlier one.
 
 ## Pull-request integration gate
 
-- [x] PR #1–#8 were integrated into `main` under separate approvals.
-- [x] Phase 5C starts from the verified integrated commit
-  `f626f330b31c567dea7fcb55ee3a241d217727c9`.
+- [x] PR #1–#9 were integrated into `main` under separate approvals.
+- [x] Phase 5D starts from verified PR #9 merge commit
+  `84ff7eba418e600d816e0c092063516569b6300b`.
 - [x] Existing feature branches and ancestry were preserved during integration.
 - [x] The active local development checkout and ignored `.env` were preserved;
-  Phase 5C work uses an isolated worktree.
+  Phase 5D work uses an isolated worktree.
 - [ ] Repeat conflict, secret, personal-data, and unintended-diff review for the
-  Phase 5C pull request before any future merge approval.
+  Phase 5D pull request before any future merge approval.
 - [ ] Never force-push, rewrite the stack, or auto-merge a dependent PR.
 
-The former PR #1–#8 dependency chain is complete. The current delivery is a new
-pull request from `feat/phase-5c-join-preflight` to `main`; it must not be merged
-without separate authorization.
+The former PR #1–#9 dependency chain is complete. Phase 5D is delivered from
+`feat/v1-publication-eligibility` to `main` and must not be merged without
+separate authorization.
 
 ## Phase 5C exit criteria
 
@@ -212,6 +219,7 @@ without separate authorization.
 ## Source of truth
 
 - `MARKADO_Context_Pack/decisions/ADR-003-phase-5b-approved-v1-boundaries.md`
+- `MARKADO_Context_Pack/decisions/ADR-004-v1-publication-and-eligibility.md`
 - `MARKADO_Context_Pack/context/04_user-journeys-and-states.md`
 - `MARKADO_Context_Pack/context/07_timers-schedules-and-attempts.md`
 - `MARKADO_Context_Pack/context/08_questions-randomization-and-scoring.md`

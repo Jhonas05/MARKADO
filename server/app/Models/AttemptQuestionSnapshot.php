@@ -17,6 +17,7 @@ class AttemptQuestionSnapshot extends Model
 
     protected $fillable = [
         'source_question_id',
+        'source_revision_question_id',
         'position',
         'type',
         'prompt',
@@ -50,6 +51,11 @@ class AttemptQuestionSnapshot extends Model
     public function sourceQuestion(): BelongsTo
     {
         return $this->belongsTo(QuizQuestion::class, 'source_question_id');
+    }
+
+    public function sourceRevisionQuestion(): BelongsTo
+    {
+        return $this->belongsTo(QuizRevisionQuestion::class, 'source_revision_question_id');
     }
 
     public function answers(): HasMany

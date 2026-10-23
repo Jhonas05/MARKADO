@@ -7,6 +7,7 @@ use App\Enums\AccountRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -69,5 +70,10 @@ class User extends Authenticatable
     public function quizAccessEvents(): HasMany
     {
         return $this->hasMany(QuizAccessEvent::class);
+    }
+
+    public function schoolStudentRecord(): HasOne
+    {
+        return $this->hasOne(SchoolStudentRecord::class);
     }
 }

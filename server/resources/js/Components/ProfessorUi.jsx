@@ -22,9 +22,9 @@ export function PolicyBanner() {
     <div className="prof-prototype-banner" role="note">
       <Icon name="shield" size={17} />
       <p>
-        <strong>Safe authoring boundary.</strong> Draft metadata and approved MCQ/True/False
-        questions are saved to PostgreSQL. Student access, attempts, scoring, timers, and
-        result release are not enabled here.
+        <strong>Controlled publication boundary.</strong> D16 immutable revisions and D22
+        school-managed eligibility are active. Attempts, timers, scoring, result release,
+        and roster mutation remain disabled.
       </p>
     </div>
   )
