@@ -7,6 +7,7 @@ use DateTimeImmutable;
 final readonly class AttemptFinalizationReceipt
 {
     public function __construct(
+        public string $receiptId,
         public string $attemptId,
         public string $status,
         public string $reason,

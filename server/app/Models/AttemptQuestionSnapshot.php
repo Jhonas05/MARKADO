@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use LogicException;
 
 class AttemptQuestionSnapshot extends Model
@@ -61,5 +62,10 @@ class AttemptQuestionSnapshot extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(AttemptAnswer::class, 'question_snapshot_id');
+    }
+
+    public function state(): HasOne
+    {
+        return $this->hasOne(AttemptQuestionState::class, 'question_snapshot_id');
     }
 }

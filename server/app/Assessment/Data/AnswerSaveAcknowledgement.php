@@ -9,7 +9,9 @@ final readonly class AnswerSaveAcknowledgement
     public function __construct(
         public string $attemptId,
         public string $questionSnapshotId,
+        public string $idempotencyKey,
         public DateTimeImmutable $savedAt,
-        public string $version,
+        public int $version,
+        public bool $replayed,
     ) {}
 }

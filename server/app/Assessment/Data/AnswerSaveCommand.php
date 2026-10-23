@@ -9,5 +9,6 @@ final readonly class AnswerSaveCommand
         public string $questionSnapshotId,
         public ?string $selectedChoiceId,
         public string $idempotencyKey,
+        public int $expectedVersion,
     ) {}
 }

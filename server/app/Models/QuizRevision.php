@@ -21,7 +21,12 @@ class QuizRevision extends Model
         'course_name',
         'instructions',
         'display_timezone',
+        'opens_at',
         'closes_at',
+        'whole_quiz_duration_seconds',
+        'per_question_duration_seconds',
+        'randomize_questions',
+        'randomize_choices',
         'published_at',
     ];
 
@@ -29,7 +34,12 @@ class QuizRevision extends Model
     {
         return [
             'status' => QuizRevisionStatus::class,
+            'opens_at' => 'immutable_datetime',
             'closes_at' => 'immutable_datetime',
+            'whole_quiz_duration_seconds' => 'integer',
+            'per_question_duration_seconds' => 'integer',
+            'randomize_questions' => 'boolean',
+            'randomize_choices' => 'boolean',
             'published_at' => 'immutable_datetime',
         ];
     }

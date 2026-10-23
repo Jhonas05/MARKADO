@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class AssessmentEngineContractsTest extends TestCase
 {
-    public function test_policy_dependent_contracts_exist_but_are_not_activated(): void
+    public function test_approved_foundation_contracts_are_bound_without_public_routes(): void
     {
         $contracts = [
             AuthoritativeClock::class,
@@ -33,13 +33,21 @@ class AssessmentEngineContractsTest extends TestCase
 
         foreach ($contracts as $contract) {
             $this->assertTrue(interface_exists($contract));
+        }
+
+        $this->assertTrue($this->app->bound(AuthoritativeClock::class));
+        $this->assertTrue($this->app->bound(AttemptFinalizer::class));
+        $this->assertTrue($this->app->bound(AttemptSessionManager::class));
+        $this->assertTrue($this->app->bound(AnswerStore::class));
+
+        foreach ([DeadlinePlanner::class, TimerPlanner::class, PermutationPlanner::class, ScoreCalculator::class, ResultReleaseManager::class] as $contract) {
             $this->assertFalse($this->app->bound($contract));
         }
 
         $capabilities = app(AssessmentEngineCapabilities::class)->toArray();
 
         foreach ($capabilities as $capability) {
-            $this->assertFalse($capability['enabled']);
+            $this->assertFalse($capability['routeEnabled']);
             $this->assertNotEmpty($capability['blockers']);
         }
     }
