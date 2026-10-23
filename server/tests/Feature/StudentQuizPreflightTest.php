@@ -42,11 +42,15 @@ class StudentQuizPreflightTest extends TestCase
 
         $this->actingAs($student)
             ->get('/workspace')
+            ->assertRedirect('/student/dashboard');
+
+        $this->actingAs($student)
+            ->get('/student/dashboard')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Auth/Workspace')
-                ->where('foundation.quizJoinUrl', route('student.quizzes.join'))
-                ->where('foundation.quizAuthoringUrl', null)
+                ->component('Student/Workspace')
+                ->where('quizJoinUrl', route('student.quizzes.join'))
+                ->where('eligibility.hasSchoolRecord', false)
             );
 
         $this->assertDatabaseCount('quiz_attempts', 0);

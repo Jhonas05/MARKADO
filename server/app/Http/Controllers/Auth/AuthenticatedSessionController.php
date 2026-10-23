@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\AccountRole;
+use App\Enums\AccountStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
@@ -25,9 +27,28 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
+
+        $user = $request->user();
+
+        if ($user->account_status !== AccountStatus::Active || $user->role === null) {
+            $route = $user->account_status === AccountStatus::Disabled
+                ? 'account.disabled'
+                : 'account.pending';
+
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route($route);
+        }
+
         $request->session()->regenerate();
 
-        return redirect()->intended(route('workspace', absolute: false));
+        return redirect()->route(match ($user->role) {
+            AccountRole::Student => 'student.dashboard',
+            AccountRole::Instructor => 'professor.quizzes.index',
+            AccountRole::AcademicAdministrator => 'administrator.dashboard',
+        });
     }
 
     public function destroy(Request $request): RedirectResponse

@@ -105,16 +105,20 @@ php artisan test
 npm run build
 ```
 
-The `/` and `/foundation` routes serve a synthetic Student Dashboard through
-Laravel and Inertia. `/login` supports provisioned accounts only, and
-`/workspace` demonstrates a protected session. Provisioned instructors can use
-`/professor/quizzes` for PostgreSQL-backed, owner-scoped draft authoring with
-single-answer MCQ and True/False questions. Access codes are reserved but no
-public attempt route is registered. Authenticated students can open the
-rate-limited `/student/quizzes/join` preflight; draft, unknown, and unauthorized
-codes do not disclose quiz details. The production eligibility gate remains
-closed, and its audit events contain identifiers and outcomes but no code,
-question, choice, or answer content. There is no public registration route and
-no role can be self-assigned. Authoritative timing, eligibility, publication
-transitions, attempt activation, scoring, AI generation, and result release
-actions remain unimplemented pending their remaining policy decisions.
+The `/` route is the production-style public entry and `/foundation` retains the
+synthetic Student Dashboard as a migration fixture. `/login` accepts provisioned,
+active accounts only. The server-stored role sends students to
+`/student/dashboard`, instructors to `/professor/quizzes`, and academic
+administrators to `/admin/dashboard`; changing a client URL or form label cannot
+change that role. Public student registration and recovery have truthful design
+surfaces but no mutation routes while D13/D14 remain unresolved. Staff
+registration and privileged administrator actions remain disabled.
+
+Provisioned instructors can use `/professor/quizzes` for PostgreSQL-backed,
+owner-scoped draft authoring with single-answer MCQ and True/False questions.
+Authenticated students can open the rate-limited `/student/quizzes/join`
+preflight; draft, unknown, and unauthorized codes do not disclose quiz details.
+Access codes are reserved but no public attempt route is registered. Audit events
+contain identifiers and outcomes but no code, question, choice, or answer
+content. Attempt activation, scoring, AI generation, and result release actions
+remain gated by their implementation and policy boundaries.

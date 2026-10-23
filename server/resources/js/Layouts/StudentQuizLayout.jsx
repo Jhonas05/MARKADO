@@ -2,10 +2,10 @@ import { usePage } from '@inertiajs/react'
 import StudentShell from './StudentShell.jsx'
 
 const navigation = [
-  { href: '/workspace', icon: 'home', label: 'Workspace', key: 'workspace' },
+  { href: '/student/dashboard', icon: 'home', label: 'Workspace', key: 'workspace' },
   { href: '/student/quizzes/join', icon: 'book', label: 'Join a quiz', key: 'join' },
   { icon: 'medal', label: 'Results', key: 'results', disabled: true },
-  { href: '/workspace#account', icon: 'user', label: 'Account', key: 'account' },
+  { href: '/student/dashboard#account', icon: 'user', label: 'Account', key: 'account' },
 ]
 
 export default function StudentQuizLayout({ active = 'join', children, title }) {
@@ -23,7 +23,7 @@ export default function StudentQuizLayout({ active = 'join', children, title }) 
     <StudentShell
       active={active}
       authenticated
-      homeHref="/workspace"
+      homeHref="/student/dashboard"
       navigation={navigation}
       profile={{ detail: user.roleLabel || 'Student', initials, name: user.name }}
       title={title}
