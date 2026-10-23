@@ -65,3 +65,7 @@ account creation.
 ADR-005, approved 23 October 2026, resolves D07 as a hard close with automatic
 submission. The earlier statement that D07 remained open is historical and is
 superseded only for the exact D07 behavior recorded in ADR-005.
+
+ADR-006, approved 23 October 2026, resolves ordinary V1 D04-D06 and D08-D10
+behavior within its exact boundaries. Its final-question-expiry and exceptional
+staff/institution-wide remedy exclusions remain open.

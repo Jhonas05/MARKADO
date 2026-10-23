@@ -105,7 +105,7 @@ enabled and test records are synthetic.
 
 ## Remaining dependencies
 
-D04-D12 (except the limited existing V1 boundaries), D13-D15, D17-D21,
+D04-D10 are subsequently governed by ADR-005 and ADR-006. D11-D15, D17-D21,
 D23, D28, and D29 remain unresolved to the extent recorded in the decision
 register. ADR-003 remains authoritative for its earlier approved boundaries.
 
@@ -118,3 +118,7 @@ during unpublish.
 ADR-005, approved 23 October 2026, now defines the D07 global hard-close rule.
 This does not change ADR-004's publication or eligibility boundaries and does
 not decide any other attempt behavior during an instructor-initiated unpublish.
+
+ADR-006, approved 23 October 2026, defines ordinary V1 dual-timer, expiry,
+resume, connectivity, and schedule-boundary behavior. It likewise does not
+decide what an instructor-initiated unpublish does to an active attempt.

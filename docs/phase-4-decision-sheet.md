@@ -4,8 +4,9 @@ This sheet summarizes unresolved MARKADO decisions. It does not approve a
 policy. Record the chosen option, approver, and date in
 `MARKADO_Context_Pack/context/18_open-decisions.md` before implementing a rule.
 
-D07 was subsequently approved on 23 October 2026 in ADR-005. Its hard-close
-rule is no longer part of this sheet's unresolved scope.
+D07 was approved on 23 October 2026 in ADR-005. D04-D06 and D08-D10 were then
+approved within ADR-006's exact boundaries. This sheet now retains only the
+explicit residual edges and unrelated decisions.
 
 ## Blocking before the quiz engine
 
@@ -13,9 +14,8 @@ rule is no longer part of this sheet's unresolved scope.
 |---|---|---|---|
 | 1 | D02, D13, D14 | Is MARKADO scoped to one institution or many, who issues/verifies student numbers, and how are email duplicates recovered? | Defines account boundaries, uniqueness constraints, registration, and recovery. |
 | 2 | D03 | Which question types are allowed in V1? | Defines the question/answer schema, editor, validation, and grading paths. |
-| 3 | D04-D06 | How do per-question and whole-quiz timers interact, and what happens when either expires? | Defines authoritative deadlines and terminal attempt transitions. |
-| 4 | D09-D10 | What happens after connectivity loss, and what are the remaining schedule/timezone semantics? | Defines late-save handling, outage recovery, opening boundaries, and timestamp presentation. D07 already fixes global close. |
-| 5 | D08 | How many attempts are allowed, and can an unfinished attempt resume? | Defines attempt constraints and idempotency rules. |
+| 3 | D05 edge | What terminal transition occurs when the final per-question timer expires and no next question exists? | Prevents invented extra time or an unapproved early finalization rule. |
+| 4 | D08-D09 exceptions | Who may grant a reset, accommodation, or institution-wide outage remedy, under what limits and audit controls? | Defines exceptional recovery without weakening ordinary one-attempt/no-grace integrity. |
 | 6 | D11, D12 | When are results released, what feedback is visible, and how are ties/repeats ranked? | Prevents premature grade or answer-key disclosure and defines reports. |
 | 7 | D15, D22, D23 | What may instructors and administrators view/change, which students are eligible, and who can regrade? | Defines authorization policies and audit obligations. |
 

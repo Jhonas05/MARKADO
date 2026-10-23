@@ -7,7 +7,7 @@ The eight features below are **requested**. Their detailed implementation criter
 - **F01.2 [REQ]** Student sees remaining time clearly.
 - **F01.3 [REC]** The authoritative attempt timer is computed by the trusted assessment runtime, never from client display time alone.
 - **F01.4 [REC]** Reload, second tab, clock adjustment, or reconnection cannot grant an extension.
-- **F01.5 [OPEN]** Whether both timers run simultaneously, whether expiration locks/advances/submits, and which deadline wins.
+- **F01.5 [DECIDED]** Both timers may run simultaneously. The earliest persisted server deadline wins; question expiry locks/preserves/advances without backward navigation, and whole-session or global expiry finalizes atomically. The final-question per-question-expiry transition remains open.
 - **Accept:** A cross-device refresh preserves deadlines; expired answer mutations are rejected; UI announces time warnings accessibly.
 
 ## F02 - Result listing, ranking and export
@@ -36,7 +36,7 @@ The eight features below are **requested**. Their detailed implementation criter
 ## F05 - Quiz availability by date and time
 - **F05.1 [REQ]** Configure opening and closing date/time.
 - **F05.2 [REC]** Store times unambiguously and show effective timezone in authoring and student views.
-- **F05.3 [OPEN]** Can an attempt already started continue after close? Is the close inclusive/exclusive?
+- **F05.3 [DECIDED]** Opening is inclusive and closing is exclusive for new starts. An active attempt is capped and atomically finalized at the global close under ADR-005.
 - **Accept:** Boundary tests demonstrate exactly when starting is accepted or denied.
 
 ## F06 - Student number and email registration

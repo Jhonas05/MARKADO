@@ -1,8 +1,9 @@
 # Phase 5C assessment-engine readiness checklist
 
-**Status:** D16 publication, D22 eligibility, and D07 hard close are approved; this checklist is
-not authorization to enable student attempts, timers, scoring, registration,
-roster mutation, or grade changes.
+**Status:** D16 publication, D22 eligibility, D07 hard close, and the ADR-006
+D04-D06/D08-D10 attempt rules are approved. This checklist is not by itself
+authorization to enable unverified student access, scoring, registration,
+roster mutation, privileged overrides, or grade changes.
 
 **Prepared:** 22 October 2026; integration references updated 23 October 2026
 
@@ -36,6 +37,8 @@ must not be treated as approval for any still-open academic policy.
   with deny-by-default behavior and no assignment mutation routes.
 - [x] D07 defines a strict hard close: starts are allowed only before close and
   active attempts are automatically submitted at close without extending time.
+- [x] ADR-006 defines dual-timer precedence, question/session expiry, ordinary
+  resume, connectivity acknowledgement, and open/close boundary semantics.
 - [x] Student attempts, registration, scoring, timers, and privileged roster
   mutation remain disabled.
 
@@ -46,13 +49,13 @@ boundary semantics, student-facing wording, and acceptance-test examples.
 
 | Decision | Required approval | Status |
 |---|---|---|
-| D04 | Whether per-question and whole-quiz timers may coexist and which deadline wins | OPEN |
-| D05 | Per-question expiry behavior, navigation, and answer acceptance | OPEN |
-| D06 | Whole-quiz expiry behavior, including whether expiry submits or locks | OPEN |
+| D04 | Both timers may coexist; earliest persisted question/session/global deadline wins | APPROVED â€” ADR-006 |
+| D05 | Lock, preserve acknowledged answer, auto-advance, no backward navigation | APPROVED WITH FINAL-QUESTION EDGE OPEN â€” ADR-006 |
+| D06 | Whole-session expiry atomically finalizes acknowledged answers and returns a stable receipt | APPROVED â€” ADR-006 |
 | D07 | Hard close, strict no-start boundary, and automatic submission of acknowledged answers | APPROVED — ADR-005 |
-| D08 | Retry/reset authority and lifecycle details around the approved one resumable attempt | PARTIAL |
-| D09 | Offline, reconnection, late-save, and grace-period behavior | OPEN |
-| D10 | Inclusive/exclusive schedule boundaries and storage/display conversion details | PARTIAL |
+| D08 | Same attempt resumes across refresh/sign-in/reconnect/tab/device; student reset denied; staff exceptions open | APPROVED WITH STAFF EXCEPTIONS OPEN â€” ADR-006 |
+| D09 | Timers continue; acknowledgement-only saves; no automatic grace; idempotent/versioned reconciliation; institutional remedies open | APPROVED WITH INSTITUTIONAL REMEDIES OPEN â€” ADR-006 |
+| D10 | Inclusive open, exclusive close, UTC persistence, Asia/Manila display, server clock authority | APPROVED â€” ADR-006 |
 | D11 | Released feedback contents and answer-key visibility | PARTIAL |
 | D12 | Points, final score, rounding, ties, ranking, and incomplete-grade rules | OPEN |
 | D13–D14 | Student-number/email issuance, verification, uniqueness, recovery, and duplicate handling | PARTIAL |
@@ -69,11 +72,11 @@ copy, mock data, framework conventions, or this document.
 ### Policy and UX contract
 
 - [ ] Record the approved attempt state machine and every permitted transition.
-- [ ] Define the remaining start, save, and non-close expiry rules. D07 already
-  fixes the close boundary and automatic close submission.
-- [ ] Define what `resume` means after refresh, sign-out, reconnect, and use of a
+- [x] Define ordinary start, save, and non-close expiry rules in ADR-006. The
+  D05 final-question edge remains disabled pending a separate decision.
+- [x] Define what `resume` means after refresh, sign-out, reconnect, and use of a
   second tab or device.
-- [ ] Define the authoritative save acknowledgement and unsaved-answer warning.
+- [x] Define the authoritative save acknowledgement and unsaved-answer warning.
 - [ ] Approve student instructions for timing, navigation, submission, release,
   and connectivity limitations before the Start action is enabled.
 - [ ] Decide whether unanswered questions may be submitted and what confirmation
@@ -102,9 +105,9 @@ copy, mock data, framework conventions, or this document.
 
 - [ ] Finalize attempt statuses and legal transitions without overloading quiz
   publication status.
-- [ ] Persist authoritative server timestamps in UTC and display them in
+- [x] Approve authoritative server timestamps in UTC and display them in
   Asia/Manila; never accept browser time as authority.
-- [ ] Persist the approved deadline values once and do not regenerate them on
+- [x] Approve persisting deadline values once without regenerating them on
   refresh or reconnect.
 - [x] Choose and document the immutable quiz revision/snapshot creation point
   in ADR-004.
@@ -123,17 +126,17 @@ copy, mock data, framework conventions, or this document.
 
 ### Server and client boundaries
 
-- [ ] Laravel decides authentication, eligibility, availability, deadlines,
+- [x] Approve Laravel as the authority for authentication, eligibility, availability, deadlines,
   answer acceptance, terminal state, and result visibility.
-- [ ] React countdowns and client validations are display aids only.
+- [x] Approve React countdowns and client validations as display aids only.
 - [ ] No correct-answer flag, rubric, foreign attempt data, or unreleased score
   reaches the student payload.
 - [x] D07 requires that a delayed close worker cannot extend the persisted
   global close; request-time enforcement remains authoritative.
-- [ ] Refresh and reconnection rehydrate the server attempt, saved answers,
+- [x] Approve refresh and reconnection rehydrating the server attempt, saved answers,
   fixed ordering, and unchanged deadlines.
-- [ ] UI distinguishes `Saving`, `Saved`, `Not saved`, `Submitted`, and
-  reconnecting states truthfully.
+- [x] Approve truthful `Saving`, `Saved`, `Connection Lost`, `Save Failed`,
+  `Submitted`, and `Expired` states.
 
 ## Required automated verification
 
@@ -224,6 +227,7 @@ separate authorization.
 - `MARKADO_Context_Pack/decisions/ADR-003-phase-5b-approved-v1-boundaries.md`
 - `MARKADO_Context_Pack/decisions/ADR-004-v1-publication-and-eligibility.md`
 - `MARKADO_Context_Pack/decisions/ADR-005-v1-hard-close-auto-submission.md`
+- `MARKADO_Context_Pack/decisions/ADR-006-v1-dual-timers-and-attempt-policy.md`
 - `MARKADO_Context_Pack/context/04_user-journeys-and-states.md`
 - `MARKADO_Context_Pack/context/07_timers-schedules-and-attempts.md`
 - `MARKADO_Context_Pack/context/08_questions-randomization-and-scoring.md`

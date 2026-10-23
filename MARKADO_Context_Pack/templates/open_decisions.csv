@@ -2,13 +2,13 @@ id,decision,owner,status,approval_date,notes
 D01,Online internet-hosted web application; not LAN-only or fully offline per-device,Product (user),DECIDED,2026-10-22,Confirmed by user 22 Oct 2026
 D02,Single school vs multiple institutions/sections,Product (user),DECIDED,2026-10-22,Single-school V1
 D03,V1 question formats,Product (user),DECIDED,2026-10-22,Single-answer MCQ and True/False
-D04,Per-question and whole-quiz timer interaction,unassigned,OPEN,,Deadline precedence
-D05,Behavior on per-question expiry,unassigned,OPEN,,"Auto-advance, lock or other"
-D06,Quiz-time expiry behavior,unassigned,OPEN,,Submit/expire outcome
+D04,Per-question and whole-quiz timer interaction,Product (user),DECIDED,2026-10-23,Both may run; earliest persisted question/session/global deadline wins; ADR-006
+D05,Behavior on per-question expiry,Product (user),DECIDED_WITH_OPEN_EDGE,2026-10-23,"Lock; retain acknowledged answer; auto-advance; no backward navigation; final-question transition open; ADR-006"
+D06,Quiz-time expiry behavior,Product (user),DECIDED,2026-10-23,Atomic idempotent finalization with acknowledged answers and stable receipt; ADR-006
 D07,In-progress attempts when quiz closes,Product (user),DECIDED,2026-10-23,Hard close with automatic submission; starts allowed strictly before close; ADR-005
-D08,Allowed attempts and resume rules,Product (user),PARTIALLY_DECIDED,2026-10-22,One resumable attempt; lifecycle details open
-D09,"Late saves, outage and reconnection policy",unassigned,OPEN,,Connectivity and deadline trust
-D10,Timezone standard and open/close semantics,Product (user),PARTIALLY_DECIDED,2026-10-22,Asia/Manila display; boundary semantics open
+D08,Allowed attempts and resume rules,Product (user),DECIDED_WITH_OPEN_EXCEPTIONS,2026-10-23,One stable attempt resumes across refresh/sign-in/reconnect/tab/device; staff reset/accommodation authority open; ADR-006
+D09,"Late saves, outage and reconnection policy",Product (user),DECIDED_WITH_OPEN_EXCEPTIONS,2026-10-23,No automatic grace; acknowledgements only; versioned idempotent retries; institution-wide remedies open; ADR-006
+D10,Timezone standard and open/close semantics,Product (user),DECIDED,2026-10-23,Inclusive opening; exclusive closing; UTC persistence; Asia/Manila display; ADR-006
 D11,Result release timing and answer feedback,Product (user),PARTIALLY_DECIDED,2026-10-22,Professor-controlled manual release; feedback open
 D12,Ranking/scoring/tie and repeat-attempt aggregation rules,unassigned,OPEN,,Report reproducibility
 D13,Student number issuance and verification,Product (user),PARTIALLY_DECIDED,2026-10-22,Student number required; issuance and verification open

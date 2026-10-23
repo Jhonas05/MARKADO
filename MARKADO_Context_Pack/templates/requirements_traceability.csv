@@ -1,5 +1,5 @@
 requirement_id,category,description,linked_qa_id,owner,status,evidence
-F01,REQ,Dual timers,QA-015,unassigned,proposed,
+F01,REQ,Dual timers,QA-015,product owner,approved,ADR-006 D04-D06
 F02,REQ,Results and exports,QA-049,unassigned,proposed,
 F03,REQ,Quiz code and link,QA-006,unassigned,proposed,
 F04,REQ,Material based question generation,QA-038,unassigned,proposed,
@@ -10,3 +10,9 @@ F08,REQ,Help and guide,QA-055,unassigned,proposed,
 D16,DECISION,Immutable published revisions and separate editable drafts,QA-D16,product owner,tested_locally_and_ci,ADR-004 and QuizPublicationTest
 D22,DECISION,Verified school-managed direct or section eligibility,QA-D22,product owner,tested_locally_and_ci,ADR-004 and SchoolEligibilityTest
 D07,DECISION,Hard close with automatic submission and strict no-start boundary,QA-D07,product owner,tested_locally_ci_pending,ADR-005 HardCloseDeadlineGuardTest and AttemptFinalizationCoordinatorTest
+D04,DECISION,Dual timers use earliest persisted server deadline,QA-D04,product owner,approved_contract,ADR-006 D04-01 through D04-03
+D05,DECISION,Question expiry locks preserves acknowledged answer and advances without backward navigation,QA-D05,product owner,approved_with_final_question_edge_open,ADR-006 D05-01 through D05-06
+D06,DECISION,Whole-session expiry atomically finalizes acknowledged answers with stable receipt,QA-D06,product owner,approved_contract,ADR-006 D06-01 through D06-03
+D08,DECISION,One stable attempt resumes across refresh sign-in reconnect tab and device,QA-D08,product owner,approved_with_staff_exceptions_open,ADR-006 D08-01 through D08-04
+D09,DECISION,No automatic outage grace and saves require idempotent versioned server acknowledgement,QA-D09,product owner,approved_with_institutional_remedies_open,ADR-006 D09-01 through D09-04
+D10,DECISION,Inclusive open exclusive close UTC storage and Asia/Manila display,QA-D10,product owner,approved_contract,ADR-006 D10-01 through D10-04

@@ -1,7 +1,7 @@
 # Phase 5C assessment-policy decision sign-off
 
-**Status:** Decision support only. Recommendations below are not approvals and
-must not activate assessment behavior.
+**Status:** ADR-003 through ADR-006 approvals are recorded below. Remaining
+recommendations are not approvals and must not activate blocked behavior.
 
 **Prepared:** 23 October 2026
 
@@ -39,17 +39,31 @@ On 23 October 2026 the product owner also approved:
     full session duration will not fit; no start is accepted at or after close;
     active attempts are automatically submitted at close using acknowledged
     answers. The global close caps attempt and question deadlines.
+11. **D04:** whole-quiz and per-question timers may run together; the earliest
+    applicable persisted server deadline wins.
+12. **D05:** question expiry locks the question, preserves the last acknowledged
+    answer, auto-advances once, and disables backward navigation. The final-
+    question expiry transition remains unresolved and disabled.
+13. **D06:** whole-session expiry atomically finalizes the attempt using only
+    acknowledged answers and returns a stable idempotent receipt.
+14. **D08:** one attempt resumes across refresh, browser restart, sign-in,
+    reconnect, tab, or device with stable content, order, answers, and deadlines;
+    student reset is denied and staff exceptions remain unresolved.
+15. **D09:** timers continue during connectivity loss; no automatic grace is
+    granted; only server-acknowledged answers count; idempotent/version-aware
+    retries restore authoritative state. Institution-wide remedies remain open.
+16. **D10:** opening is inclusive, closing is exclusive, instants are stored in
+    UTC, school-facing times display in Asia/Manila, and browser time is never
+    authoritative.
 
-The exact scope and exclusions are recorded in ADR-004.
+The exact scope and exclusions are recorded in ADR-004, ADR-005, and ADR-006.
 
 ## Proposed rules requiring explicit sign-off
 
 | Decision | Recommended rule (PROPOSED) | Principal trade-off | Minimum acceptance evidence |
 |---|---|---|---|
-| D10 schedule | Store instants in UTC, display in Asia/Manila, make opening inclusive and closing exclusive. | Precise boundaries; instructors need clear wording. | Controllable-clock tests at one millisecond before, exactly at, and after both boundaries. |
-| D04–D06 timers | Persist all approved deadlines at Start. D07 already requires the global close to cap them. Per-question and general session-expiry behavior remain proposed. | Deterministic integrity, but the unresolved expiry choices affect fairness and navigation. | Browser-clock tampering, reconnect, race, delayed request, and dual-deadline tests. |
-| D08 resume/reset | Resume the same attempt across refresh, sign-in, and devices. Permit no student reset; any staff reset is separately permissioned, reasoned, and audited. | Protects one-attempt integrity; exceptional recovery needs staff support. | Concurrent Start creates one attempt; resume returns identical snapshot/order/deadlines. |
-| D09 connectivity | A save succeeds only after a server acknowledgement containing persisted version and timestamp. Do not silently add a grace period. | Truthful state, but offline work is not guaranteed until acknowledged. | Idempotent retry, out-of-order save, lost acknowledgement, and deadline-race tests. |
+| D05 final-question edge | Decide whether expiry on the final question immediately finalizes, waits only for an earlier session/global deadline, or presents another explicitly bounded transition. | Prevents invented extra time or an accidental early terminal state. | Exact-boundary test with no next question plus duplicate/race coverage. |
+| D08/D09 exceptional remedy | Define who may grant a reset, accommodation, or institution-wide outage remedy, with limits and audit evidence. | Supports exceptional fairness without weakening ordinary one-attempt/no-grace integrity. | Least-privilege authorization, reason/audit, deadline recalculation, and cross-student denial tests. |
 | D11–D12 scoring/release | For V1, award one point only for the exact correct choice, with no negative or partial credit. Release total score manually; withhold keys and item feedback unless separately approved. | Easy to explain and test, but limits question weighting and formative feedback. | Forged-score rejection, deterministic recalculation, unreleased-result denial, and repeat-safe manual release tests. |
 | D13–D14 identity | School-issued student number plus verified institutional email must map to one account; duplicate resolution is staff-managed and audited. | Reduces impersonation, but requires identity operations and recovery support. | Duplicate, mismatched, unverified, recovered, and deactivated-account tests. |
 | D15/D23 privileged actions | Use named permissions per resource and action; require reason, actor, before/after state, and timestamp for overrides, regrades, releases, and access changes. | Strong accountability with added administrative friction. | Cross-resource denial, least-privilege matrix, audit completeness, and tamper-evidence review. |
@@ -67,15 +81,17 @@ the related capability:
 - Required automated and manual acceptance tests
 - Rollback, incident, and audit expectations
 
-Unresolved decisions after ADR-005: **D04–D06, D09, D12, D23**;
-partially resolved: **D08, D10, D11, D13–D15**. D28 and D29 also remain open
-for export/accessibility details and do not authorize assessment-engine behavior.
+Unresolved after ADR-006: the **D05 final-question edge**, exceptional **D08/D09**
+staff/institution-wide remedies, **D11** feedback details, **D12** scoring and
+ranking, **D13–D15** identity/privileged authority, and **D23** override/regrade
+authority. D28 and D29 also remain open for production operations/runtime choices.
 
 ## Sources of truth
 
 - `MARKADO_Context_Pack/decisions/ADR-003-phase-5b-approved-v1-boundaries.md`
 - `MARKADO_Context_Pack/decisions/ADR-004-v1-publication-and-eligibility.md`
 - `MARKADO_Context_Pack/decisions/ADR-005-v1-hard-close-auto-submission.md`
+- `MARKADO_Context_Pack/decisions/ADR-006-v1-dual-timers-and-attempt-policy.md`
 - `MARKADO_Context_Pack/context/18_open-decisions.md`
 - `docs/phase-5c-assessment-engine-readiness.md`
 

@@ -2,7 +2,7 @@
 
 You are working on the MARKADO digital quiz and assessment system. Before proposing or changing code:
 
-1. Read `context/00_START_HERE.md`, `context/02_requirements-and-traceability.md`, `context/13_architecture-and-interfaces.md`, `context/18_open-decisions.md`, `decisions/ADR-001-online-laravel.md`, `decisions/ADR-002-postgresql-react-inertia.md` and all relevant domain chapters.
+1. Read `context/00_START_HERE.md`, `context/02_requirements-and-traceability.md`, `context/13_architecture-and-interfaces.md`, `context/18_open-decisions.md`, every applicable file in `decisions/`, and all relevant domain chapters.
 2. Treat [REQ] as requested scope, [DECIDED] as user-confirmed architecture, [REC] as proposed guidance, and [OPEN] as undecided policy. **Online deployment + Laravel + PostgreSQL + React/Inertia.js are approved; not yet implemented.** Do not substitute another database or frontend pattern, nor choose hosting, exact versions, optional libraries or academic exam policies without approval/repository inspection.
 3. Inspect the actual repository and current architecture if available. Do not invent existing features, libraries, migrations, tests or completion status.
 4. Give a traceable implementation plan that names F-IDs, decisions, role/authorization boundaries, schema impact, failure modes and QA case IDs.

@@ -49,7 +49,7 @@ This is **not** a final SQL schema. MARKADO uses **PostgreSQL** as its centraliz
 - Define foreign keys, unique constraints and check constraints in version-controlled Laravel migrations; application validation alone is not a substitute.
 - For student number identity, choose the school/tenant uniqueness scope **first** (D02/D13); then enforce that canonical value using a unique index. Do not implement an across-all-schools uniqueness rule by accident.
 - Establish a documented email normalization policy before using a functional unique index, generated canonical column or case-insensitive type. Avoid assuming `email` comparisons are case-insensitive by default.
-- Use `timestamptz`/equivalent correctly, store authoritative instants in UTC and convert in the UI to the approved display timezone (D10 still OPEN).
+- Use `timestamptz`/equivalent correctly, store authoritative instants in UTC, and convert school-facing values to `Asia/Manila` under approved D10.
 - For attempt finalization, protect a single transition with a database transaction and appropriate row lock/conditional update, and enforce a unique result per attempt as needed. Consider retries and deadlocks.
 - PostgreSQL JSONB can store non-authoritative structured metadata where useful; avoid putting all grading rules or relational invariants into an unvalidated JSON blob.
 - Name and test indexes against real queries (quiz code lookup, attempt owner/status, roster sorting, student email/number uniqueness, reporting). Avoid speculative indexes before the query shape is known.
