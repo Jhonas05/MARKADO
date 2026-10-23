@@ -1,4 +1,4 @@
-import { Link, router, useForm } from '@inertiajs/react'
+import { Link, router, useForm, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@prototype/components/Icon.jsx'
 import ProfessorLayout from '../../../Layouts/ProfessorLayout.jsx'
@@ -17,9 +17,7 @@ const trueFalseChoices = () => [
 ]
 
 function questionData(question) {
-  if (!question) {
-    return { type: 'multiple_choice', prompt: '', choices: emptyMcqChoices() }
-  }
+  if (!question) return { type: 'multiple_choice', prompt: '', choices: emptyMcqChoices() }
 
   return {
     type: question.type,
@@ -32,20 +30,25 @@ function questionData(question) {
   }
 }
 
-function BuilderSteps() {
+function BuilderSteps({ published }) {
   return (
     <nav className="prof-builder-steps" aria-label="Quiz builder steps">
-      {['Identity', 'Questions', 'Rules', 'Preview', 'Publish'].map((label, index) => (
-        <span className={index === 1 ? 'prof-builder-step prof-builder-step--active' : 'prof-builder-step prof-builder-step--locked'} key={label}>
-          <span>{index + 1}</span>
-          <strong>{label}</strong>
-        </span>
-      ))}
+      {['Identity', 'Questions', 'Rules', 'Preview', 'Publish'].map((label, index) => {
+        const active = index < 2 || (index === 4 && published)
+        return (
+          <span className={active ? 'prof-builder-step prof-builder-step--active' : 'prof-builder-step prof-builder-step--locked'} key={label}>
+            <span>{index + 1}</span>
+            <strong>{label}</strong>
+          </span>
+        )
+      })}
     </nav>
   )
 }
 
 export default function EditQuiz({ quiz, questionTypes }) {
+  const { errors } = usePage().props
+  const editable = quiz.authoring.editable
   const [selectedId, setSelectedId] = useState(quiz.questions[0]?.id ?? null)
   const [copied, setCopied] = useState(false)
   const selected = quiz.questions.find((question) => question.id === selectedId) ?? null
@@ -67,6 +70,7 @@ export default function EditQuiz({ quiz, questionTypes }) {
   }
 
   function startQuestion() {
+    if (!editable) return
     setSelectedId(null)
     questionForm.setData(questionData(null))
     questionForm.clearErrors()
@@ -82,23 +86,22 @@ export default function EditQuiz({ quiz, questionTypes }) {
 
   function updateChoice(index, field, value) {
     questionForm.setData('choices', questionForm.data.choices.map((choice, choiceIndex) => {
-      if (field === 'is_correct') {
-        return { ...choice, is_correct: choiceIndex === index }
-      }
+      if (field === 'is_correct') return { ...choice, is_correct: choiceIndex === index }
       return choiceIndex === index ? { ...choice, [field]: value } : choice
     }))
   }
 
   function saveQuestion(event) {
     event.preventDefault()
+    if (!editable) return
     const options = { preserveScroll: true }
 
     if (selectedId) {
-      questionForm.put(`/professor/quizzes/${quiz.id}/questions/${selectedId}`, options)
+      questionForm.put(`${quiz.authoring.questionsPath}/${selectedId}`, options)
       return
     }
 
-    questionForm.post(`/professor/quizzes/${quiz.id}/questions`, {
+    questionForm.post(quiz.authoring.questionsPath, {
       ...options,
       onSuccess: () => {
         setSelectedId(null)
@@ -109,9 +112,8 @@ export default function EditQuiz({ quiz, questionTypes }) {
   }
 
   function removeQuestion() {
-    if (!selected || !window.confirm(`Remove question ${selected.position}? This cannot be undone.`)) return
-
-    router.delete(`/professor/quizzes/${quiz.id}/questions/${selected.id}`, {
+    if (!editable || !selected || !window.confirm(`Remove question ${selected.position} from this draft?`)) return
+    router.delete(`${quiz.authoring.questionsPath}/${selected.id}`, {
       preserveScroll: true,
       onSuccess: () => startQuestion(),
     })
@@ -122,6 +124,25 @@ export default function EditQuiz({ quiz, questionTypes }) {
     router.delete(`/professor/quizzes/${quiz.id}`)
   }
 
+  function publishQuiz() {
+    const message = quiz.publication.currentRevisionNumber
+      ? 'Publish this draft as the new current immutable revision? Existing revisions and attempt references will be preserved.'
+      : 'Publish an immutable snapshot of this draft? Editing it later will require a separate revision.'
+    if (window.confirm(message)) router.post(`/professor/quizzes/${quiz.id}/publish`, {}, { preserveScroll: true })
+  }
+
+  function unpublishQuiz() {
+    if (window.confirm('Unpublish this quiz? New joins will be blocked while revisions and historical records stay intact.')) {
+      router.post(`/professor/quizzes/${quiz.id}/unpublish`, {}, { preserveScroll: true })
+    }
+  }
+
+  function createDraftRevision() {
+    if (window.confirm('Create an editable draft copied from the current published revision? The live revision will not change.')) {
+      router.post(`/professor/quizzes/${quiz.id}/draft-revisions`, {}, { preserveScroll: true })
+    }
+  }
+
   async function copyCode() {
     if (!window.navigator.clipboard) return
     await window.navigator.clipboard.writeText(quiz.access.code)
@@ -129,207 +150,159 @@ export default function EditQuiz({ quiz, questionTypes }) {
     window.setTimeout(() => setCopied(false), 1800)
   }
 
+  const revisionLabel = quiz.authoring.revisionNumber
+    ? `Revision ${quiz.authoring.revisionNumber}`
+    : 'Initial draft'
+
   return (
     <ProfessorLayout title="Quiz builder">
       <PolicyBanner />
       <ScreenHeader
         eyebrow={`${quiz.courseCode} · ${quiz.statusLabel}`}
         title={quiz.title}
-        description="Edit persisted quiz details and stable question records. Every write is validated and owner-authorized by Laravel."
+        description="Publish immutable quiz revisions and preview school-managed assignments. Attempts, timers, scoring, and result release remain disabled."
         actions={(
           <Link className="button button--secondary" href="/professor/quizzes">
-            <Icon name="arrowLeft" size={18} />
-            All quizzes
+            <Icon name="arrowLeft" size={18} /> All quizzes
           </Link>
         )}
       />
-      <BuilderSteps />
+      <BuilderSteps published={quiz.status === 'published'} />
 
-      <section className="prof-panel prof-authoring-summary" aria-label="Draft status">
-        <div>
-          <span className="section-kicker">Reserved access code</span>
-          <strong>{quiz.access.code}</strong>
-        </div>
-        <div>
-          <span>Student route</span>
-          <strong>{quiz.access.path}</strong>
-        </div>
-        <div>
-          <span>Display timezone</span>
-          <strong>{quiz.displayTimezone}</strong>
-        </div>
-        <StatusBadge tone="warning">Student access disabled</StatusBadge>
+      <section className="prof-panel prof-authoring-summary" aria-label="Publication status">
+        <div><span className="section-kicker">Reserved access code</span><strong>{quiz.access.code}</strong></div>
+        <div><span>Student route</span><strong>{quiz.access.path}</strong></div>
+        <div><span>Authoring record</span><strong>{revisionLabel}</strong></div>
+        <StatusBadge tone={quiz.status === 'published' ? 'success' : 'warning'}>{quiz.statusLabel}</StatusBadge>
         <button className="button button--secondary button--compact" type="button" onClick={copyCode}>
-          <Icon name={copied ? 'check' : 'copy'} size={16} />
-          {copied ? 'Copied' : 'Copy code'}
+          <Icon name={copied ? 'check' : 'copy'} size={16} /> {copied ? 'Copied' : 'Copy code'}
         </button>
+      </section>
+
+      <section className="prof-panel prof-publication-card" aria-labelledby="publication-title">
+        <div className="prof-panel-heading">
+          <div><p className="section-kicker">D16 approved boundary</p><h2 id="publication-title">Publication and revision history</h2></div>
+          {quiz.publication.hasUnpublishedChanges ? <StatusBadge tone="warning">Draft changes</StatusBadge> : null}
+        </div>
+        <p className="prof-publication-copy">
+          Published revisions cannot be edited or deleted. A new draft is copied from the current revision and becomes visible to eligible students only after explicit publication.
+        </p>
+        {errors?.publication ? <p className="prof-validation-summary" role="alert">{errors.publication}</p> : null}
+        {Object.entries(errors ?? {}).filter(([key]) => key.startsWith('questions.')).map(([key, message]) => (
+          <p className="prof-validation-summary" role="alert" key={key}>{message}</p>
+        ))}
+        <div className="prof-revision-list" aria-label="Revision history">
+          {quiz.publication.revisions.length ? quiz.publication.revisions.map((revision) => (
+            <div key={revision.id}>
+              <strong>Revision {revision.number}</strong>
+              <span>{revision.status === 'published' ? 'Immutable published snapshot' : 'Editable draft'}</span>
+              <StatusBadge tone={revision.status === 'published' ? 'success' : 'warning'}>{revision.status}</StatusBadge>
+            </div>
+          )) : <p>No revision has been published yet.</p>}
+        </div>
+        <div className="prof-publication-actions">
+          {quiz.publication.canUnpublish ? <button className="button button--danger-soft" type="button" onClick={unpublishQuiz}>Unpublish</button> : null}
+          {quiz.publication.canCreateDraft ? <button className="button button--secondary" type="button" onClick={createDraftRevision}>Create draft revision</button> : null}
+          {quiz.publication.canPublish ? (
+            <button className="button button--primary" type="button" onClick={publishQuiz}>
+              {quiz.status === 'unpublished' && !quiz.publication.hasUnpublishedChanges
+                ? `Republish revision ${quiz.publication.currentRevisionNumber}`
+                : `Publish ${revisionLabel}`}
+            </button>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="prof-panel prof-assignment-preview" aria-labelledby="assignment-title">
+        <div>
+          <p className="section-kicker">D22 school-managed eligibility</p>
+          <h2 id="assignment-title">Assignment preview</h2>
+          <p>Eligibility is evaluated from verified, active school records. Assignment management stays unavailable until D13–D15 permissions are approved.</p>
+        </div>
+        <dl>
+          <div><dt>Direct students</dt><dd>{quiz.assignments.directStudentCount}</dd></div>
+          <div><dt>Active sections</dt><dd>{quiz.assignments.sections.length}</dd></div>
+        </dl>
+        <div className="prof-assignment-sections">
+          {quiz.assignments.sections.length ? quiz.assignments.sections.map((section) => (
+            <span key={section.code}><strong>{section.code}</strong>{section.name}</span>
+          )) : <span>No section assignments recorded.</span>}
+        </div>
       </section>
 
       <section className="prof-panel prof-details-card" aria-labelledby="quiz-details-title">
         <div className="prof-panel-heading">
-          <div>
-            <p className="section-kicker">Draft record</p>
-            <h2 id="quiz-details-title">Quiz details</h2>
-          </div>
-          <StatusBadge tone="warning">{quiz.statusLabel}</StatusBadge>
+          <div><p className="section-kicker">{revisionLabel}</p><h2 id="quiz-details-title">Quiz details</h2></div>
+          <StatusBadge tone={editable ? 'warning' : 'success'}>{editable ? 'Editable' : 'Immutable'}</StatusBadge>
         </div>
+        {!editable ? <p className="prof-immutable-note"><Icon name="lock" size={17} /> This published revision is read-only. Create a draft revision to make changes.</p> : null}
         <form onSubmit={(event) => {
           event.preventDefault()
-          details.put(`/professor/quizzes/${quiz.id}`, { preserveScroll: true })
+          if (editable) details.put(quiz.authoring.detailsPath, { preserveScroll: true })
         }}>
           <div className="prof-field-grid">
-            <label className="prof-field prof-field--wide">
-              <span>Quiz title</span>
-              <input value={details.data.title} onChange={(event) => details.setData('title', event.target.value)} aria-invalid={Boolean(details.errors.title)} />
-              <FieldError message={details.errors.title} />
-            </label>
-            <label className="prof-field">
-              <span>Course code</span>
-              <input value={details.data.course_code} onChange={(event) => details.setData('course_code', event.target.value)} aria-invalid={Boolean(details.errors.course_code)} />
-              <FieldError message={details.errors.course_code} />
-            </label>
-            <label className="prof-field">
-              <span>Course name <small>(optional)</small></span>
-              <input value={details.data.course_name} onChange={(event) => details.setData('course_name', event.target.value)} aria-invalid={Boolean(details.errors.course_name)} />
-              <FieldError message={details.errors.course_name} />
-            </label>
-            <label className="prof-field prof-field--wide">
-              <span>Student-facing instructions <small>(optional)</small></span>
-              <textarea rows="3" value={details.data.instructions} onChange={(event) => details.setData('instructions', event.target.value)} aria-invalid={Boolean(details.errors.instructions)} />
-              <FieldError message={details.errors.instructions} />
-            </label>
+            <label className="prof-field prof-field--wide"><span>Quiz title</span><input disabled={!editable} value={details.data.title} onChange={(event) => details.setData('title', event.target.value)} aria-invalid={Boolean(details.errors.title)} /><FieldError message={details.errors.title} /></label>
+            <label className="prof-field"><span>Course code</span><input disabled={!editable} value={details.data.course_code} onChange={(event) => details.setData('course_code', event.target.value)} aria-invalid={Boolean(details.errors.course_code)} /><FieldError message={details.errors.course_code} /></label>
+            <label className="prof-field"><span>Course name <small>(optional)</small></span><input disabled={!editable} value={details.data.course_name} onChange={(event) => details.setData('course_name', event.target.value)} aria-invalid={Boolean(details.errors.course_name)} /><FieldError message={details.errors.course_name} /></label>
+            <label className="prof-field prof-field--wide"><span>Student-facing instructions <small>(optional)</small></span><textarea disabled={!editable} rows="3" value={details.data.instructions} onChange={(event) => details.setData('instructions', event.target.value)} aria-invalid={Boolean(details.errors.instructions)} /><FieldError message={details.errors.instructions} /></label>
           </div>
-          <div className="prof-form-actions">
-            <button className="button button--danger-soft" type="button" onClick={removeQuiz}>Delete draft</button>
-            <button className="button button--primary" type="submit" disabled={details.processing}>
-              {details.processing ? 'Saving…' : 'Save quiz details'}
-            </button>
-          </div>
+          {editable ? (
+            <div className="prof-form-actions">
+              {quiz.authoring.mode === 'initial_draft' ? <button className="button button--danger-soft" type="button" onClick={removeQuiz}>Delete draft</button> : <span />}
+              <button className="button button--primary" type="submit" disabled={details.processing}>{details.processing ? 'Saving…' : 'Save quiz details'}</button>
+            </div>
+          ) : null}
         </form>
       </section>
 
       <div className="prof-editor-layout prof-database-editor">
         <aside className="prof-question-list" aria-label="Quiz questions">
-          <div>
-            <span>{quiz.questions.length} {quiz.questions.length === 1 ? 'question' : 'questions'}</span>
-            <strong>Stable UUIDs</strong>
-          </div>
+          <div><span>{quiz.questions.length} {quiz.questions.length === 1 ? 'question' : 'questions'}</span><strong>Stable UUIDs</strong></div>
           {quiz.questions.map((question) => (
-            <button
-              className={question.id === selectedId ? 'prof-question-item prof-question-item--active' : 'prof-question-item'}
-              type="button"
-              key={question.id}
-              onClick={() => selectQuestion(question)}
-              aria-current={question.id === selectedId ? 'true' : undefined}
-            >
+            <button className={question.id === selectedId ? 'prof-question-item prof-question-item--active' : 'prof-question-item'} type="button" key={question.id} onClick={() => selectQuestion(question)} aria-current={question.id === selectedId ? 'true' : undefined}>
               <span>{question.position}</span>
-              <span>
-                <strong>{question.prompt}</strong>
-                <small>{question.typeLabel} · {question.choices.length} choices</small>
-              </span>
+              <span><strong>{question.prompt}</strong><small>{question.typeLabel} · {question.choices.length} choices</small></span>
               <Icon name="chevronRight" size={16} />
             </button>
           ))}
-          <button className="prof-ai-entry" type="button" onClick={startQuestion}>
-            <Icon name="plus" size={18} />
-            <span>
-              <strong>Add a manual question</strong>
-              <small>MCQ or True/False</small>
-            </span>
-          </button>
+          {editable ? <button className="prof-ai-entry" type="button" onClick={startQuestion}><Icon name="plus" size={18} /><span><strong>Add a manual question</strong><small>MCQ or True/False</small></span></button> : null}
         </aside>
 
         <form className="prof-panel prof-question-editor" onSubmit={saveQuestion} noValidate>
           <div className="prof-panel-heading">
-            <div>
-              <p className="section-kicker">{selected ? `Question ${selected.position}` : 'New question'}</p>
-              <h2>{selected ? 'Edit question' : 'Question details'}</h2>
-            </div>
-            <StatusBadge tone="success">Manually authored</StatusBadge>
+            <div><p className="section-kicker">{selected ? `Question ${selected.position}` : 'New question'}</p><h2>{editable ? (selected ? 'Edit question' : 'Question details') : 'Published question'}</h2></div>
+            <StatusBadge tone={editable ? 'warning' : 'success'}>{editable ? 'Draft' : 'Immutable'}</StatusBadge>
           </div>
           <div className="prof-field-grid">
-            <label className="prof-field">
-              <span>Question type</span>
-              <select value={questionForm.data.type} onChange={(event) => changeType(event.target.value)}>
-                {questionTypes.map((type) => <option value={type.value} key={type.value}>{type.label}</option>)}
-              </select>
-              <FieldError message={questionForm.errors.type} />
-            </label>
-            <div className="prof-field prof-field--question-id">
-              <span>Stable identifier</span>
-              <code>{selected?.id ?? 'Assigned when saved'}</code>
-            </div>
-            <label className="prof-field prof-field--wide">
-              <span>Prompt</span>
-              <textarea rows="4" value={questionForm.data.prompt} onChange={(event) => questionForm.setData('prompt', event.target.value)} aria-invalid={Boolean(questionForm.errors.prompt)} />
-              <FieldError message={questionForm.errors.prompt} />
-            </label>
+            <label className="prof-field"><span>Question type</span><select disabled={!editable} value={questionForm.data.type} onChange={(event) => changeType(event.target.value)}>{questionTypes.map((type) => <option value={type.value} key={type.value}>{type.label}</option>)}</select><FieldError message={questionForm.errors.type} /></label>
+            <div className="prof-field prof-field--question-id"><span>Stable identifier</span><code>{selected?.id ?? 'Assigned when saved'}</code></div>
+            <label className="prof-field prof-field--wide"><span>Prompt</span><textarea disabled={!editable} rows="4" value={questionForm.data.prompt} onChange={(event) => questionForm.setData('prompt', event.target.value)} aria-invalid={Boolean(questionForm.errors.prompt)} /><FieldError message={questionForm.errors.prompt} /></label>
           </div>
 
-          <fieldset className="prof-choice-editor">
+          <fieldset className="prof-choice-editor" disabled={!editable}>
             <legend>Answer choices and correct answer</legend>
             {questionForm.data.choices.map((choice, index) => (
               <label key={choice.id ?? `new-${index}`}>
-                <input
-                  type="radio"
-                  name="correct-choice"
-                  checked={choice.is_correct}
-                  onChange={() => updateChoice(index, 'is_correct', true)}
-                />
+                <input type="radio" name="correct-choice" checked={choice.is_correct} onChange={() => updateChoice(index, 'is_correct', true)} />
                 <span>{String.fromCharCode(65 + index)}</span>
-                <input
-                  aria-label={`Choice ${String.fromCharCode(65 + index)}`}
-                  value={choice.choice_text}
-                  onChange={(event) => updateChoice(index, 'choice_text', event.target.value)}
-                  readOnly={questionForm.data.type === 'true_false'}
-                />
-                {questionForm.data.type === 'multiple_choice' && questionForm.data.choices.length > 2 ? (
-                  <button
-                    className="prof-remove-choice"
-                    type="button"
-                    onClick={() => questionForm.setData('choices', questionForm.data.choices.filter((_, choiceIndex) => choiceIndex !== index))}
-                    aria-label={`Remove choice ${String.fromCharCode(65 + index)}`}
-                  >
-                    <Icon name="close" size={16} />
-                  </button>
-                ) : null}
+                <input aria-label={`Choice ${String.fromCharCode(65 + index)}`} value={choice.choice_text} onChange={(event) => updateChoice(index, 'choice_text', event.target.value)} readOnly={questionForm.data.type === 'true_false' || !editable} />
+                {editable && questionForm.data.type === 'multiple_choice' && questionForm.data.choices.length > 2 ? <button className="prof-remove-choice" type="button" onClick={() => questionForm.setData('choices', questionForm.data.choices.filter((_, choiceIndex) => choiceIndex !== index))} aria-label={`Remove choice ${String.fromCharCode(65 + index)}`}><Icon name="close" size={16} /></button> : null}
               </label>
             ))}
           </fieldset>
           <FieldError message={[...new Set(choiceErrors)].join(' ')} />
-          {questionForm.data.type === 'multiple_choice' && questionForm.data.choices.length < 6 ? (
-            <button
-              className="prof-text-button prof-add-choice"
-              type="button"
-              onClick={() => questionForm.setData('choices', [...questionForm.data.choices, { choice_text: '', is_correct: false }])}
-            >
-              <Icon name="plus" size={16} /> Add choice
-            </button>
-          ) : null}
+          {editable && questionForm.data.type === 'multiple_choice' && questionForm.data.choices.length < 6 ? <button className="prof-text-button prof-add-choice" type="button" onClick={() => questionForm.setData('choices', [...questionForm.data.choices, { choice_text: '', is_correct: false }])}><Icon name="plus" size={16} /> Add choice</button> : null}
 
           <div className="prof-editor-footer">
-            <small className="prof-question-safety">Exactly one correct answer is required. Answer keys are only returned inside this owner-authorized editor.</small>
-            <div>
-              {selected ? (
-                <button className="button button--danger-soft" type="button" onClick={removeQuestion}>Remove</button>
-              ) : null}
-              <button className="button button--primary" type="submit" disabled={questionForm.processing}>
-                {questionForm.processing ? 'Saving…' : selected ? 'Save question' : 'Add question'}
-              </button>
-            </div>
+            <small className="prof-question-safety">Answer keys are returned only inside this owner-authorized editor. Published records are immutable.</small>
+            {editable ? <div>{selected ? <button className="button button--danger-soft" type="button" onClick={removeQuestion}>Remove</button> : null}<button className="button button--primary" type="submit" disabled={questionForm.processing}>{questionForm.processing ? 'Saving…' : selected ? 'Save question' : 'Add question'}</button></div> : null}
           </div>
         </form>
       </div>
 
       <section className="prof-panel prof-policy-locks" aria-labelledby="policy-locks-title">
-        <div>
-          <Icon name="lock" size={20} />
-          <div>
-            <p className="section-kicker">Deliberately unavailable</p>
-            <h2 id="policy-locks-title">Rules, preview, and publishing</h2>
-          </div>
-        </div>
-        <p>Deadline, expiration, timer, scoring, eligibility, publishing, and student-attempt behavior require the remaining D04–D12 decisions. No public access route has been registered.</p>
+        <div><Icon name="lock" size={20} /><div><p className="section-kicker">Still unavailable</p><h2 id="policy-locks-title">Attempt lifecycle and grading</h2></div></div>
+        <p>Publishing and eligibility preflight are implemented under D16 and D22. Start, timer, save, submission, scoring, result release, roster mutation, and administrator mutation remain blocked by their unresolved decisions.</p>
       </section>
     </ProfessorLayout>
   )

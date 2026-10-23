@@ -27,12 +27,21 @@ These are the only assessment boundaries confirmed by ADR-003:
 No prototype copy, schema default, recommendation, or interface in this branch
 expands those approvals.
 
+On 23 October 2026 the product owner also approved:
+
+8. **D16:** immutable published quiz revisions, separate editable drafts,
+   explicit validated re-publication, preserved attempt mappings, and
+   unpublish blocking new starts without deciding running-attempt behavior.
+9. **D22:** verified school-managed student records with active direct or
+   assigned-section eligibility; codes do not authorize; missing, inactive,
+   unverified, unauthorized, or unavailable records deny by default.
+
+The exact scope and exclusions are recorded in ADR-004.
+
 ## Proposed rules requiring explicit sign-off
 
 | Decision | Recommended rule (PROPOSED) | Principal trade-off | Minimum acceptance evidence |
 |---|---|---|---|
-| D22 eligibility | Use an authoritative school roster and active section membership at both preflight and Start; deny by default when the source is unavailable. | Strong privacy and academic control, but roster outages can prevent starts. | Ineligible, stale, cross-section, and unavailable-roster tests return the same safe denial without quiz content. |
-| D16 publication | Publish an immutable quiz revision; later edits create a new draft revision. Unpublish blocks new starts but does not rewrite existing snapshots. | More revision storage and UI complexity, but reproducible attempts. | Concurrent edit/publish tests and snapshot immutability tests. |
 | D10 schedule | Store instants in UTC, display in Asia/Manila, make opening inclusive and closing exclusive. | Precise boundaries; instructors need clear wording. | Controllable-clock tests at one millisecond before, exactly at, and after both boundaries. |
 | D04–D07 timers | Persist all deadlines at Start. If approved timers coexist, the earliest server deadline wins. Reject late mutations and atomically expire the attempt. | Deterministic integrity, but strict expiry can disadvantage connectivity failures. | Browser-clock tampering, reconnect, race, delayed request, and dual-deadline tests. |
 | D08 resume/reset | Resume the same attempt across refresh, sign-in, and devices. Permit no student reset; any staff reset is separately permissioned, reasoned, and audited. | Protects one-attempt integrity; exceptional recovery needs staff support. | Concurrent Start creates one attempt; resume returns identical snapshot/order/deadlines. |
@@ -54,13 +63,14 @@ the related capability:
 - Required automated and manual acceptance tests
 - Rollback, incident, and audit expectations
 
-Unresolved decisions at preparation time: **D04–D07, D09, D12, D16, D22, D23**;
+Unresolved decisions after ADR-004: **D04–D07, D09, D12, D23**;
 partially resolved: **D08, D10, D11, D13–D15**. D28 and D29 also remain open
 for export/accessibility details and do not authorize assessment-engine behavior.
 
 ## Sources of truth
 
 - `MARKADO_Context_Pack/decisions/ADR-003-phase-5b-approved-v1-boundaries.md`
+- `MARKADO_Context_Pack/decisions/ADR-004-v1-publication-and-eligibility.md`
 - `MARKADO_Context_Pack/context/18_open-decisions.md`
 - `docs/phase-5c-assessment-engine-readiness.md`
 

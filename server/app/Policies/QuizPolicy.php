@@ -31,19 +31,42 @@ class QuizPolicy
     public function viewPreflight(User $user, Quiz $quiz): bool
     {
         return $user->role === AccountRole::Student
-            && $quiz->status === QuizStatus::Published;
+            && $quiz->status === QuizStatus::Published
+            && $quiz->current_published_revision_id !== null;
     }
 
     public function update(User $user, Quiz $quiz): bool
     {
         return $this->owns($user, $quiz)
-            && $quiz->status === QuizStatus::Draft;
+            && $quiz->status === QuizStatus::Draft
+            && $quiz->current_published_revision_id === null
+            && $quiz->active_draft_revision_id === null;
     }
 
     public function delete(User $user, Quiz $quiz): bool
     {
         return $this->owns($user, $quiz)
-            && $quiz->status === QuizStatus::Draft;
+            && $quiz->status === QuizStatus::Draft
+            && $quiz->current_published_revision_id === null
+            && $quiz->active_draft_revision_id === null;
+    }
+
+    public function publish(User $user, Quiz $quiz): bool
+    {
+        return $this->owns($user, $quiz);
+    }
+
+    public function unpublish(User $user, Quiz $quiz): bool
+    {
+        return $this->owns($user, $quiz)
+            && $quiz->current_published_revision_id !== null
+            && in_array($quiz->status, [QuizStatus::Published, QuizStatus::Unpublished], true);
+    }
+
+    public function createDraftRevision(User $user, Quiz $quiz): bool
+    {
+        return $this->owns($user, $quiz)
+            && $quiz->current_published_revision_id !== null;
     }
 
     private function owns(User $user, Quiz $quiz): bool

@@ -11,7 +11,7 @@ final class AssessmentEngineCapabilities
     public function toArray(): array
     {
         return [
-            'attemptCreation' => ['enabled' => false, 'blockers' => ['D04', 'D22']],
+            'attemptCreation' => ['enabled' => false, 'blockers' => ['D04', 'D07', 'D09']],
             'timers' => ['enabled' => false, 'blockers' => ['D05', 'D06', 'D07']],
             'answerSaving' => ['enabled' => false, 'blockers' => ['D04', 'D07']],
             'submission' => ['enabled' => false, 'blockers' => ['D07']],

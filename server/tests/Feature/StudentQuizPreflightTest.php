@@ -11,6 +11,7 @@ use App\Models\Quiz;
 use App\Models\QuizChoice;
 use App\Models\QuizQuestion;
 use App\Models\User;
+use App\Services\QuizPublicationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -93,18 +94,19 @@ class StudentQuizPreflightTest extends TestCase
         $this->assertDatabaseCount('quiz_attempts', 0);
     }
 
-    public function test_published_quiz_remains_closed_while_eligibility_policy_is_pending(): void
+    public function test_published_quiz_remains_closed_without_a_verified_school_assignment(): void
     {
         $student = $this->student();
-        $quiz = $this->quiz(QuizStatus::Published, 'LVEZ2345');
+        $quiz = $this->quiz(QuizStatus::Draft, 'LVEZ2345');
         $this->addProtectedQuestion($quiz);
+        $this->publish($quiz);
 
         $this->actingAs($student)
             ->get('/student/quizzes/join/LVEZ2345')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Student/Quizzes/Preflight')
-                ->where('preflight.state', 'policy_pending')
+                ->where('preflight.state', 'unavailable')
                 ->where('preflight.quiz', null)
                 ->where('preflight.canStart', false)
                 ->where('capabilities.attemptCreation.enabled', false)
@@ -119,7 +121,7 @@ class StudentQuizPreflightTest extends TestCase
         $this->assertDatabaseHas('quiz_access_events', [
             'user_id' => $student->id,
             'quiz_id' => $quiz->id,
-            'outcome' => 'policy_pending',
+            'outcome' => 'unavailable',
             'source' => 'join_link',
         ]);
         $this->assertDatabaseCount('quiz_attempts', 0);
@@ -136,8 +138,9 @@ class StudentQuizPreflightTest extends TestCase
         });
 
         $student = $this->student();
-        $quiz = $this->quiz(QuizStatus::Published, 'SAFE2345');
+        $quiz = $this->quiz(QuizStatus::Draft, 'SAFE2345');
         $this->addProtectedQuestion($quiz);
+        $this->publish($quiz);
 
         $this->actingAs($student)
             ->get('/student/quizzes/join/SAFE2345')
@@ -233,5 +236,10 @@ class StudentQuizPreflightTest extends TestCase
             $choice->question()->associate($question);
             $choice->save();
         }
+    }
+
+    private function publish(Quiz $quiz): void
+    {
+        app(QuizPublicationService::class)->publish($quiz->owner, $quiz);
     }
 }

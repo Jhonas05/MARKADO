@@ -45,6 +45,36 @@ class Quiz extends Model
         return $this->hasMany(QuizAttempt::class);
     }
 
+    public function revisions(): HasMany
+    {
+        return $this->hasMany(QuizRevision::class)->orderByDesc('revision_number');
+    }
+
+    public function currentPublishedRevision(): BelongsTo
+    {
+        return $this->belongsTo(QuizRevision::class, 'current_published_revision_id');
+    }
+
+    public function activeDraftRevision(): BelongsTo
+    {
+        return $this->belongsTo(QuizRevision::class, 'active_draft_revision_id');
+    }
+
+    public function studentAssignments(): HasMany
+    {
+        return $this->hasMany(QuizStudentAssignment::class);
+    }
+
+    public function sectionAssignments(): HasMany
+    {
+        return $this->hasMany(QuizSectionAssignment::class);
+    }
+
+    public function publicationEvents(): HasMany
+    {
+        return $this->hasMany(QuizPublicationEvent::class);
+    }
+
     public function accessEvents(): HasMany
     {
         return $this->hasMany(QuizAccessEvent::class);

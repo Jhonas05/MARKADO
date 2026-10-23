@@ -7,3 +7,5 @@ F05,REQ,Date time availability,QA-012,unassigned,proposed,
 F06,REQ,Student number and email registration,QA-004,unassigned,proposed,
 F07,REQ,Randomized questions and choices,QA-031,unassigned,proposed,
 F08,REQ,Help and guide,QA-055,unassigned,proposed,
+D16,DECISION,Immutable published revisions and separate editable drafts,QA-D16,product owner,tested_locally_ci_pending,ADR-004 and QuizPublicationTest
+D22,DECISION,Verified school-managed direct or section eligibility,QA-D22,product owner,tested_locally_ci_pending,ADR-004 and SchoolEligibilityTest

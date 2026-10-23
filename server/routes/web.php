@@ -3,7 +3,10 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AuthenticatedWorkspaceController;
 use App\Http\Controllers\ProfessorQuizController;
+use App\Http\Controllers\ProfessorQuizPublicationController;
 use App\Http\Controllers\ProfessorQuizQuestionController;
+use App\Http\Controllers\ProfessorQuizRevisionController;
+use App\Http\Controllers\ProfessorQuizRevisionQuestionController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentQuizJoinController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
@@ -47,6 +50,20 @@ Route::middleware(['auth', 'account-role:instructor'])
             ->name('quizzes.questions.update');
         Route::delete('quizzes/{quiz}/questions/{question}', [ProfessorQuizQuestionController::class, 'destroy'])
             ->name('quizzes.questions.destroy');
+        Route::post('quizzes/{quiz}/publish', [ProfessorQuizPublicationController::class, 'publish'])
+            ->name('quizzes.publish');
+        Route::post('quizzes/{quiz}/unpublish', [ProfessorQuizPublicationController::class, 'unpublish'])
+            ->name('quizzes.unpublish');
+        Route::post('quizzes/{quiz}/draft-revisions', [ProfessorQuizPublicationController::class, 'createDraft'])
+            ->name('quizzes.revisions.store');
+        Route::put('quizzes/{quiz}/revisions/{revision}', [ProfessorQuizRevisionController::class, 'update'])
+            ->name('quizzes.revisions.update');
+        Route::post('quizzes/{quiz}/revisions/{revision}/questions', [ProfessorQuizRevisionQuestionController::class, 'store'])
+            ->name('quizzes.revisions.questions.store');
+        Route::put('quizzes/{quiz}/revisions/{revision}/questions/{revisionQuestion}', [ProfessorQuizRevisionQuestionController::class, 'update'])
+            ->name('quizzes.revisions.questions.update');
+        Route::delete('quizzes/{quiz}/revisions/{revision}/questions/{revisionQuestion}', [ProfessorQuizRevisionQuestionController::class, 'destroy'])
+            ->name('quizzes.revisions.questions.destroy');
     });
 
 Route::fallback(fn (Request $request) => Inertia::render('ErrorPage', [

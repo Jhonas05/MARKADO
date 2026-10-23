@@ -27,7 +27,7 @@ final class QuizPreflightResolver
         }
 
         $quiz = Quiz::query()
-            ->withCount('questions')
+            ->with(['currentPublishedRevision' => fn ($query) => $query->withCount('questions')])
             ->where('access_code', $normalizedCode)
             ->first();
 
@@ -40,24 +40,25 @@ final class QuizPreflightResolver
         $eligibility = $this->eligibilityGate->evaluate($student, $quiz);
 
         if (! $eligibility->allowed) {
-            $this->events->record($student, $quiz, 'policy_pending', $source);
+            $this->events->record($student, $quiz, 'unavailable', $source);
 
             return new QuizPreflightResult(
-                'policy_pending',
-                'This quiz cannot be joined yet because enrollment and eligibility rules are awaiting approval.',
+                'unavailable',
+                self::GENERIC_UNAVAILABLE,
             );
         }
 
+        $revision = $quiz->currentPublishedRevision;
         $this->events->record($student, $quiz, 'information_available', $source);
 
         return new QuizPreflightResult('information_available', 'Review the quiz information and instructions.', [
             'id' => $quiz->id,
-            'title' => $quiz->title,
-            'courseCode' => $quiz->course_code,
-            'courseName' => $quiz->course_name,
-            'instructions' => $quiz->instructions,
-            'questionCount' => $quiz->questions_count,
-            'displayTimezone' => $quiz->display_timezone,
+            'title' => $revision->title,
+            'courseCode' => $revision->course_code,
+            'courseName' => $revision->course_name,
+            'instructions' => $revision->instructions,
+            'questionCount' => $revision->questions_count,
+            'displayTimezone' => $revision->display_timezone,
         ]);
     }
 }

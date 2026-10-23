@@ -18,10 +18,10 @@ class AuthenticatedWorkspaceController extends Controller
             'foundation' => [
                 'database' => config('database.default'),
                 'persistence' => $isInstructor
-                    ? 'Private quiz drafts and approved question formats are PostgreSQL-backed.'
-                    : 'Authentication is PostgreSQL-backed; prototype student attempts remain disabled.',
+                    ? 'Quiz drafts, immutable publication revisions, and assignment previews are PostgreSQL-backed.'
+                    : 'Authentication and eligibility preflight are PostgreSQL-backed; student attempts remain disabled.',
                 'policyStatus' => $isInstructor
-                    ? 'Phase 5B authoring active'
+                    ? 'Phase 5D publication active'
                     : 'Role-limited foundation',
                 'quizAuthoringUrl' => $isInstructor ? route('professor.quizzes.index') : null,
                 'quizJoinUrl' => $isStudent ? route('student.quizzes.join') : null,
