@@ -57,6 +57,14 @@ export default function EditQuiz({ quiz, questionTypes }) {
     course_code: quiz.courseCode,
     course_name: quiz.courseName ?? '',
     instructions: quiz.instructions ?? '',
+    opens_at: quiz.schedule.opensAt ?? '',
+    closes_at: quiz.schedule.closesAt ?? '',
+    whole_quiz_duration_minutes: quiz.schedule.wholeQuizDurationSeconds
+      ? Math.round(quiz.schedule.wholeQuizDurationSeconds / 60)
+      : '',
+    per_question_duration_seconds: quiz.schedule.perQuestionDurationSeconds ?? '',
+    randomize_questions: quiz.schedule.randomizeQuestions,
+    randomize_choices: quiz.schedule.randomizeChoices,
   })
   const questionForm = useForm(questionData(selected))
   const choiceErrors = Object.entries(questionForm.errors)
@@ -160,11 +168,16 @@ export default function EditQuiz({ quiz, questionTypes }) {
       <ScreenHeader
         eyebrow={`${quiz.courseCode} · ${quiz.statusLabel}`}
         title={quiz.title}
-        description="Publish immutable quiz revisions and preview school-managed assignments. Attempts, timers, scoring, and result release remain disabled."
+        description="Configure immutable schedules, timers, and randomization. The assessment flow is implemented behind a separate operational activation gate."
         actions={(
-          <Link className="button button--secondary" href="/professor/quizzes">
-            <Icon name="arrowLeft" size={18} /> All quizzes
-          </Link>
+          <>
+            <Link className="button button--secondary" href="/professor/quizzes">
+              <Icon name="arrowLeft" size={18} /> All quizzes
+            </Link>
+            <Link className="button button--secondary" href={quiz.resultsPath}>
+              <Icon name="barChart" size={18} /> Results
+            </Link>
+          </>
         )}
       />
       <BuilderSteps published={quiz.status === 'published'} />
@@ -238,14 +251,31 @@ export default function EditQuiz({ quiz, questionTypes }) {
         {!editable ? <p className="prof-immutable-note"><Icon name="lock" size={17} /> This published revision is read-only. Create a draft revision to make changes.</p> : null}
         <form onSubmit={(event) => {
           event.preventDefault()
-          if (editable) details.put(quiz.authoring.detailsPath, { preserveScroll: true })
+          if (editable) {
+            details.transform((data) => ({
+              ...data,
+              whole_quiz_duration_seconds: data.whole_quiz_duration_minutes
+                ? Number(data.whole_quiz_duration_minutes) * 60
+                : null,
+              per_question_duration_seconds: data.per_question_duration_seconds
+                ? Number(data.per_question_duration_seconds)
+                : null,
+            })).put(quiz.authoring.detailsPath, { preserveScroll: true })
+          }
         }}>
           <div className="prof-field-grid">
             <label className="prof-field prof-field--wide"><span>Quiz title</span><input disabled={!editable} value={details.data.title} onChange={(event) => details.setData('title', event.target.value)} aria-invalid={Boolean(details.errors.title)} /><FieldError message={details.errors.title} /></label>
             <label className="prof-field"><span>Course code</span><input disabled={!editable} value={details.data.course_code} onChange={(event) => details.setData('course_code', event.target.value)} aria-invalid={Boolean(details.errors.course_code)} /><FieldError message={details.errors.course_code} /></label>
             <label className="prof-field"><span>Course name <small>(optional)</small></span><input disabled={!editable} value={details.data.course_name} onChange={(event) => details.setData('course_name', event.target.value)} aria-invalid={Boolean(details.errors.course_name)} /><FieldError message={details.errors.course_name} /></label>
             <label className="prof-field prof-field--wide"><span>Student-facing instructions <small>(optional)</small></span><textarea disabled={!editable} rows="3" value={details.data.instructions} onChange={(event) => details.setData('instructions', event.target.value)} aria-invalid={Boolean(details.errors.instructions)} /><FieldError message={details.errors.instructions} /></label>
+            <label className="prof-field"><span>Opens (Asia/Manila)</span><input disabled={!editable} type="datetime-local" value={details.data.opens_at} onChange={(event) => details.setData('opens_at', event.target.value)} aria-invalid={Boolean(details.errors.opens_at)} /><FieldError message={details.errors.opens_at} /></label>
+            <label className="prof-field"><span>Closes (Asia/Manila)</span><input disabled={!editable} type="datetime-local" value={details.data.closes_at} onChange={(event) => details.setData('closes_at', event.target.value)} aria-invalid={Boolean(details.errors.closes_at)} /><FieldError message={details.errors.closes_at} /></label>
+            <label className="prof-field"><span>Whole-quiz timer <small>(minutes, optional)</small></span><input disabled={!editable} type="number" min="1" max="1440" value={details.data.whole_quiz_duration_minutes} onChange={(event) => details.setData('whole_quiz_duration_minutes', event.target.value)} aria-invalid={Boolean(details.errors.whole_quiz_duration_seconds)} /><FieldError message={details.errors.whole_quiz_duration_seconds} /></label>
+            <label className="prof-field"><span>Per-question timer <small>(seconds, optional)</small></span><input disabled={!editable} type="number" min="1" max="3600" value={details.data.per_question_duration_seconds} onChange={(event) => details.setData('per_question_duration_seconds', event.target.value)} aria-invalid={Boolean(details.errors.per_question_duration_seconds)} /><FieldError message={details.errors.per_question_duration_seconds} /></label>
+            <label className="prof-setting-check"><input disabled={!editable} type="checkbox" checked={details.data.randomize_questions} onChange={(event) => details.setData('randomize_questions', event.target.checked)} /><span><strong>Randomize questions</strong><small>Stable once an attempt starts</small></span></label>
+            <label className="prof-setting-check"><input disabled={!editable} type="checkbox" checked={details.data.randomize_choices} onChange={(event) => details.setData('randomize_choices', event.target.checked)} /><span><strong>Randomize choices</strong><small>Uses stable option identifiers</small></span></label>
           </div>
+          {details.errors.schedule ? <p className="prof-validation-summary" role="alert">{details.errors.schedule}</p> : null}
           {editable ? (
             <div className="prof-form-actions">
               {quiz.authoring.mode === 'initial_draft' ? <button className="button button--danger-soft" type="button" onClick={removeQuiz}>Delete draft</button> : <span />}
@@ -302,7 +332,7 @@ export default function EditQuiz({ quiz, questionTypes }) {
 
       <section className="prof-panel prof-policy-locks" aria-labelledby="policy-locks-title">
         <div><Icon name="lock" size={20} /><div><p className="section-kicker">Still unavailable</p><h2 id="policy-locks-title">Attempt lifecycle and grading</h2></div></div>
-        <p>Publishing and eligibility preflight are implemented under D16 and D22. Start, timer, save, submission, scoring, result release, roster mutation, and administrator mutation remain blocked by their unresolved decisions.</p>
+        <p>Assessment Start, timers, saves, submission, scoring, and manual result release are implemented behind default-off operational gates. Roster mutation, administrator mutation, regrading, overrides, ranking, and exports remain unavailable.</p>
       </section>
     </ProfessorLayout>
   )

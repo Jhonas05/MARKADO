@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\NormalizesQuizSchedule;
 use App\Models\QuizRevision;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateQuizRevisionRequest extends FormRequest
 {
+    use NormalizesQuizSchedule;
+
     public function authorize(): bool
     {
         $revision = $this->route('revision');
@@ -21,6 +24,7 @@ class UpdateQuizRevisionRequest extends FormRequest
             'course_code' => ['required', 'string', 'min:2', 'max:32', 'regex:/^[A-Za-z0-9][A-Za-z0-9 ._\/-]*$/'],
             'course_name' => ['nullable', 'string', 'max:120'],
             'instructions' => ['nullable', 'string', 'max:5000'],
+            ...$this->scheduleRules(),
         ];
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class QuizAttempt extends Model
 {
@@ -84,5 +85,15 @@ class QuizAttempt extends Model
     public function answerReceipts(): HasMany
     {
         return $this->hasMany(AttemptAnswerReceipt::class, 'attempt_id');
+    }
+
+    public function result(): HasOne
+    {
+        return $this->hasOne(AttemptResult::class, 'attempt_id');
+    }
+
+    public function auditEvents(): HasMany
+    {
+        return $this->hasMany(AssessmentAuditEvent::class, 'attempt_id');
     }
 }

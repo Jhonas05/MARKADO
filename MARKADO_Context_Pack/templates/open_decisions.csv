@@ -3,14 +3,14 @@ D01,Online internet-hosted web application; not LAN-only or fully offline per-de
 D02,Single school vs multiple institutions/sections,Product (user),DECIDED,2026-10-22,Single-school V1
 D03,V1 question formats,Product (user),DECIDED,2026-10-22,Single-answer MCQ and True/False
 D04,Per-question and whole-quiz timer interaction,Product (user),DECIDED,2026-10-23,Both may run; earliest persisted question/session/global deadline wins; ADR-006
-D05,Behavior on per-question expiry,Product (user),DECIDED_WITH_OPEN_EDGE,2026-10-23,"Lock; retain acknowledged answer; auto-advance; no backward navigation; final-question transition open; ADR-006"
+D05,Behavior on per-question expiry,Product (user),DECIDED,,"Lock; retain acknowledged answer; auto-advance; no backward navigation; final question atomically finalizes; ADR-006 and ADR-007; exact later approval date not recorded"
 D06,Quiz-time expiry behavior,Product (user),DECIDED,2026-10-23,Atomic idempotent finalization with acknowledged answers and stable receipt; ADR-006
 D07,In-progress attempts when quiz closes,Product (user),DECIDED,2026-10-23,Hard close with automatic submission; starts allowed strictly before close; ADR-005
 D08,Allowed attempts and resume rules,Product (user),DECIDED_WITH_OPEN_EXCEPTIONS,2026-10-23,One stable attempt resumes across refresh/sign-in/reconnect/tab/device; staff reset/accommodation authority open; ADR-006
 D09,"Late saves, outage and reconnection policy",Product (user),DECIDED_WITH_OPEN_EXCEPTIONS,2026-10-23,No automatic grace; acknowledgements only; versioned idempotent retries; institution-wide remedies open; ADR-006
 D10,Timezone standard and open/close semantics,Product (user),DECIDED,2026-10-23,Inclusive opening; exclusive closing; UTC persistence; Asia/Manila display; ADR-006
-D11,Result release timing and answer feedback,Product (user),PARTIALLY_DECIDED,2026-10-22,Professor-controlled manual release; feedback open
-D12,Ranking/scoring/tie and repeat-attempt aggregation rules,unassigned,OPEN,,Report reproducibility
+D11,Result release timing and answer feedback,Product (user),DECIDED_WITH_EXCLUSIONS,,"Owning Professor manually releases; student sees score/total only; no answer key item correctness or leaderboard; ADR-007; exact later approval date not recorded"
+D12,Ranking/scoring/tie and repeat-attempt aggregation rules,Product (user),DECIDED_WITH_EXCLUSIONS,,"MCQ and True/False score 1 correct and 0 incorrect/unanswered from immutable snapshots; no weighting percentage rank or tie policy; ADR-007; exact approval date not recorded"
 D13,Student number issuance and verification,Product (user),PARTIALLY_DECIDED,2026-10-22,Student number required; issuance and verification open
 D14,Email verification and duplicate recovery,Product (user),PARTIALLY_DECIDED,2026-10-22,Email required; verification and recovery open
 D15,Instructor/administrator privileges,Product (user),PARTIALLY_DECIDED,2026-10-22,Limited permission-based access; exact grants open

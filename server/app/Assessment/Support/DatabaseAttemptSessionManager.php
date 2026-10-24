@@ -102,18 +102,7 @@ final class DatabaseAttemptSessionManager implements AttemptSessionManager
         $now = $this->clock->now();
 
         if ($attempt->status === 'in_progress') {
-            $effectiveDeadline = $attempt->effective_deadline_at;
-
-            if (! $effectiveDeadline instanceof DateTimeImmutable) {
-                throw new DomainException('The attempt is missing its effective deadline.');
-            }
-
-            if ($now >= $effectiveDeadline) {
-                $this->finalizer->finalizeAtEffectiveDeadline($attempt);
-            } else {
-                $this->questionAdvancer->synchronize($attempt);
-            }
-
+            $this->questionAdvancer->synchronize($attempt);
             $attempt->refresh();
         }
 

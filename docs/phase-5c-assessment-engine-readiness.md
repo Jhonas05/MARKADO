@@ -1,14 +1,15 @@
 # Phase 5C assessment-engine readiness checklist
 
-**Status:** D16 publication, D22 eligibility, D07 hard close, and the ADR-006
-D04-D06/D08-D10 attempt rules are approved. This checklist is not by itself
-authorization to enable unverified student access, scoring, registration,
-roster mutation, privileged overrides, or grade changes.
+**Status:** D16 publication, D22 eligibility, D07 hard close, the ADR-006
+D04-D06/D08-D10 attempt rules, and ADR-007 final-question/scoring/minimal-release
+rules are approved. This checklist is not by itself authorization to enable
+unverified student access, registration, roster mutation, privileged overrides,
+or grade changes.
 
-**Prepared:** 22 October 2026; integration references updated 23 October 2026
+**Prepared:** 22 October 2026; approval status reconciled 24 October 2026
 
 **Implementation base:** integrated `main` at
-`84ff7eba418e600d816e0c092063516569b6300b`
+`23eee253b730c1c88dda4fe7400f4696bc74e2a7`
 
 ## Purpose
 
@@ -28,9 +29,11 @@ must not be treated as approval for any still-open academic policy.
 - [x] Attempt-question snapshots are immutable at the model boundary.
 - [x] Saved answers are constrained to a snapshot belonging to the same
   attempt.
-- [x] Manual result release state is represented without activating release or
-  scoring behavior.
-- [x] Quiz codes and links are reserved without exposing a public attempt route.
+- [x] Objective scoring and owning-Professor manual release are implemented and
+  locally tested behind server-controlled activation; both remain disabled by
+  default.
+- [x] Quiz codes and links resolve through authenticated preflight; attempt
+  mutation routes are authenticated, authorized, and default-disabled.
 - [x] D16 immutable publication revisions, explicit draft-from-published, and
   authorized unpublish are implemented and locally tested.
 - [x] D22 trusted direct/section assignment evaluation is connected to preflight
@@ -39,8 +42,10 @@ must not be treated as approval for any still-open academic policy.
   active attempts are automatically submitted at close without extending time.
 - [x] ADR-006 defines dual-timer precedence, question/session expiry, ordinary
   resume, connectivity acknowledgement, and open/close boundary semantics.
-- [x] Student attempts, registration, scoring, timers, and privileged roster
-  mutation remain disabled.
+- [x] Student attempts and timers are implemented behind server-controlled
+  activation gates; registration and privileged roster mutation remain disabled.
+- [x] ADR-007 approves the final-question terminal transition, integer objective
+  scoring, and owning-Professor manual release of score/total only.
 
 ## Product decisions required before implementation
 
@@ -49,15 +54,15 @@ boundary semantics, student-facing wording, and acceptance-test examples.
 
 | Decision | Required approval | Status |
 |---|---|---|
-| D04 | Both timers may coexist; earliest persisted question/session/global deadline wins | APPROVED â€” ADR-006 |
-| D05 | Lock, preserve acknowledged answer, auto-advance, no backward navigation | APPROVED WITH FINAL-QUESTION EDGE OPEN â€” ADR-006 |
-| D06 | Whole-session expiry atomically finalizes acknowledged answers and returns a stable receipt | APPROVED â€” ADR-006 |
+| D04 | Both timers may coexist; earliest persisted question/session/global deadline wins | APPROVED — ADR-006 |
+| D05 | Lock, preserve acknowledged answer, auto-advance, no backward navigation; final question finalizes | APPROVED — ADR-006 + ADR-007 |
+| D06 | Whole-session expiry atomically finalizes acknowledged answers and returns a stable receipt | APPROVED — ADR-006 |
 | D07 | Hard close, strict no-start boundary, and automatic submission of acknowledged answers | APPROVED — ADR-005 |
-| D08 | Same attempt resumes across refresh/sign-in/reconnect/tab/device; student reset denied; staff exceptions open | APPROVED WITH STAFF EXCEPTIONS OPEN â€” ADR-006 |
-| D09 | Timers continue; acknowledgement-only saves; no automatic grace; idempotent/versioned reconciliation; institutional remedies open | APPROVED WITH INSTITUTIONAL REMEDIES OPEN â€” ADR-006 |
-| D10 | Inclusive open, exclusive close, UTC persistence, Asia/Manila display, server clock authority | APPROVED â€” ADR-006 |
-| D11 | Released feedback contents and answer-key visibility | PARTIAL |
-| D12 | Points, final score, rounding, ties, ranking, and incomplete-grade rules | OPEN |
+| D08 | Same attempt resumes across refresh/sign-in/reconnect/tab/device; student reset denied; staff exceptions open | APPROVED WITH STAFF EXCEPTIONS OPEN — ADR-006 |
+| D09 | Timers continue; acknowledgement-only saves; no automatic grace; idempotent/versioned reconciliation; institutional remedies open | APPROVED WITH INSTITUTIONAL REMEDIES OPEN — ADR-006 |
+| D10 | Inclusive open, exclusive close, UTC persistence, Asia/Manila display, server clock authority | APPROVED — ADR-006 |
+| D11 | Owning Professor manually releases score/total only; answer keys and item feedback hidden | APPROVED WITH RANK/EXPORT EXCLUSIONS — ADR-007 |
+| D12 | One integer point per correct MCQ/T/F snapshot; zero otherwise; no weighting/percentage/rank | APPROVED WITH RANK/TIE EXCLUSIONS — ADR-007 |
 | D13–D14 | Student-number/email issuance, verification, uniqueness, recovery, and duplicate handling | PARTIAL |
 | D15 | Exact administrator permission matrix and audit requirements | PARTIAL |
 | D16 | Immutable publication, separate draft revisions, and unpublish boundaries | APPROVED — ADR-004 |
@@ -71,9 +76,10 @@ copy, mock data, framework conventions, or this document.
 
 ### Policy and UX contract
 
-- [ ] Record the approved attempt state machine and every permitted transition.
-- [x] Define ordinary start, save, and non-close expiry rules in ADR-006. The
-  D05 final-question edge remains disabled pending a separate decision.
+- [x] Record the approved attempt state machine and every permitted transition
+  used by the gated V1 engine; privileged exceptions remain excluded.
+- [x] Define ordinary start, save, non-close expiry, and final-question expiry
+  rules in ADR-006 and ADR-007.
 - [x] Define what `resume` means after refresh, sign-out, reconnect, and use of a
   second tab or device.
 - [x] Define the authoritative save acknowledgement and unsaved-answer warning.
@@ -93,13 +99,15 @@ copy, mock data, framework conventions, or this document.
   role names alone are insufficient.
 - [ ] Define access-code entropy, rotation/revocation, lookup throttling, and
   safe error messages that do not reveal quiz existence.
-- [ ] Confirm every attempt, answer, result, and export endpoint has a Laravel
-  policy or equivalent resource-scope authorization check.
-- [ ] Confirm Inertia shared props, page props, validation errors, logs, and
-  browser history cannot expose answer keys or unreleased results.
+- [x] Confirm every implemented attempt, answer, and result endpoint has a
+  Laravel policy or equivalent resource-scope authorization check. Export
+  endpoints are not implemented.
+- [x] Confirm tested Inertia shared/page props and validation responses do not
+  expose answer keys or unreleased results; browser-history review remains a
+  manual operational check.
 - [ ] Approve audit events for start, save rejection, submit, expiry, release,
   regrade, access change, and privileged record access.
-- [ ] Confirm development and test fixtures contain synthetic identities only.
+- [x] Confirm the added automated fixtures contain synthetic identities only.
 
 ### Data and transaction design
 
@@ -111,14 +119,16 @@ copy, mock data, framework conventions, or this document.
   refresh or reconnect.
 - [x] Choose and document the immutable quiz revision/snapshot creation point
   in ADR-004.
-- [ ] Persist randomized question and choice order by stable IDs, never display
-  letters or array indexes.
-- [ ] Validate every submitted choice against the attempt's immutable snapshot.
-- [ ] Define stable idempotency keys for Start, answer saves, and Submit.
-- [ ] Make terminal submit/expire transitions atomic under PostgreSQL locking or
-  an equivalent concurrency control.
-- [ ] Preserve submitted answers and original calculated results; adjustments
-  must be separate, attributed audit records.
+- [x] Persist randomized question and choice order by stable IDs; display
+  letters are presentation only and never scoring authority.
+- [x] Validate every submitted choice against the attempt's immutable snapshot.
+- [x] Define stable operation identity: database uniqueness plus owner/quiz for
+  Start, client operation keys plus versions for saves, and one server receipt
+  for terminal transitions.
+- [x] Make terminal submit/expire transitions atomic under PostgreSQL row locks
+  and uniqueness constraints.
+- [x] Preserve submitted answers and the first calculated result. Adjustments
+  remain disabled pending D23 and must later be separate audited records.
 - [ ] Review constraints and indexes with PostgreSQL query plans for join,
   resume, monitoring, and result-release paths.
 - [ ] Use additive, reversible migrations and rehearse backup/restore before any
@@ -129,8 +139,8 @@ copy, mock data, framework conventions, or this document.
 - [x] Approve Laravel as the authority for authentication, eligibility, availability, deadlines,
   answer acceptance, terminal state, and result visibility.
 - [x] Approve React countdowns and client validations as display aids only.
-- [ ] No correct-answer flag, rubric, foreign attempt data, or unreleased score
-  reaches the student payload.
+- [x] No correct-answer flag, rubric, foreign attempt data, or unreleased score
+  reaches the tested student projections.
 - [x] D07 requires that a delayed close worker cannot extend the persisted
   global close; request-time enforcement remains authoritative.
 - [x] Approve refresh and reconnection rehydrating the server attempt, saved answers,
@@ -143,29 +153,30 @@ copy, mock data, framework conventions, or this document.
 Run these tests against PostgreSQL, not an SQLite substitute for database
 invariants.
 
-- [ ] Duplicate or concurrent Start requests produce one student/quiz attempt.
-- [ ] Start is rejected for unauthenticated, ineligible, unpublished, closed, or
+- [x] Duplicate or concurrent Start requests produce one student/quiz attempt.
+- [x] Start is rejected for unauthenticated, ineligible, unpublished, closed, or
   foreign resources without leaking protected data.
-- [ ] Refresh/reconnect returns the same attempt, snapshot order, saved answers,
+- [x] Refresh/reconnect returns the same attempt, snapshot order, saved answers,
   and persisted deadlines.
-- [ ] Answer-save retries are idempotent and cross-attempt question/choice IDs
+- [x] Answer-save retries are idempotent and cross-attempt question/choice IDs
   are rejected.
-- [ ] A save racing a deadline or terminal transition cannot mutate locked work.
-- [ ] Double Submit and submit/expire races persist exactly one terminal outcome
+- [x] A save racing a deadline or terminal transition cannot mutate locked work.
+- [x] Double Submit and submit/expire races persist exactly one terminal outcome
   and one stable receipt.
-- [ ] Browser clock changes cannot extend time or make a late mutation valid.
-- [ ] Exact open/close/deadline boundaries pass using a controllable server clock.
-- [ ] Published-quiz edits cannot alter an already-created attempt snapshot.
-- [ ] Randomization includes each eligible item once and preserves correctness
+- [x] Browser clock input is absent from decision contracts and cannot extend
+  time or make a late mutation valid.
+- [x] Exact open/close/deadline boundaries pass using a controllable server clock.
+- [x] Published-quiz edits cannot alter an already-created attempt snapshot.
+- [x] Randomization includes each eligible item once and preserves correctness
   through stable IDs.
-- [ ] Forged scores, remaining-time values, statuses, ownership IDs, and release
+- [x] Forged scores, remaining-time values, statuses, ownership IDs, and release
   flags are ignored or rejected server-side.
-- [ ] Students cannot retrieve another student's attempt, answers, or results.
-- [ ] Instructors cannot retrieve another instructor's private quiz or its
+- [x] Students cannot retrieve another student's attempt, answers, or results.
+- [x] Instructors cannot retrieve another instructor's private quiz or its
   attempts/results.
-- [ ] Unreleased results remain inaccessible through HTTP, Inertia props,
-  browser history, and direct identifiers.
-- [ ] Manual release is authorized, auditable, repeat-safe, and does not reveal
+- [x] Unreleased results remain inaccessible through tested HTTP/Inertia props
+  and direct identifiers; browser history remains part of manual QA.
+- [x] Manual release is authorized, auditable, repeat-safe, and does not reveal
   unapproved feedback.
 - [ ] Keyboard, screen-reader, desktop, and mobile attempt flows are checked.
 - [ ] PHPUnit, Pint, ESLint, Vitest, production builds, and the full GitHub
@@ -181,8 +192,8 @@ invariants.
    React/Inertia feedback and reconnect recovery.
 4. **Submission and expiry:** one atomic terminal transition with a stable
    receipt and deterministic race handling.
-5. **Scoring and release:** implement only the approved D11/D12 rules, retain
-   keys server-side, and gate student visibility behind professor release.
+5. **Scoring and release:** implement the ADR-007 rules, retain keys server-side,
+   and gate student score/total visibility behind Professor release.
 6. **Monitoring and operations:** scoped instructor status views, audit events,
    metrics without answer content, and recovery exercises.
 
@@ -192,19 +203,18 @@ not be used to smuggle an unresolved policy into an earlier one.
 
 ## Pull-request integration gate
 
-- [x] PR #1–#9 were integrated into `main` under separate approvals.
-- [x] Phase 5D starts from verified PR #9 merge commit
-  `84ff7eba418e600d816e0c092063516569b6300b`.
+- [x] PR #1–#15 were integrated into `main` under separate approvals.
+- [x] V7 starts from verified integrated main
+  `23eee253b730c1c88dda4fe7400f4696bc74e2a7`.
 - [x] Existing feature branches and ancestry were preserved during integration.
 - [x] The active local development checkout and ignored `.env` were preserved;
   Phase 5D work uses an isolated worktree.
 - [ ] Repeat conflict, secret, personal-data, and unintended-diff review for the
-  Phase 5D pull request before any future merge approval.
+  V7 implementation pull request before any future merge approval.
 - [ ] Never force-push, rewrite the stack, or auto-merge a dependent PR.
 
-The former PR #1–#9 dependency chain is complete. Phase 5D is delivered from
-`feat/v1-publication-eligibility` to `main` and must not be merged without
-separate authorization.
+The former PR #1–#15 dependency chain is complete. New implementation work must
+use a separate branch and must not be merged without separate authorization.
 
 ## Phase 5C exit criteria
 
@@ -228,6 +238,7 @@ separate authorization.
 - `MARKADO_Context_Pack/decisions/ADR-004-v1-publication-and-eligibility.md`
 - `MARKADO_Context_Pack/decisions/ADR-005-v1-hard-close-auto-submission.md`
 - `MARKADO_Context_Pack/decisions/ADR-006-v1-dual-timers-and-attempt-policy.md`
+- `MARKADO_Context_Pack/decisions/ADR-007-v1-final-question-scoring-and-result-release.md`
 - `MARKADO_Context_Pack/context/04_user-journeys-and-states.md`
 - `MARKADO_Context_Pack/context/07_timers-schedules-and-attempts.md`
 - `MARKADO_Context_Pack/context/08_questions-randomization-and-scoring.md`

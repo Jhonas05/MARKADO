@@ -23,9 +23,9 @@ export function PolicyBanner() {
       <Icon name="shield" size={17} />
       <p>
         <strong>Controlled assessment boundary.</strong> Immutable revisions and
-        school-managed eligibility are active. Timer and resume policies are approved,
-        while production attempt activation, scoring, result feedback, and privileged
-        roster changes remain gated until their implementation and security checks pass.
+        school-managed eligibility are active. The assessment, objective scoring,
+        and manual score/total release flow is implemented behind a server-controlled
+        activation gate. Identity authority and privileged roster changes remain gated.
       </p>
     </div>
   )

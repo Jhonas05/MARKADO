@@ -1,18 +1,18 @@
 # MARKADO Progress Tracker
 
-**Updated:** 23 October 2026. States distinguish interactive UI evidence from
+**Updated:** 24 October 2026. States distinguish interactive UI evidence from
 production implementation. A prototype state does not claim Laravel,
 PostgreSQL, authentication, authoritative timing, or policy completion.
 
 | ID | Deliverable | State | Evidence | Blockers |
 |---|---|---|---|---|
-| F01 | Dual timers | POLICY APPROVED / ENGINE NOT ACTIVE | ADR-006 specifies server-authoritative precedence and expiry; prototype countdown remains display-only | Implement persistence/routes/concurrency; D05 final-question edge |
-| F02 | Results + exports | UI PROTOTYPE | Local result preview and question breakdown in `src/App.jsx`; no export implementation | PDF/DOCX, D11-D12 |
-| F03 | Access code/link | BACKEND FOUNDATION | Authenticated, rate-limited server lookup; immutable publication state; D22 eligibility gate; safe Inertia preflight | Implement and verify approved Start/resume engine; D13-D15 production identity/authority |
+| F01 | Dual timers | IMPLEMENTED / DEFAULT-DISABLED | ADR-006/007; persisted server deadlines, request-time reconciliation, bounded expiry command, PostgreSQL tests; React countdown is display-only | Operational scheduler activation; D13-D15 production authority |
+| F02 | Results + exports | MINIMAL RESULTS IMPLEMENTED / EXPORTS PROTOTYPE | ADR-007 objective scoring, owner-only repeat-safe release, student score/total projection; no real export | Rank/tie and PDF/DOCX policy/implementation; D23 |
+| F03 | Access code/link | GATED FLOW IMPLEMENTED | Authenticated, rate-limited preflight plus explicit Start/resume behind default-off server activation | D13-D15 production identity/authority and operations activation |
 | F04 | AI draft generator | NOT STARTED | - | D17-D20 |
-| F05 | Date/time availability | POLICY APPROVED / BACKEND FOUNDATION | ADR-005/006 define inclusive open, exclusive close, UTC persistence, Asia/Manila display, and expiry outcomes | Implement Start/session/question enforcement and operational workers |
+| F05 | Date/time availability | IMPLEMENTED / DEFAULT-DISABLED | UTC persistence, Asia/Manila authoring, immutable revision snapshot, Start/session/question enforcement, scheduled command tests | Operational scheduler and migration rehearsal |
 | F06 | Student number + email | NOT STARTED | - | D02,D13-D14 |
-| F07 | Randomization | NOT STARTED | - | D03 |
+| F07 | Randomization | IMPLEMENTED / DEFAULT-DISABLED | Stable per-attempt question/choice permutation IDs and snapshot-key scoring tests | Unsupported order-sensitive formats remain out of scope |
 | F08 | Help / Guide | UI PROTOTYPE | Context-sensitive accessible panel and automated interaction test | Content approval and D21 |
 
 Update based on actual repository and QA evidence only.
@@ -23,6 +23,7 @@ Update based on actual repository and QA evidence only.
 |---|---|---|---|---|
 | D16 | APPROVED 23 Oct 2026 | IMPLEMENTED on Phase 5D feature branch: revisions, validation, ownership, publish/unpublish, audit | TESTED locally and by PR #10 GitHub Actions | Instructor-initiated unpublish behavior for active attempts remains separate from scheduled D07 close |
 | D22 | APPROVED 23 Oct 2026 | IMPLEMENTED on Phase 5D feature branch: trusted records, direct/section assignments, deny-by-default preflight | TESTED locally and by PR #10 GitHub Actions | D13-D15 verification and privileged mutation authority |
-| D07 | APPROVED 23 Oct 2026 | PREPARED on Phase 5E feature branch: hard-close deadline guard, persistence fields, dormant transactional finalizer | TESTED locally on PostgreSQL 17 and SQLite; PR #11 CI passed | Production Start/save/scheduler integration remains disabled pending implementation verification |
-| D04-D06 | APPROVED 23 Oct 2026 | CONTRACT RECORDED in ADR-006; no production timer route activated | Documentation/traceability review pending PR CI | D05 final-question edge; persistence and concurrency implementation |
-| D08-D10 | APPROVED 23 Oct 2026 WITH NAMED EXCEPTIONS | CONTRACT RECORDED in ADR-006; ordinary resume/connectivity/schedule behavior approved | Documentation/traceability review pending PR CI | Staff/institution-wide remedies; production identity/operations gates |
+| D07 | APPROVED 23 Oct 2026 | IMPLEMENTED behind default-off routes/scheduler flags | TESTED locally on PostgreSQL 17 and SQLite, including delayed and concurrent terminal requests | Operational activation and migration rehearsal |
+| D04-D06 | APPROVED; D05 final edge recorded in ADR-007 | IMPLEMENTED behind default-off flags using one deadline reconciliation path | TESTED locally on PostgreSQL 17 and SQLite, including delayed multi-deadline reconciliation | Exceptional interventions remain outside ordinary flow |
+| D08-D10 | APPROVED 23 Oct 2026 WITH NAMED EXCEPTIONS | IMPLEMENTED for ordinary resume/connectivity/schedule behavior | TESTED locally, including actual concurrent PostgreSQL Start and save/finalization processes | Staff/institution-wide remedies; production identity/operations gates |
+| D11-D12 | APPROVED WITH EXCLUSIONS; exact approval date not recorded | IMPLEMENTED objective 1/0 scoring and owner-only score/total release behind default-off routes | TESTED locally on PostgreSQL 17 and SQLite; CI pending V7 PR | Ranking, ties, percentages, exports, bulk/revoke, overrides, regrade |

@@ -7,15 +7,21 @@ use App\Assessment\Contracts\AttemptFinalizer;
 use App\Assessment\Contracts\AttemptSessionManager;
 use App\Assessment\Contracts\AuthoritativeClock;
 use App\Assessment\Contracts\QuizEligibilityGate;
+use App\Assessment\Contracts\ResultReleaseManager;
 use App\Assessment\Contracts\SchoolEligibilitySource;
+use App\Assessment\Contracts\ScoreCalculator;
 use App\Assessment\Support\AttemptFinalizationCoordinator;
 use App\Assessment\Support\DatabaseAnswerStore;
 use App\Assessment\Support\DatabaseAttemptSessionManager;
 use App\Assessment\Support\DatabaseQuizEligibilityGate;
+use App\Assessment\Support\DatabaseResultReleaseManager;
 use App\Assessment\Support\DatabaseSchoolEligibilitySource;
+use App\Assessment\Support\DatabaseScoreCalculator;
 use App\Assessment\Support\SystemAuthoritativeClock;
 use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use App\Models\QuizRevision;
+use App\Policies\QuizAttemptPolicy;
 use App\Policies\QuizPolicy;
 use App\Policies\QuizRevisionPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -37,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AttemptFinalizer::class, AttemptFinalizationCoordinator::class);
         $this->app->bind(AttemptSessionManager::class, DatabaseAttemptSessionManager::class);
         $this->app->bind(AnswerStore::class, DatabaseAnswerStore::class);
+        $this->app->bind(ScoreCalculator::class, DatabaseScoreCalculator::class);
+        $this->app->bind(ResultReleaseManager::class, DatabaseResultReleaseManager::class);
     }
 
     /**
@@ -45,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(Quiz::class, QuizPolicy::class);
+        Gate::policy(QuizAttempt::class, QuizAttemptPolicy::class);
         Gate::policy(QuizRevision::class, QuizRevisionPolicy::class);
 
         RateLimiter::for('quiz-join', fn (Request $request): Limit => Limit::perMinute(10)

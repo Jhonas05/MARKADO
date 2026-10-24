@@ -1,9 +1,15 @@
-import { Link } from '@inertiajs/react'
+import { Link, router, usePage } from '@inertiajs/react'
 import Icon from '@prototype/components/Icon.jsx'
 import StudentQuizLayout from '../../../Layouts/StudentQuizLayout.jsx'
 
 export default function Preflight({ capabilities, preflight }) {
+  const { errors } = usePage().props
   const available = preflight.state === 'information_available' && preflight.quiz
+
+  function startAssessment() {
+    if (!preflight.canStart) return
+    router.post(`/student/quizzes/${preflight.quiz.id}/attempts`, {}, { preserveScroll: true })
+  }
 
   return (
     <StudentQuizLayout title="Quiz preflight">
@@ -23,6 +29,10 @@ export default function Preflight({ capabilities, preflight }) {
               <dl>
                 <div><dt>Questions</dt><dd>{preflight.quiz.questionCount}</dd></div>
                 <div><dt>Display timezone</dt><dd>{preflight.quiz.displayTimezone}</dd></div>
+                <div><dt>Opens</dt><dd>{preflight.quiz.opensAt ? new Date(preflight.quiz.opensAt).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : 'Not scheduled'}</dd></div>
+                <div><dt>Closes</dt><dd>{preflight.quiz.closesAt ? new Date(preflight.quiz.closesAt).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : 'Not scheduled'}</dd></div>
+                <div><dt>Quiz timer</dt><dd>{preflight.quiz.wholeQuizDurationSeconds ? `${Math.round(preflight.quiz.wholeQuizDurationSeconds / 60)} minutes` : 'Global close only'}</dd></div>
+                <div><dt>Question timer</dt><dd>{preflight.quiz.perQuestionDurationSeconds ? `${preflight.quiz.perQuestionDurationSeconds} seconds each` : 'Off'}</dd></div>
               </dl>
             </section>
 
@@ -46,13 +56,16 @@ export default function Preflight({ capabilities, preflight }) {
           <Link className="button button--secondary" href="/student/quizzes/join">
             <Icon name="arrowLeft" size={18} /> Try another code
           </Link>
-          <button className="button button--primary" type="button" disabled aria-describedby="start-policy-note">
+          <button className="button button--primary" type="button" disabled={!preflight.canStart} onClick={startAssessment} aria-describedby="start-policy-note">
             Start quiz
             <Icon name="arrowRight" size={18} />
           </button>
           <p id="start-policy-note">
-            Attempt creation is disabled pending {capabilities.attemptCreation.blockers.join(' and ')} approval.
+            {preflight.startMessage || (preflight.canStart
+              ? 'Start is a separate server-authorized action. Timers begin only after the server accepts it.'
+              : `Operational activation remains gated by ${capabilities.attemptCreation.blockers.join(' and ')}.`)}
           </p>
+          {errors?.assessment ? <p className="auth-error" role="alert">{errors.assessment}</p> : null}
         </section>
       </main>
     </StudentQuizLayout>

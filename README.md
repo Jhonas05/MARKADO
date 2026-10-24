@@ -39,9 +39,11 @@ Use the **Professor prototype** control in the Student header, or open
 - PDF/DOCX export previews and a searchable Professor guide
 
 The standalone Professor prototype remains local to the browser. The authenticated
-Laravel workspace at `/professor/quizzes` now provides real owner-scoped draft,
-MCQ, and True/False authoring. AI generation, publishing, student attempts,
-monitoring, grading, and exports remain disabled or explicitly simulated.
+Laravel workspace at `/professor/quizzes` provides real owner-scoped draft,
+MCQ, and True/False authoring. The Laravel assessment flow also implements
+server-authoritative attempts, objective scoring, and owner-controlled score
+release behind default-off activation gates. AI generation, rankings, exports,
+and unresolved privileged actions remain disabled or explicitly simulated.
 
 ## Administrator prototype
 

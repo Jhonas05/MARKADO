@@ -112,6 +112,15 @@ class ProfessorQuizController extends Controller
                 'status' => $quiz->status->value,
                 'statusLabel' => $quiz->status->label(),
                 'displayTimezone' => $authoringRecord->display_timezone,
+                'schedule' => [
+                    'opensAt' => $authoringRecord->opens_at?->timezone('Asia/Manila')->format('Y-m-d\TH:i'),
+                    'closesAt' => $authoringRecord->closes_at?->timezone('Asia/Manila')->format('Y-m-d\TH:i'),
+                    'wholeQuizDurationSeconds' => $authoringRecord->whole_quiz_duration_seconds,
+                    'perQuestionDurationSeconds' => $authoringRecord->per_question_duration_seconds,
+                    'randomizeQuestions' => (bool) $authoringRecord->randomize_questions,
+                    'randomizeChoices' => (bool) $authoringRecord->randomize_choices,
+                ],
+                'resultsPath' => "/professor/quizzes/{$quiz->id}/results",
                 'access' => [
                     'code' => $quiz->access_code,
                     'path' => "/student/quizzes/join/{$quiz->access_code}",
@@ -175,7 +184,7 @@ class ProfessorQuizController extends Controller
 
     public function update(UpdateQuizRequest $request, Quiz $quiz): RedirectResponse
     {
-        $quiz->update($request->validated());
+        $quiz->update($request->validatedForPersistence());
 
         return back()->with('success', 'Quiz details saved.');
     }

@@ -4,6 +4,14 @@
 **Approved stack [DECIDED]:** Online web application / **Laravel (PHP)** / **PostgreSQL** / **React + Inertia.js**.  
 **Implementation status:** This is a planning requirements/architecture guide, not evidence of an existing deployed system or completed code.
 
+**Decision reconciliation (24 October 2026):** ADR-007 supersedes stale
+`[OPEN]` references below for the D05 final-question edge and the exact minimal
+D11/D12 scope: final-question expiry finalizes, objective MCQ/True-False scoring
+is 1/0 per immutable snapshot, and only the owning Professor manually releases
+score/total. Ranking, ties, percentages, item feedback, bulk/revoked release,
+exports, overrides, and regrading remain unapproved. The exact approval date was
+not recorded; the documentation date is not substituted for it.
+
 This file combines all 21 `context/` chapters and is convenient for AI assistants requiring a single upload. **F01-F08** are originally requested features; **[DECIDED]** marks user-approved choices; **[REC]** is supplementary implementation guidance; **[OPEN]** requires approval. PostgreSQL and React/Inertia.js were confirmed in a later conversation, not in the original MARKADO worksheet/PDF.
 
 See `decisions/ADR-001-online-laravel.md` and `decisions/ADR-002-postgresql-react-inertia.md` for decision history. The approved stack is not proof that the code is built.
@@ -141,7 +149,7 @@ The eight features below are **requested**. Their detailed implementation criter
 - **F01.2 [REQ]** Student sees remaining time clearly.
 - **F01.3 [REC]** The authoritative attempt timer is computed by the trusted assessment runtime, never from client display time alone.
 - **F01.4 [REC]** Reload, second tab, clock adjustment, or reconnection cannot grant an extension.
-- **F01.5 [DECIDED]** Both timers may run simultaneously. The earliest persisted server deadline wins; question expiry locks/preserves/advances without backward navigation, and whole-session or global expiry finalizes atomically. The final-question per-question-expiry transition remains open.
+- **F01.5 [DECIDED]** Both timers may run simultaneously. The earliest persisted server deadline wins; question expiry locks/preserves/advances without backward navigation, final-question expiry finalizes under ADR-007, and whole-session or global expiry finalizes atomically.
 - **Accept:** A cross-device refresh preserves deadlines; expired answer mutations are rejected; UI announces time warnings accessibly.
 
 ## F02 - Result listing, ranking and export
@@ -404,7 +412,7 @@ These are **three distinct concepts**. They must not be conflated in UI text or 
 ## Deadline model [REC]
 For the approved **online Laravel deployment [DECIDED]**, persist `started_at` from an authoritative server clock and calculate the whole-session deadline from it. Both timers may run simultaneously. Persist each question's actual activation time and deadline; the earliest applicable persisted question, session, or global-close deadline wins. A question deadline never exceeds the effective attempt deadline. On resume or reconnect, the client fetches the stored deadlines and never reissues new ones.
 
-**D04-D06 [DECIDED by ADR-006]:** Question expiry locks the question, preserves its last acknowledged answer, rejects later mutations, and advances once to the next available question with no backward navigation. Whole-session expiry atomically finalizes the attempt using acknowledged answers and returns a stable receipt. The final-question per-question-expiry transition remains [OPEN] and must stay gated.
+**D04-D06 [DECIDED by ADR-006 and ADR-007]:** Question expiry locks the question, preserves its last acknowledged answer, rejects later mutations, and advances once to the next available question with no backward navigation. Whole-session expiry atomically finalizes the attempt using acknowledged answers and returns a stable receipt. ADR-007 decides that final-question expiry atomically finalizes at the persisted question deadline.
 
 **D07 [DECIDED by ADR-005]:** The global closing time truncates every attempt deadline. A student may start strictly before close even if the configured session duration will not fit. At close, active attempts are automatically submitted using the latest server-acknowledged answers.
 
@@ -524,8 +532,14 @@ Columns: student name, student number only if authorized, attempt status, submis
 - Score order: descending earned score on a common basis, then a documented tie policy (e.g. alphabetical as a stable presentation tie-breaker). **Tied scores remain tied academically**; list-position numbering is not necessarily competition rank.
 - If quizzes allow multiple attempts, decide which attempt contributes to the roster [OPEN].
 
-## Results release [OPEN]
-Immediate on submission, after close, or manual professor release? Is the student permitted to see only a score, score + item feedback, correct answers, or class rank? Are ungraded essays labeled Pending? These choices govern both on-screen display and API/export security.
+## Results release [DECIDED WITH EXCLUSIONS]
+ADR-007 requires the authorized owning Professor to manually release a
+finalized, successfully scored result. Before release, the student sees no
+score. After release, the student sees only earned integer points and total
+possible points. Correct answers, item-level correctness, explanations, other
+students' results, and a student leaderboard remain hidden. Bulk/scheduled or
+revoked release, ranking/ties, exports, overrides, and regrading still require
+separate decisions.
 
 ## Filters [REC]
 Quiz; class/section if such grouping exists; completion state; attempt number if enabled; sort mode; score status; date range; optional search. The exported artifact should show the applied filters and a clear generation timestamp/timezone.
@@ -1101,7 +1115,8 @@ The source PDF left deployment and all implementation technologies unspecified. 
 - **ADR-003 (22 October 2026):** Single-school V1; single-answer MCQ and True/False; one resumable attempt; Asia/Manila display timezone; professor-controlled manual result release; student number and email requirements; limited permission-based administration.
 - **ADR-004 (23 October 2026):** D16 immutable published revisions and D22 verified school-managed direct/section eligibility are approved. Running-attempt behavior and D13-D15 verification/mutation authority remain unresolved.
 - **ADR-005 (23 October 2026):** D07 is decided as a hard global close. Eligible students may start strictly before close even when the full session duration will not fit; no start is accepted at or after close; every active attempt is automatically submitted at close using the latest server-acknowledged answers.
-- **ADR-006 (23 October 2026):** D04-D06 and D08-D10 are decided for V1. Dual timers use the earliest persisted server deadline; question expiry locks and advances; whole-session expiry finalizes atomically; one stable attempt resumes across sessions/devices; saves require acknowledgement with no automatic outage grace; opening is inclusive, closing exclusive, storage UTC, and display Asia/Manila. The final-question expiry transition and exceptional staff/institution-wide remedies remain unresolved.
+- **ADR-006 (23 October 2026):** D04-D06 and D08-D10 are decided for V1. Dual timers use the earliest persisted server deadline; question expiry locks and advances; whole-session expiry finalizes atomically; one stable attempt resumes across sessions/devices; saves require acknowledgement with no automatic outage grace; opening is inclusive, closing exclusive, storage UTC, and display Asia/Manila. ADR-007 later resolves the final-question edge; exceptional staff/institution-wide remedies remain unresolved.
+- **ADR-007 (documented 24 October 2026; exact approval date not recorded):** D05 final-question expiry finalizes at its persisted deadline; D12 objective MCQ/True-False snapshot scoring is one point correct and zero otherwise; D11 allows only the owning Professor to manually release score/total. Ranking, ties, percentages, item feedback, bulk/revoked release, exports, overrides, and regrading remain excluded.
 
 ## Decision register
 | ID | Decision / question | Status | Owner or reviewer |
@@ -1110,14 +1125,14 @@ The source PDF left deployment and all implementation technologies unspecified. 
 | D02 | Single school vs multiple institutions/sections | **DECIDED** - single-school V1 | Product (user) |
 | D03 | V1 question formats | **DECIDED** - single-answer MCQ and True/False | Product (user) |
 | D04 | Per-question and whole-quiz timer interaction | **DECIDED** - both may run; earliest persisted question/session/global deadline wins | Product (user), 23 Oct 2026 |
-| D05 | Behavior on per-question expiry | **DECIDED WITH ONE OPEN EDGE** - lock, preserve acknowledged answer, auto-advance, no back navigation; final-question transition unresolved | Product (user), 23 Oct 2026 |
+| D05 | Behavior on per-question expiry | **DECIDED** - lock, preserve acknowledged answer, auto-advance, no back navigation; final question finalizes at its persisted deadline | Product (user); ADR-006 + ADR-007 |
 | D06 | Quiz-time expiry behavior | **DECIDED** - atomically finalize once with acknowledged answers and stable receipt | Product (user), 23 Oct 2026 |
 | D07 | In-progress attempts when quiz closes | **DECIDED** - hard close with automatic submission; starts allowed strictly before close | Product (user), 23 Oct 2026 |
 | D08 | Allowed attempts and resume rules | **DECIDED WITH EXCEPTIONS OPEN** - same attempt resumes with stable state; staff reset/accommodation authority unresolved | Product (user), 23 Oct 2026 |
 | D09 | Late saves, outage and reconnection policy | **DECIDED WITH INSTITUTIONAL REMEDIES OPEN** - timers continue, no automatic grace, acknowledgement-only/versioned saves | Product (user), 23 Oct 2026 |
 | D10 | Timezone standard and open/close semantics | **DECIDED** - inclusive open, exclusive close, UTC persistence, Asia/Manila display | Product (user), 23 Oct 2026 |
-| D11 | Result release timing and answer feedback | **PARTIALLY DECIDED** - professor-controlled manual release | Product (user) |
-| D12 | Ranking/scoring/tie and repeat-attempt aggregation rules | **OPEN** | To assign |
+| D11 | Result release timing and answer feedback | **DECIDED WITH EXCLUSIONS** - owning Professor manually releases score/total only | Product (user); ADR-007; exact date not recorded |
+| D12 | Ranking/scoring/tie and repeat-attempt aggregation rules | **DECIDED WITH EXCLUSIONS** - objective snapshots score 1 correct and 0 otherwise; ranking/ties/repeats excluded | Product (user); ADR-007; exact date not recorded |
 | D13 | Student number issuance and verification | **PARTIALLY DECIDED** - student number required; authority remains open | Product (user) |
 | D14 | Email verification and duplicate recovery | **PARTIALLY DECIDED** - email required; verification/recovery remain open | Product (user) |
 | D15 | Instructor/administrator privileges | **PARTIALLY DECIDED** - limited permission-based administration | Product (user) |
@@ -1138,7 +1153,7 @@ The source PDF left deployment and all implementation technologies unspecified. 
 
 ## Architecture-dependent blockers [OPEN]
 - **Platform:** PostgreSQL (D26) and React/Inertia.js (D27) are **DECIDED**. D28 hosting/managed PostgreSQL/queues/storage/backups and D29 Laravel/PHP plus React/Inertia dependency versions remain OPEN. Do not silently swap the database/frontend or infer Railway, AWS, Supabase, Tailwind, TypeScript or any provider/package.
-- **Academic policy:** ADR-006 resolves ordinary V1 D04-D06/D08-D10 behavior. The D05 final-question edge, D08/D09 exceptional remedies, D11 feedback, D12 scoring/ranking, and D23 overrides remain unresolved. D07 is fixed by ADR-005 and must not be weakened by implementation defaults.
+- **Academic policy:** ADR-006 and ADR-007 resolve ordinary V1 D04-D12 behavior only to their stated boundaries. D08/D09 exceptional remedies, D11/D12 exclusions, and D23 overrides remain unresolved. D07 is fixed by ADR-005 and must not be weakened by implementation defaults.
 - **Identity/privacy:** D13-D15 and D19-D21 still affect verification authority, privileged mutations, retention and accessibility. D22 eligibility evaluation is decided.
 - **AI/material workflow:** D17, D18 and D20 must be settled before transferring educational source material to any service.
 
@@ -1157,7 +1172,7 @@ The source PDF left deployment and all implementation technologies unspecified. 
 At a 10:00 close, a student may start at 09:50 even with a 20-minute configured session, but the effective deadline is 10:00. The server automatically submits at close. A start at exactly 10:00 is denied. When both timer types are enabled, the earliest persisted question, session, or global deadline controls. Question expiry locks and advances; session/global expiry finalizes. Resume and reconnect never regenerate ordering or deadlines, and only server-acknowledged answers count. See ADR-005 and ADR-006.
 
 ## Meeting agenda [REC]
-**Do not re-open D01/D04-D10/D25-D27 just by guessing alternatives.** First choose D28/D29 for production operations and D13/D14 for identity authority. Next settle the D05 final-question edge, exceptional D08/D09 remedies, D11-D12 result/scoring rules, D15/D23 privileged actions, D17/D18/D20 uploaded learning materials/AI, D19 retention, and D21 HCI. Record named approver/date for each new decision.
+**Do not re-open D01/D04-D12/D25-D27 just by guessing alternatives.** First choose D28/D29 for production operations and D13/D14 for identity authority. Next settle exceptional D08/D09 remedies, D11/D12 exclusions, D15/D23 privileged actions, D17/D18/D20 uploaded learning materials/AI, D19 retention, and D21 HCI. Record named approver/date for each new decision.
 
 ---
 

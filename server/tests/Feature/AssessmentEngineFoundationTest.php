@@ -121,7 +121,7 @@ class AssessmentEngineFoundationTest extends TestCase
         $this->assertSame('2026-10-23T01:03:00+00:00', $states[3]->deadline_at->format('Y-m-d\TH:i:sP'));
     }
 
-    public function test_final_question_expiry_stays_gated_without_inventing_early_submission(): void
+    public function test_final_question_expiry_finalizes_at_its_logical_deadline(): void
     {
         [$quiz, $student] = $this->publishedQuiz();
         $clock = new MutableAuthoritativeClock(new DateTimeImmutable('2026-10-23T01:00:00+00:00'));
@@ -132,10 +132,28 @@ class AssessmentEngineFoundationTest extends TestCase
         $resumed = $manager->resumeOrCreate($student, $quiz);
         $attempt = QuizAttempt::query()->findOrFail($session->attemptId);
 
-        $this->assertSame('in_progress', $resumed->status);
+        $this->assertSame('submitted', $resumed->status);
         $this->assertNull($resumed->currentQuestionPosition);
-        $this->assertSame('awaiting_final_question_policy', $attempt->progress_state);
-        $this->assertNull($attempt->submitted_at);
+        $this->assertSame('finalized', $attempt->progress_state);
+        $this->assertSame('final_question_expired', $attempt->finalization_reason);
+        $this->assertSame('2026-10-23T01:03:00+00:00', $attempt->submitted_at->format('Y-m-d\TH:i:sP'));
+    }
+
+    public function test_delayed_reconciliation_preserves_earliest_final_question_deadline_before_global_close(): void
+    {
+        [$quiz, $student] = $this->publishedQuiz();
+        $clock = new MutableAuthoritativeClock(new DateTimeImmutable('2026-10-23T01:53:00+00:00'));
+        $manager = $this->manager($clock);
+        $session = $manager->resumeOrCreate($student, $quiz);
+        $clock->advanceTo(new DateTimeImmutable('2026-10-23T02:02:00+00:00'));
+
+        $resumed = $manager->resumeOrCreate($student, $quiz);
+        $attempt = QuizAttempt::query()->findOrFail($session->attemptId);
+
+        $this->assertSame('submitted', $resumed->status);
+        $this->assertSame('final_question_expired', $attempt->finalization_reason);
+        $this->assertSame('2026-10-23T01:56:00+00:00', $attempt->submitted_at->format('Y-m-d\TH:i:sP'));
+        $this->assertSame('2026-10-23T02:02:00+00:00', $attempt->finalized_at->format('Y-m-d\TH:i:sP'));
     }
 
     public function test_simultaneous_question_and_session_deadline_finalizes_the_attempt_once(): void
@@ -304,7 +322,7 @@ class AssessmentEngineFoundationTest extends TestCase
     private function manager(MutableAuthoritativeClock $clock): DatabaseAttemptSessionManager
     {
         $finalizer = new AttemptFinalizationCoordinator($clock);
-        $advancer = new QuestionDeadlineAdvancer($clock);
+        $advancer = new QuestionDeadlineAdvancer($clock, $finalizer);
 
         return new DatabaseAttemptSessionManager(
             new DatabaseQuizEligibilityGate(new DatabaseSchoolEligibilitySource),
@@ -316,10 +334,11 @@ class AssessmentEngineFoundationTest extends TestCase
 
     private function answerStore(MutableAuthoritativeClock $clock): DatabaseAnswerStore
     {
+        $finalizer = new AttemptFinalizationCoordinator($clock);
+
         return new DatabaseAnswerStore(
             $clock,
-            new AttemptFinalizationCoordinator($clock),
-            new QuestionDeadlineAdvancer($clock),
+            new QuestionDeadlineAdvancer($clock, $finalizer),
         );
     }
 

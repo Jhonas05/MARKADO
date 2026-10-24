@@ -1,5 +1,13 @@
 # Question Formats, Randomization and Scoring Integrity
 
+## Approved V1 objective scope [DECIDED]
+ADR-003 limits V1 to single-answer multiple choice and True/False. ADR-007
+awards one integer point for the correct stable choice and zero for an incorrect
+or unanswered item, using the immutable attempt snapshot. Negative marking,
+partial credit, weights, percentages, pass/fail thresholds, curves, ranks, ties,
+and regrading remain outside this decision. The broader candidates below remain
+recommendations for a later scope, not V1 approvals.
+
 ## Format choices [OPEN]
 The provided source does not approve a final V1 set. Candidate formats [REC] are multiple choice single answer, true/false, multi-select, short identification, matching, and essay/manual evaluation. Before coding, decide for each: input shape, automatic scoring support, points, partial credit, case sensitivity, spelling tolerance, and keyboard accessibility.
 

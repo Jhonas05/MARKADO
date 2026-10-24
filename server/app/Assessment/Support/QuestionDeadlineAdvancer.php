@@ -2,6 +2,7 @@
 
 namespace App\Assessment\Support;
 
+use App\Assessment\Contracts\AttemptFinalizer;
 use App\Assessment\Contracts\AuthoritativeClock;
 use App\Models\AttemptQuestionState;
 use App\Models\QuizAttempt;
@@ -11,7 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 final class QuestionDeadlineAdvancer
 {
-    public function __construct(private readonly AuthoritativeClock $clock) {}
+    public function __construct(
+        private readonly AuthoritativeClock $clock,
+        private readonly AttemptFinalizer $finalizer,
+    ) {}
 
     public function synchronize(QuizAttempt $attempt): void
     {
@@ -21,18 +25,8 @@ final class QuestionDeadlineAdvancer
                 ->lockForUpdate()
                 ->findOrFail($attempt->id);
 
-            if ($lockedAttempt->status !== 'in_progress' || $lockedAttempt->current_question_position === null) {
+            if ($lockedAttempt->status !== 'in_progress') {
                 return;
-            }
-
-            $questionSeconds = $lockedAttempt->revision?->per_question_duration_seconds;
-
-            if ($questionSeconds === null) {
-                return;
-            }
-
-            if ($questionSeconds < 1) {
-                throw new DomainException('The persisted per-question duration is invalid.');
             }
 
             $effectiveDeadline = $lockedAttempt->effective_deadline_at;
@@ -42,9 +36,26 @@ final class QuestionDeadlineAdvancer
             }
 
             $now = $this->clock->now();
+            $questionSeconds = $lockedAttempt->revision?->per_question_duration_seconds;
 
-            if ($now >= $effectiveDeadline) {
+            if ($lockedAttempt->current_question_position === null) {
+                if ($now >= $effectiveDeadline) {
+                    $this->finalizer->finalizeAtEffectiveDeadline($lockedAttempt);
+                }
+
                 return;
+            }
+
+            if ($questionSeconds === null) {
+                if ($now >= $effectiveDeadline) {
+                    $this->finalizer->finalizeAtEffectiveDeadline($lockedAttempt);
+                }
+
+                return;
+            }
+
+            if ($questionSeconds < 1) {
+                throw new DomainException('The persisted per-question duration is invalid.');
             }
 
             while ($lockedAttempt->current_question_position !== null) {
@@ -58,7 +69,15 @@ final class QuestionDeadlineAdvancer
                     ->firstOrFail();
                 $deadline = $state->deadline_at;
 
-                if (! $deadline instanceof DateTimeImmutable || $now < $deadline) {
+                if (! $deadline instanceof DateTimeImmutable) {
+                    if ($now >= $effectiveDeadline) {
+                        $this->finalizer->finalizeAtEffectiveDeadline($lockedAttempt);
+                    }
+
+                    return;
+                }
+
+                if ($now < $deadline) {
                     return;
                 }
 
@@ -74,11 +93,7 @@ final class QuestionDeadlineAdvancer
                     ->first();
 
                 if ($nextSnapshot === null) {
-                    $lockedAttempt->forceFill([
-                        'current_question_position' => null,
-                        'progress_state' => 'awaiting_final_question_policy',
-                        'lock_version' => $lockedAttempt->lock_version + 1,
-                    ])->save();
+                    $this->finalizer->finalizeAtQuestionDeadline($lockedAttempt, $deadline);
 
                     return;
                 }

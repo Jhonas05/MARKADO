@@ -1,13 +1,12 @@
 # Phase 5E assessment-engine implementation contract
 
-**Updated:** 23 October 2026
+**Updated:** 24 October 2026
 
 **Status:** D07 hard close is approved by ADR-005. D04-D06 and D08-D10 are
-approved within the exact ADR-006 boundaries. Existing Phase 5E seams remain
-dormant until their routes, authorization, PostgreSQL concurrency behavior, and
-acceptance tests are implemented and verified. This document does not approve
-scoring, released feedback, public self-verification, privileged overrides, or
-the final-question per-question-expiry transition.
+approved within ADR-006. ADR-007 approves the final-question terminal
+transition, one-point objective scoring, and manual release of score/total only.
+Public self-verification, privileged overrides, regrading, ranking, and
+operational activation remain outside this contract.
 
 ## Approved deadline hierarchy
 
@@ -36,8 +35,8 @@ the final-question per-question-expiry transition.
 - Disable backward navigation whenever per-question timing is enabled.
 - Use a persisted activation/deadline record so refresh, another tab/device, or
   reconnect cannot issue fresh question time.
-- Keep the final-question expiry transition disabled until its explicit policy
-  is approved; do not invent extra time or an early terminal state.
+- Final-question expiry atomically finalizes the attempt at that persisted
+  question deadline under ADR-007.
 
 ## Approved whole-session and global finalization contract
 
@@ -68,21 +67,29 @@ the final-question per-question-expiry transition.
   `Saving`, `Saved`, `Connection Lost`, `Save Failed`, `Submitted`, and `Expired`.
 - No automatic grace period or offline examination mode is approved.
 
-## Prepared Phase 5E code
+## Implemented V7 code behind operational gates
 
 `HardCloseDeadlineGuard` accepts only an injected `AuthoritativeClock`. It
 decides the strict D07 Start boundary, calculates the approved minimum attempt
 deadline, caps question deadlines, and detects a reached deadline.
 
-`AttemptFinalizationCoordinator` serializes student-submit and quiz-close
-transitions, preserves an existing terminal outcome, and returns a stable
-receipt. It currently has no production route, scheduler, interface binding, or
-enabled capability.
+`AttemptFinalizationCoordinator` serializes student-submit and deadline
+transitions, chooses the earliest persisted logical event, preserves an
+existing terminal outcome, and returns a stable receipt. Authenticated routes,
+interface bindings, safe Inertia projections, objective scoring, manual release,
+and a bounded reconciliation command are implemented and locally tested. Normal
+assessment routes and expiration scheduling remain disabled by default through
+trusted server configuration.
 
 The additive Phase 5E migration prepares nullable published-revision and attempt
 deadline/finalization fields. PostgreSQL rejects an effective attempt deadline
 that is not exactly the minimum of its persisted close and optional session
 deadline. The Laravel PostgreSQL connection is pinned to UTC.
+
+The V7 additive migration adds quiz-side schedule/randomization fields,
+one-result-per-attempt persistence, and content-free assessment audit events.
+It has been migrated and tested only in a verified disposable PostgreSQL schema;
+it has not been applied to `markado/public`.
 
 ## Acceptance traceability
 
@@ -94,7 +101,7 @@ deadline. The Laravel PostgreSQL connection is pinned to UTC.
 | D05-02 | Question expires with another available | Locked once; last acknowledgement retained; advances once |
 | D05-03 | Back navigation requested | Denied while per-question timing is enabled |
 | D05-04 | Refresh/reconnect during active question | Same question deadline returned |
-| D05-05 | Final question expires | Remains gated until explicit edge policy |
+| D05-05 | Final question expires | Finalizes once at the persisted question deadline |
 | D06-01 | Whole-session deadline reached | One terminal attempt and stable receipt |
 | D06-02 | Duplicate expiry/finalize requests | Same receipt; no duplicate terminal state/result |
 | D07-01 | Start immediately before close | Allowed using server time |
@@ -113,18 +120,26 @@ deadline. The Laravel PostgreSQL connection is pinned to UTC.
 | D10-02 | Exactly at closing | Start denied |
 | D10-03 | Browser clock differs | No effect on Start/save/deadline/finalization decisions |
 | D10-04 | UTC instant displayed | Correct Asia/Manila value and label |
+| D11-01 | Result not released | Student receives withheld state without score or correctness |
+| D11-02 | Owning Professor releases scored result | Student receives integer score/total only; release is repeat-safe and audited |
+| D11-03 | Foreign instructor or administrator attempts release | Denied before result state changes |
+| D12-01 | Correct/incorrect/unanswered objective items | Each immutable snapshot awards 1/0/0 integer points |
+| D12-02 | Repeated scoring or later quiz revision | One persisted historical score remains unchanged |
+| D12-03 | Scoring fails | Terminal receipt remains; release is blocked; student sees an honest failure state without points |
 
 ## Still blocked
 
-- **D05 final-question edge:** no automatic transition is selected yet.
 - **D08/D09 exceptions:** staff reset, accommodation, override, and institution-
   wide outage remedies remain unresolved and disabled.
-- **D11/D12:** released feedback, scoring, weighting, rounding, ties, and ranking.
+- **D11/D12 exclusions:** ranking/tie presentation, percentages, weighting,
+  bulk/scheduled/revoked release, exports, and regrading remain unresolved.
 - **D13-D15/D23:** identity-verification, account recovery/provisioning,
   privileged administration, reset, regrade, and appeal authority.
-- Production activation still requires implemented authorization, migrations,
-  request contracts, PostgreSQL concurrency tests, operations/queue controls,
-  privacy review, and desktop/mobile/accessibility verification.
+- Production activation still requires D13/D14 identity authority, D15/D23
+  privileged-operation decisions, operational scheduler/queue ownership,
+  migration/backup rehearsal, privacy review, and supported-browser/
+  accessibility sign-off. The code and local test evidence do not activate a
+  live institutional assessment system.
 
 These blockers do not prevent incremental implementation of the approved,
 policy-independent contracts behind disabled capabilities and trusted synthetic

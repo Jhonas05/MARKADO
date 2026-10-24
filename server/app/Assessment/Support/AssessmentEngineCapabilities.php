@@ -5,21 +5,24 @@ namespace App\Assessment\Support;
 final class AssessmentEngineCapabilities
 {
     /**
-     * Implementation readiness is distinct from public route activation.
-     * Trusted fixture services are real; unrestricted student mutations remain
-     * gated until D13/D14 identity authority and the D05 final-question edge are
-     * resolved and reviewed.
+     * Implementation, test activation, and operational activation are separate.
      */
     public function toArray(): array
     {
+        $routesEnabled = (bool) config('assessment.routes_enabled');
+        $expirationEnabled = (bool) config('assessment.expiration_enabled');
+        $activationBlockers = $routesEnabled
+            ? []
+            : ['D13', 'D14', 'operations-activation-review'];
+
         return [
-            'attemptCreation' => ['implemented' => true, 'enabled' => false, 'routeEnabled' => false, 'blockers' => ['D13', 'D14']],
-            'timers' => ['implemented' => true, 'enabled' => false, 'routeEnabled' => false, 'blockers' => ['D05-final-question-edge']],
-            'answerSaving' => ['implemented' => true, 'enabled' => false, 'routeEnabled' => false, 'blockers' => ['D13', 'D14']],
-            'submission' => ['implemented' => true, 'enabled' => false, 'routeEnabled' => false, 'blockers' => ['D13', 'D14']],
-            'hardCloseFinalization' => ['implemented' => true, 'enabled' => false, 'routeEnabled' => false, 'blockers' => ['scheduler-and-route-review']],
-            'scoring' => ['implemented' => false, 'enabled' => false, 'routeEnabled' => false, 'blockers' => ['D12']],
-            'resultRelease' => ['implemented' => false, 'enabled' => false, 'routeEnabled' => false, 'blockers' => ['D11', 'D12']],
+            'attemptCreation' => ['implemented' => true, 'enabled' => $routesEnabled, 'routeEnabled' => $routesEnabled, 'blockers' => $activationBlockers],
+            'timers' => ['implemented' => true, 'enabled' => $routesEnabled, 'routeEnabled' => $routesEnabled, 'blockers' => $activationBlockers],
+            'answerSaving' => ['implemented' => true, 'enabled' => $routesEnabled, 'routeEnabled' => $routesEnabled, 'blockers' => $activationBlockers],
+            'submission' => ['implemented' => true, 'enabled' => $routesEnabled, 'routeEnabled' => $routesEnabled, 'blockers' => $activationBlockers],
+            'hardCloseFinalization' => ['implemented' => true, 'enabled' => $expirationEnabled, 'routeEnabled' => $routesEnabled, 'blockers' => $expirationEnabled ? [] : ['scheduler-operations-activation']],
+            'scoring' => ['implemented' => true, 'enabled' => $routesEnabled, 'routeEnabled' => $routesEnabled, 'blockers' => $activationBlockers],
+            'resultRelease' => ['implemented' => true, 'enabled' => $routesEnabled, 'routeEnabled' => $routesEnabled, 'blockers' => $activationBlockers],
         ];
     }
 }

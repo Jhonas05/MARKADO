@@ -118,10 +118,12 @@ Provisioned instructors can use `/professor/quizzes` for PostgreSQL-backed,
 owner-scoped draft authoring with single-answer MCQ and True/False questions.
 Authenticated students can open the rate-limited `/student/quizzes/join`
 preflight; draft, unknown, and unauthorized codes do not disclose quiz details.
-Access codes are reserved but no public attempt route is registered. Audit events
-contain identifiers and outcomes but no code, question, choice, or answer
-content. Attempt activation, scoring, AI generation, and result release actions
-remain gated by their implementation and policy boundaries.
+When explicitly enabled, eligible students can start or resume one assessment,
+save acknowledged answers, move forward through questions, and finalize at the
+earliest authoritative deadline. Owning instructors can view scored attempts
+and manually release score/total. Audit events contain identifiers and outcomes
+but no code, question, choice, or answer content. AI generation, rankings,
+exports, regrading, and unresolved privileged actions remain unavailable.
 
 ## Internal assessment-engine foundation
 
@@ -131,10 +133,19 @@ server-authoritative session and question deadlines, versioned idempotent answer
 saves, and atomic terminal receipts. The implementation preserves the approved
 hard-close cap and never derives time from the browser.
 
-These services are intentionally not exposed through Start, answer-save, or
-submit routes. D13/D14 identity authority, the D05 final-question-expiry edge,
-and the scheduler/route security review must be resolved before activation;
-scoring and result release remain separately gated by D11/D12. The additive
-assessment migration can be previewed with `php artisan migrate --pretend`.
-Run PostgreSQL-backed tests only against a dedicated disposable test schema,
-never the local development schema.
+ADR-007 records the approved final-question, objective-scoring, and manual
+score/total release rules. The HTTP routes and expiration worker remain off by
+default while D13/D14 identity and recovery, D15/D23 privileged operations, and
+the remaining exception policies are unresolved. The additive assessment
+migration can be previewed with `php artisan migrate --pretend`. Run
+PostgreSQL-backed tests only against a dedicated disposable test schema, never
+the local development schema.
+
+To activate a reviewed environment, set
+`MARKADO_ASSESSMENT_ROUTES_ENABLED=true`. Automatic expiration additionally
+requires `MARKADO_ASSESSMENT_EXPIRATION_ENABLED=true` and one supported Laravel
+scheduler runner (for example, `php artisan schedule:work` locally or a single
+once-per-minute `php artisan schedule:run` production trigger). Request-time
+deadline reconciliation stays authoritative if a worker is delayed; do not
+enable these flags before migrations, provisioned identities, monitoring, and
+the applicable policy approvals are verified.
