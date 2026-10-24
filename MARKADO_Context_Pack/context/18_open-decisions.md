@@ -48,6 +48,10 @@ The source PDF left deployment and all implementation technologies unspecified. 
 | D28 | Production hosting, queues, storage and recovery goals | **OPEN** | Technical + operations |
 | D29 | Laravel version/PHP runtime and dependency support | **OPEN** | Technical lead |
 
+The decision-ready D13/D14/D15/D23 recommendations in
+`../../docs/v8-account-security-activation-readiness.md` are **PROPOSED only**.
+They do not change any status in this register or authorize a mutation route.
+
 ## Architecture-dependent blockers [OPEN]
 - **Platform:** PostgreSQL (D26) and React/Inertia.js (D27) are **DECIDED**. D28 hosting/managed PostgreSQL/queues/storage/backups and D29 Laravel/PHP plus React/Inertia dependency versions remain OPEN. Do not silently swap the database/frontend or infer Railway, AWS, Supabase, Tailwind, TypeScript or any provider/package.
 - **Academic policy:** ADR-006 and ADR-007 resolve the ordinary V1 rules for D04-D12 only to their stated boundaries. D08/D09 exceptional staff or institution-wide remedies, D11 bulk/revoke/item-feedback behavior, D12 percentages/ranking/ties/repeats, and D23 regrade/override authority remain unresolved. D07 is fixed by ADR-005 and must not be weakened by implementation defaults.

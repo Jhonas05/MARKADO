@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\AccountRole;
+use App\Enums\AccountStatus;
 use App\Enums\QuestionType;
 use App\Enums\QuizStatus;
 use App\Models\Quiz;
@@ -83,6 +84,21 @@ class QuizAuthoringTest extends TestCase
         $this->actingAs($intruder)
             ->post("/professor/quizzes/{$quiz->id}/questions", $this->validQuestionPayload())
             ->assertForbidden();
+    }
+
+    public function test_disabled_quiz_owner_loses_route_and_policy_access_immediately(): void
+    {
+        $owner = $this->instructor();
+        $quiz = $this->quizFor($owner);
+        $owner->update(['account_status' => AccountStatus::Disabled]);
+
+        $this->assertFalse($owner->can('view', $quiz));
+        $this->assertFalse($owner->can('update', $quiz));
+
+        $this->actingAs($owner)
+            ->get("/professor/quizzes/{$quiz->id}/edit")
+            ->assertRedirect('/account/disabled');
+        $this->assertGuest();
     }
 
     public function test_owner_can_add_approved_question_types_with_exactly_one_correct_answer(): void

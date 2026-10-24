@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\AccountRole;
+use App\Enums\AccountStatus;
 use App\Enums\QuizStatus;
 use App\Models\Quiz;
 use App\Models\User;
@@ -11,7 +12,7 @@ class QuizPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->role === AccountRole::Instructor;
+        return $this->isActive($user) && $user->role === AccountRole::Instructor;
     }
 
     public function view(User $user, Quiz $quiz): bool
@@ -21,7 +22,7 @@ class QuizPolicy
 
     public function create(User $user): bool
     {
-        return $user->role === AccountRole::Instructor;
+        return $this->isActive($user) && $user->role === AccountRole::Instructor;
     }
 
     /**
@@ -30,7 +31,8 @@ class QuizPolicy
      */
     public function viewPreflight(User $user, Quiz $quiz): bool
     {
-        return $user->role === AccountRole::Student
+        return $this->isActive($user)
+            && $user->role === AccountRole::Student
             && $quiz->status === QuizStatus::Published
             && $quiz->current_published_revision_id !== null;
     }
@@ -71,7 +73,13 @@ class QuizPolicy
 
     private function owns(User $user, Quiz $quiz): bool
     {
-        return $user->role === AccountRole::Instructor
+        return $this->isActive($user)
+            && $user->role === AccountRole::Instructor
             && $quiz->owner_id === $user->getKey();
+    }
+
+    private function isActive(User $user): bool
+    {
+        return $user->account_status === AccountStatus::Active;
     }
 }

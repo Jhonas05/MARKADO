@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountRole;
+use App\Http\Middleware\EnsureActiveAccount;
 use App\Http\Middleware\EnsureAssessmentEngineEnabled;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'account-role' => EnsureAccountRole::class,
+            'active-account' => EnsureActiveAccount::class,
             'assessment-enabled' => EnsureAssessmentEngineEnabled::class,
         ]);
 
