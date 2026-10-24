@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Assessment\Contracts\AuthoritativeClock;
 use App\Assessment\Contracts\QuizEligibilityGate;
 use App\Assessment\Data\QuizEligibilityDecision;
 use App\Enums\AccountRole;
@@ -12,9 +13,11 @@ use App\Models\QuizChoice;
 use App\Models\QuizQuestion;
 use App\Models\User;
 use App\Services\QuizPublicationService;
+use DateTimeImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Support\MutableAuthoritativeClock;
 use Tests\TestCase;
 
 class StudentQuizPreflightTest extends TestCase
@@ -164,6 +167,45 @@ class StudentQuizPreflightTest extends TestCase
                 ->missing('preflight.quiz.answerKey')
                 ->missing('preflight.quiz.isCorrect')
             );
+
+        $this->assertDatabaseCount('quiz_attempts', 0);
+    }
+
+    public function test_enabled_preflight_allows_start_only_strictly_inside_the_server_window(): void
+    {
+        $this->app->bind(QuizEligibilityGate::class, fn () => new class implements QuizEligibilityGate
+        {
+            public function evaluate(User $student, Quiz $quiz): QuizEligibilityDecision
+            {
+                return QuizEligibilityDecision::allowed();
+            }
+        });
+        config()->set('assessment.routes_enabled', true);
+        $clock = new MutableAuthoritativeClock(new DateTimeImmutable('2026-10-24T01:00:00+00:00'));
+        $this->app->instance(AuthoritativeClock::class, $clock);
+
+        $student = $this->student();
+        $quiz = $this->quiz(QuizStatus::Draft, 'WAND2345');
+        $quiz->forceFill([
+            'opens_at' => new DateTimeImmutable('2026-10-24T00:59:00+00:00'),
+            'closes_at' => new DateTimeImmutable('2026-10-24T01:01:00+00:00'),
+        ])->save();
+        $this->addProtectedQuestion($quiz);
+        $this->publish($quiz);
+
+        $this->actingAs($student)
+            ->get('/student/quizzes/join/WAND2345')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('preflight.canStart', true)
+                ->where('preflight.startMessage', 'Start is a separate server-authorized action. Timers begin only after the server accepts it.')
+            );
+
+        $clock->advanceTo(new DateTimeImmutable('2026-10-24T01:01:00+00:00'));
+        $this->actingAs($student)
+            ->get('/student/quizzes/join/WAND2345')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('preflight.canStart', false)
+                ->where('preflight.startMessage', 'This quiz is closed for new attempts.'));
 
         $this->assertDatabaseCount('quiz_attempts', 0);
     }

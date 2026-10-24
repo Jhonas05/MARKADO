@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class AssessmentEngineContractsTest extends TestCase
 {
-    public function test_approved_foundation_contracts_are_bound_without_public_routes(): void
+    public function test_approved_implementation_contracts_are_bound_behind_disabled_routes(): void
     {
         $contracts = [
             AuthoritativeClock::class,
@@ -39,8 +39,10 @@ class AssessmentEngineContractsTest extends TestCase
         $this->assertTrue($this->app->bound(AttemptFinalizer::class));
         $this->assertTrue($this->app->bound(AttemptSessionManager::class));
         $this->assertTrue($this->app->bound(AnswerStore::class));
+        $this->assertTrue($this->app->bound(ScoreCalculator::class));
+        $this->assertTrue($this->app->bound(ResultReleaseManager::class));
 
-        foreach ([DeadlinePlanner::class, TimerPlanner::class, PermutationPlanner::class, ScoreCalculator::class, ResultReleaseManager::class] as $contract) {
+        foreach ([DeadlinePlanner::class, TimerPlanner::class, PermutationPlanner::class] as $contract) {
             $this->assertFalse($this->app->bound($contract));
         }
 
@@ -52,15 +54,27 @@ class AssessmentEngineContractsTest extends TestCase
         }
     }
 
-    public function test_no_attempt_start_answer_save_or_submission_route_is_registered(): void
+    public function test_attempt_routes_are_registered_only_behind_the_server_activation_gate(): void
     {
         $routes = collect(Route::getRoutes()->getRoutes())
             ->map(fn ($route): string => implode('|', $route->methods()).' '.$route->uri())
             ->implode("\n");
 
-        $this->assertStringNotContainsString('student/quizzes/start', $routes);
-        $this->assertStringNotContainsString('student/attempts', $routes);
-        $this->assertStringNotContainsString('answers', $routes);
-        $this->assertStringNotContainsString('submit', $routes);
+        $this->assertStringContainsString('student/attempts/{attempt}/answers', $routes);
+        $this->assertStringContainsString('student/attempts/{attempt}/submit', $routes);
+
+        foreach ([
+            'student.quizzes.attempts.store',
+            'student.attempts.show',
+            'student.attempts.answers.store',
+            'student.attempts.advance',
+            'student.attempts.submit',
+            'professor.quizzes.results.index',
+            'professor.quizzes.results.release',
+        ] as $name) {
+            $route = Route::getRoutes()->getByName($name);
+            $this->assertNotNull($route);
+            $this->assertContains('assessment-enabled', $route->gatherMiddleware());
+        }
     }
 }

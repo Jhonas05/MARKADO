@@ -7,7 +7,7 @@ The eight features below are **requested**. Their detailed implementation criter
 - **F01.2 [REQ]** Student sees remaining time clearly.
 - **F01.3 [REC]** The authoritative attempt timer is computed by the trusted assessment runtime, never from client display time alone.
 - **F01.4 [REC]** Reload, second tab, clock adjustment, or reconnection cannot grant an extension.
-- **F01.5 [DECIDED]** Both timers may run simultaneously. The earliest persisted server deadline wins; question expiry locks/preserves/advances without backward navigation, and whole-session or global expiry finalizes atomically. The final-question per-question-expiry transition remains open.
+- **F01.5 [DECIDED]** Both timers may run simultaneously. The earliest persisted server deadline wins; question expiry locks/preserves/advances without backward navigation, final-question expiry finalizes under ADR-007, and whole-session or global expiry finalizes atomically.
 - **Accept:** A cross-device refresh preserves deadlines; expired answer mutations are rejected; UI announces time warnings accessibly.
 
 ## F02 - Result listing, ranking and export

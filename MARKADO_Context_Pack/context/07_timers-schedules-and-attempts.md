@@ -10,7 +10,7 @@ These are **three distinct concepts**. They must not be conflated in UI text or 
 ## Deadline model [DECIDED]
 For the approved **online Laravel deployment**, persist `started_at` from an authoritative server clock and calculate the whole-session deadline from it. Both timer types may run simultaneously. Persist each question's actual activation time and deadline; the earliest applicable persisted question, session, or global-close deadline wins. A question deadline never exceeds the effective attempt deadline. On resume or reconnect, the client fetches the stored deadlines and never reissues new ones.
 
-**D04-D06 [DECIDED by ADR-006]:** Question expiry locks the question, preserves its last acknowledged answer, rejects later mutations, and advances once to the next available question with no backward navigation. Whole-session expiry atomically finalizes the attempt using acknowledged answers and returns a stable receipt. The final-question per-question-expiry transition remains [OPEN] and must stay gated.
+**D04-D06 [DECIDED by ADR-006 and ADR-007]:** Question expiry locks the question, preserves its last acknowledged answer, rejects later mutations, and advances once to the next available question with no backward navigation. Whole-session expiry atomically finalizes the attempt using acknowledged answers and returns a stable receipt. ADR-007 decides that expiry of the final question atomically finalizes the attempt at that persisted question deadline.
 
 **D07 [DECIDED by ADR-005]:** The global closing time truncates every attempt deadline. A student may start strictly before close even if the configured session duration will not fit. At close, active attempts are automatically submitted using the latest server-acknowledged answers.
 

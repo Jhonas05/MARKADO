@@ -11,8 +11,14 @@ Columns: student name, student number only if authorized, attempt status, submis
 - Score order: descending earned score on a common basis, then a documented tie policy (e.g. alphabetical as a stable presentation tie-breaker). **Tied scores remain tied academically**; list-position numbering is not necessarily competition rank.
 - If quizzes allow multiple attempts, decide which attempt contributes to the roster [OPEN].
 
-## Results release [OPEN]
-Immediate on submission, after close, or manual professor release? Is the student permitted to see only a score, score + item feedback, correct answers, or class rank? Are ungraded essays labeled Pending? These choices govern both on-screen display and API/export security.
+## Results release [DECIDED WITH EXCLUSIONS]
+ADR-007 requires the authorized owning Professor to manually release a
+finalized, successfully scored result. Before release, the student sees no
+score. After release, the student sees only earned integer points and total
+possible points. Correct answers, item-level correctness, explanations, other
+students' results, and a student leaderboard remain hidden. Bulk/scheduled or
+revoked release, ranking/ties, exports, overrides, and regrading still require
+separate decisions.
 
 ## Filters [REC]
 Quiz; class/section if such grouping exists; completion state; attempt number if enabled; sort mode; score status; date range; optional search. The exported artifact should show the applied filters and a clear generation timestamp/timezone.

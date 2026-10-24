@@ -59,6 +59,12 @@ final class QuizPreflightResolver
             'instructions' => $revision->instructions,
             'questionCount' => $revision->questions_count,
             'displayTimezone' => $revision->display_timezone,
+            'opensAt' => $revision->opens_at?->timezone($revision->display_timezone)->toIso8601String(),
+            'closesAt' => $revision->closes_at?->timezone($revision->display_timezone)->toIso8601String(),
+            'wholeQuizDurationSeconds' => $revision->whole_quiz_duration_seconds,
+            'perQuestionDurationSeconds' => $revision->per_question_duration_seconds,
+            'randomizeQuestions' => $revision->randomize_questions,
+            'randomizeChoices' => $revision->randomize_choices,
         ]);
     }
 }

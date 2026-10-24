@@ -7,8 +7,10 @@ use App\Http\Controllers\AuthenticatedWorkspaceController;
 use App\Http\Controllers\ProfessorQuizController;
 use App\Http\Controllers\ProfessorQuizPublicationController;
 use App\Http\Controllers\ProfessorQuizQuestionController;
+use App\Http\Controllers\ProfessorQuizResultController;
 use App\Http\Controllers\ProfessorQuizRevisionController;
 use App\Http\Controllers\ProfessorQuizRevisionQuestionController;
+use App\Http\Controllers\StudentAssessmentController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentQuizJoinController;
 use App\Http\Controllers\StudentWorkspaceController;
@@ -56,6 +58,19 @@ Route::middleware(['auth', 'account-role:student', 'throttle:quiz-join'])
         Route::get('join', [StudentQuizJoinController::class, 'index'])->name('join');
         Route::post('preflight', [StudentQuizJoinController::class, 'store'])->name('preflight.store');
         Route::get('join/{code}', [StudentQuizJoinController::class, 'show'])->name('preflight.show');
+        Route::post('{quiz}/attempts', [StudentAssessmentController::class, 'store'])
+            ->middleware('assessment-enabled')
+            ->name('attempts.store');
+    });
+
+Route::middleware(['auth', 'account-role:student', 'assessment-enabled'])
+    ->prefix('student/attempts')
+    ->name('student.attempts.')
+    ->group(function () {
+        Route::get('{attempt}', [StudentAssessmentController::class, 'show'])->name('show');
+        Route::post('{attempt}/answers', [StudentAssessmentController::class, 'save'])->name('answers.store');
+        Route::post('{attempt}/advance', [StudentAssessmentController::class, 'advance'])->name('advance');
+        Route::post('{attempt}/submit', [StudentAssessmentController::class, 'submit'])->name('submit');
     });
 
 Route::middleware(['auth', 'account-role:instructor'])
@@ -83,6 +98,12 @@ Route::middleware(['auth', 'account-role:instructor'])
             ->name('quizzes.revisions.questions.update');
         Route::delete('quizzes/{quiz}/revisions/{revision}/questions/{revisionQuestion}', [ProfessorQuizRevisionQuestionController::class, 'destroy'])
             ->name('quizzes.revisions.questions.destroy');
+        Route::get('quizzes/{quiz}/results', [ProfessorQuizResultController::class, 'index'])
+            ->middleware('assessment-enabled')
+            ->name('quizzes.results.index');
+        Route::post('quizzes/{quiz}/attempts/{attempt}/release', [ProfessorQuizResultController::class, 'release'])
+            ->middleware('assessment-enabled')
+            ->name('quizzes.results.release');
     });
 
 Route::fallback(fn (Request $request) => Inertia::render('ErrorPage', [

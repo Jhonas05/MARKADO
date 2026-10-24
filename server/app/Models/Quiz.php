@@ -17,6 +17,12 @@ class Quiz extends Model
         'course_code',
         'course_name',
         'instructions',
+        'opens_at',
+        'closes_at',
+        'whole_quiz_duration_seconds',
+        'per_question_duration_seconds',
+        'randomize_questions',
+        'randomize_choices',
     ];
 
     protected $hidden = [
@@ -27,6 +33,12 @@ class Quiz extends Model
     {
         return [
             'status' => QuizStatus::class,
+            'opens_at' => 'immutable_datetime',
+            'closes_at' => 'immutable_datetime',
+            'whole_quiz_duration_seconds' => 'integer',
+            'per_question_duration_seconds' => 'integer',
+            'randomize_questions' => 'boolean',
+            'randomize_choices' => 'boolean',
         ];
     }
 
@@ -78,5 +90,10 @@ class Quiz extends Model
     public function accessEvents(): HasMany
     {
         return $this->hasMany(QuizAccessEvent::class);
+    }
+
+    public function assessmentAuditEvents(): HasMany
+    {
+        return $this->hasMany(AssessmentAuditEvent::class);
     }
 }

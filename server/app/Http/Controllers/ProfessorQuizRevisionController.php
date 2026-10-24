@@ -12,7 +12,7 @@ class ProfessorQuizRevisionController extends Controller
     public function update(UpdateQuizRevisionRequest $request, Quiz $quiz, QuizRevision $revision): RedirectResponse
     {
         abort_unless($revision->quiz_id === $quiz->id, 404);
-        $revision->update($request->validated());
+        $revision->update($request->validatedForPersistence());
 
         return back()->with('success', "Draft revision {$revision->revision_number} details saved.");
     }

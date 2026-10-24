@@ -39,8 +39,9 @@ scoring, released feedback, identity-authority, or privileged override policy.
 5. Refresh, reconnect, another tab, another device, or a changed browser clock
    never regenerates or extends the question deadline.
 6. If the expired question is the final question and no next question exists,
-   the end-of-assessment transition remains **UNRESOLVED**. The implementation
-   must not invent extra time, early finalization, or another terminal outcome.
+   ADR-007 now requires atomic finalization at that question deadline. This
+   supersedes the original unresolved edge while preserving the other D05
+   clauses in this ADR.
 
 ## D06: whole-quiz expiration
 
@@ -131,7 +132,7 @@ All operands are persisted server timestamps. Resume returns them unchanged.
 | D05-03 | Question expires with another question available | Current question locks and attempt advances once |
 | D05-04 | Refresh/reconnect during a question | Original question deadline is returned unchanged |
 | D05-05 | Student requests a previous question under per-question timing | Backward navigation denied |
-| D05-06 | Final question expires | Remains gated until the explicit edge policy is approved |
+| D05-06 | Final question expires | Attempt finalizes once at the question deadline under ADR-007 |
 | D06-01 | Whole-session deadline is reached | Attempt finalizes once with acknowledged answers only |
 | D06-02 | Duplicate expiry/finalize requests | Same stable receipt; no duplicate terminal records |
 | D06-03 | Whole-session and global close race | Earlier deadline controls; one terminal outcome |
@@ -164,10 +165,11 @@ All operands are persisted server timestamps. Resume returns them unchanged.
 
 ## Explicit exclusions and blockers
 
-This ADR does not decide D11 released feedback, D12 scoring/weighting/rounding/
-ranking, D13 student-number authority, D14 email verification/recovery, D15
+ADR-007 subsequently decides the D05 final-question edge and the exact minimal
+D11/D12 release and objective-scoring rules recorded there. This ADR does not
+decide D13 student-number authority, D14 email verification/recovery, D15
 privileged administration, D23 reset/accommodation/regrade/appeal authority,
-or the D05 final-question edge. Those behaviors remain gated.
+or ranking/tie policy. Those behaviors remain gated.
 
 Public registration and unrestricted privileged account creation remain
 disabled. Production activation also requires the related authorization,

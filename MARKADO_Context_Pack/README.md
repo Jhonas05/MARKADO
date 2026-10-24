@@ -13,6 +13,7 @@ Files:
 - `decisions/ADR-004-v1-publication-and-eligibility.md`: immutable publication and school-managed eligibility.
 - `decisions/ADR-005-v1-hard-close-auto-submission.md`: global hard close.
 - `decisions/ADR-006-v1-dual-timers-and-attempt-policy.md`: dual timers, expiry, resume, connectivity, and schedule boundaries.
+- `decisions/ADR-007-v1-final-question-scoring-and-result-release.md`: final-question finalization, objective scoring, and minimal manual result release.
 - `examples/`: synthetic records **only**; never use them as actual school data.
 
 For an AI coding assistant: "Read context/00_START_HERE.md, context/13_architecture-and-interfaces.md, context/18_open-decisions.md and every applicable file in `decisions/` first. Produce a traceable plan. Never silently resolve an [OPEN] policy."

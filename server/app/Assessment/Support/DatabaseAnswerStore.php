@@ -3,7 +3,6 @@
 namespace App\Assessment\Support;
 
 use App\Assessment\Contracts\AnswerStore;
-use App\Assessment\Contracts\AttemptFinalizer;
 use App\Assessment\Contracts\AuthoritativeClock;
 use App\Assessment\Data\AnswerSaveAcknowledgement;
 use App\Assessment\Data\AnswerSaveCommand;
@@ -20,7 +19,6 @@ final class DatabaseAnswerStore implements AnswerStore
 {
     public function __construct(
         private readonly AuthoritativeClock $clock,
-        private readonly AttemptFinalizer $finalizer,
         private readonly QuestionDeadlineAdvancer $questionAdvancer,
     ) {}
 
@@ -47,8 +45,11 @@ final class DatabaseAnswerStore implements AnswerStore
                 return $this->replay($receipt, $command);
             }
 
+            $this->questionAdvancer->synchronize($attempt);
+            $attempt->refresh();
+
             if ($attempt->status !== 'in_progress') {
-                return 'The attempt is already finalized.';
+                return 'The attempt is already finalized at its authoritative deadline.';
             }
 
             $effectiveDeadline = $attempt->effective_deadline_at;
@@ -57,15 +58,6 @@ final class DatabaseAnswerStore implements AnswerStore
             if (! $effectiveDeadline instanceof DateTimeImmutable) {
                 return 'The attempt is missing its authoritative deadline.';
             }
-
-            if ($now >= $effectiveDeadline) {
-                $this->finalizer->finalizeAtEffectiveDeadline($attempt);
-
-                return 'The attempt deadline has been reached.';
-            }
-
-            $this->questionAdvancer->synchronize($attempt);
-            $attempt->refresh();
 
             if ($attempt->lock_version !== $command->expectedVersion) {
                 return 'The attempt state changed. Refresh the authoritative state before saving again.';

@@ -133,6 +133,12 @@ final class QuizPublicationService
             'course_name' => $quiz->course_name,
             'instructions' => $quiz->instructions,
             'display_timezone' => $quiz->display_timezone,
+            'opens_at' => $quiz->opens_at,
+            'closes_at' => $quiz->closes_at,
+            'whole_quiz_duration_seconds' => $quiz->whole_quiz_duration_seconds,
+            'per_question_duration_seconds' => $quiz->per_question_duration_seconds,
+            'randomize_questions' => $quiz->randomize_questions,
+            'randomize_choices' => $quiz->randomize_choices,
         ]);
         $revision->quiz()->associate($quiz);
         $revision->createdBy()->associate($actor);
@@ -192,6 +198,12 @@ final class QuizPublicationService
             'course_name' => $revision->course_name,
             'instructions' => $revision->instructions,
             'display_timezone' => $revision->display_timezone,
+            'opens_at' => $revision->opens_at,
+            'closes_at' => $revision->closes_at,
+            'whole_quiz_duration_seconds' => $revision->whole_quiz_duration_seconds,
+            'per_question_duration_seconds' => $revision->per_question_duration_seconds,
+            'randomize_questions' => $revision->randomize_questions,
+            'randomize_choices' => $revision->randomize_choices,
             'status' => QuizStatus::Published,
             'current_published_revision_id' => $revision->id,
             'active_draft_revision_id' => null,
@@ -200,6 +212,7 @@ final class QuizPublicationService
 
     private function validateAuthoringQuiz(Quiz $quiz): void
     {
+        $this->validateSchedule($quiz);
         $this->validateQuestions($quiz->questions);
     }
 
@@ -211,6 +224,7 @@ final class QuizPublicationService
             ]);
         }
 
+        $this->validateSchedule($revision);
         $this->validateQuestions($revision->questions);
     }
 
@@ -241,6 +255,29 @@ final class QuizPublicationService
 
         if ($errors !== []) {
             throw ValidationException::withMessages($errors);
+        }
+    }
+
+    private function validateSchedule(Quiz|QuizRevision $record): void
+    {
+        if (($record->opens_at === null) !== ($record->closes_at === null)) {
+            throw ValidationException::withMessages([
+                'schedule' => 'Opening and closing times must be configured together.',
+            ]);
+        }
+
+        if ($record->opens_at !== null && $record->opens_at >= $record->closes_at) {
+            throw ValidationException::withMessages([
+                'schedule' => 'The closing time must be after the opening time.',
+            ]);
+        }
+
+        foreach ([$record->whole_quiz_duration_seconds, $record->per_question_duration_seconds] as $duration) {
+            if ($duration !== null && $duration < 1) {
+                throw ValidationException::withMessages([
+                    'schedule' => 'Enabled timer durations must be positive.',
+                ]);
+            }
         }
     }
 

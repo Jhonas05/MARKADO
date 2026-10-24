@@ -17,8 +17,8 @@ MARKADO is a digital quiz and assessment management system for students, instruc
 - **Database:** **PostgreSQL** [DECIDED], as the centralized relational database. PostgreSQL service/host and backup design remain [OPEN].
 - **Frontend:** **React + Inertia.js** [DECIDED]. Laravel handles server routes and authorization; React renders Inertia pages. TypeScript, styling library, SSR strategy and bundler specifics are recommendations/pending verification, not locked choices.
 - **Expected architectural consequence [REC]:** centrally persisted student identities, quizzes, answer saves, deadlines, grades and reports; the server enforces timing and access, while the browser displays state.
-- **Connection-loss behavior [OPEN]:** determine precisely what happens when the learner disconnects or a server is unavailable; never imply that unacknowledged work was saved.
-- **Decision references:** D01-D10, D16, D22, and D25-D27 have approved boundaries across ADR-001 through ADR-006; D24 (offline-only synchronization) is NOT APPLICABLE. Read every applicable file under `../decisions/` and preserve each ADR's explicit exclusions.
+- **Connection-loss behavior [DECIDED WITH EXCEPTIONS OPEN]:** ADR-006 requires timers to continue, counts only server-acknowledged saves, provides no automatic grace, and preserves fixed state on reconnect. Institution-wide remedies remain open.
+- **Decision references:** D01-D12, D16, D22, and D25-D27 have approved boundaries across ADR-001 through ADR-007; several rows have explicit exclusions, and D24 (offline-only synchronization) is NOT APPLICABLE. Read every applicable file under `../decisions/` and preserve each ADR's explicit exclusions.
 
 ## Confirmed requested feature index
 | ID | Requested capability | High-level outcome |
@@ -57,7 +57,7 @@ MARKADO is a digital quiz and assessment management system for students, instruc
 - `15_test-plan-and-QA.md`: automated/manual scenarios and QA gates.
 - `16_operations-reliability-and-observability.md`: runtime and recovery.
 - `17_delivery-roadmap.md`: phases and definitions of done.
-- `18_open-decisions.md`: decided stack and remaining open decision register; see both ADR files under `../decisions/`.
+- `18_open-decisions.md`: decided stack and remaining open decision register; read all applicable ADR files under `../decisions/`.
 - `19_resources-and-source-notes.md`: original-source boundary and credible references.
 - `20_glossary-and-examples.md`: concrete examples and terminology.
 
