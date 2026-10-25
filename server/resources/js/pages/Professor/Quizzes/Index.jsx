@@ -20,7 +20,7 @@ export default function QuizIndex({ quizzes }) {
       <ScreenHeader
         eyebrow="Quiz management"
         title="My quizzes"
-        description="Create and manage your private quiz drafts. Each record is protected by instructor ownership on the server."
+        description="Create, publish, and review quizzes that belong to your account."
         actions={(
           <Link className="button button--primary" href="/professor/quizzes/create">
             <Icon name="plus" size={18} />
@@ -35,7 +35,7 @@ export default function QuizIndex({ quizzes }) {
             <article className="prof-quiz-card" key={quiz.id}>
               <div className="prof-quiz-card__top">
                 <span className="prof-course-tile">{quiz.courseCode.slice(0, 3).toUpperCase()}</span>
-                <StatusBadge tone="warning">{quiz.statusLabel}</StatusBadge>
+                <StatusBadge tone={quiz.status === 'published' ? 'success' : 'warning'}>{quiz.statusLabel}</StatusBadge>
               </div>
               <p>{quiz.courseCode}{quiz.courseName ? ` · ${quiz.courseName}` : ''}</p>
               <h2>{quiz.title}</h2>
@@ -50,7 +50,7 @@ export default function QuizIndex({ quizzes }) {
                 </div>
                 <div>
                   <dt>Access</dt>
-                  <dd>Disabled</dd>
+                  <dd>{quiz.status === 'published' ? 'Published' : 'Private'}</dd>
                 </div>
               </dl>
               <div className="prof-quiz-card__footer">
@@ -65,8 +65,8 @@ export default function QuizIndex({ quizzes }) {
       ) : (
         <section className="prof-panel prof-empty" role="status">
           <Icon name="book" size={30} />
-          <h2>No database-backed drafts yet.</h2>
-          <p>Create your first private quiz and add approved question types.</p>
+          <h2>No quizzes yet</h2>
+          <p>Create your first quiz, then add multiple-choice or True/False questions.</p>
           <Link className="button button--primary prof-empty__action" href="/professor/quizzes/create">
             Create a quiz
           </Link>

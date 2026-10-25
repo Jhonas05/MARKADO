@@ -16,7 +16,7 @@ export default function QuizResults({ attempts, quiz }) {
       <ScreenHeader
         eyebrow={`${quiz.courseCode} · Manual release`}
         title={quiz.title}
-        description="Scores use immutable attempt snapshots. Students receive only earned and maximum points after your explicit release."
+        description="Review submitted scores and choose when each student can see earned and maximum points."
         actions={<Link className="button button--secondary" href={`/professor/quizzes/${quiz.id}/edit`}><Icon name="arrowLeft" size={18} /> Quiz builder</Link>}
       />
 
@@ -43,7 +43,7 @@ export default function QuizResults({ attempts, quiz }) {
             </tbody>
           </table>
         </div>
-        <p className="assessment-policy-note">Ranking, tie numbering, bulk release, regrading, and exports are not enabled by this screen.</p>
+        <p className="assessment-policy-note">Additional reporting tools, including rankings, bulk release, regrading, and exports, are not available yet.</p>
       </section>
     </ProfessorLayout>
   )

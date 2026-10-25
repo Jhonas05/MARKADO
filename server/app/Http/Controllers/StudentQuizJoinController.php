@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Assessment\Contracts\AuthoritativeClock;
-use App\Assessment\Support\AssessmentEngineCapabilities;
 use App\Assessment\Support\QuizPreflightResolver;
 use App\Http\Requests\JoinQuizRequest;
 use DateTimeImmutable;
@@ -18,8 +17,8 @@ class StudentQuizJoinController extends Controller
     {
         return Inertia::render('Student/Quizzes/Join', [
             'policyNotice' => config('assessment.routes_enabled')
-                ? 'Quiz information and Start require a published quiz plus a verified, active school assignment.'
-                : 'Quiz information is available only for published quizzes assigned through verified school records. Starting an attempt remains operationally disabled.',
+                ? 'You can continue only when the quiz is published and assigned to your verified school account.'
+                : 'You can review only published quizzes assigned to your verified school account. Starting quizzes is not available right now.',
         ]);
     }
 
@@ -34,7 +33,6 @@ class StudentQuizJoinController extends Controller
         Request $request,
         string $code,
         QuizPreflightResolver $resolver,
-        AssessmentEngineCapabilities $capabilities,
         AuthoritativeClock $clock,
     ): Response {
         $preflight = $resolver->resolve($request->user(), $code);
@@ -50,16 +48,15 @@ class StudentQuizJoinController extends Controller
             && $withinStartWindow;
         $payload['startMessage'] = match (true) {
             $payload['state'] !== 'information_available' => 'Start is unavailable.',
-            ! config('assessment.routes_enabled') => 'Assessment Start remains operationally disabled.',
-            ! $closesAt instanceof DateTimeImmutable => 'The Professor must configure a valid availability window before Start.',
+            ! config('assessment.routes_enabled') => 'Starting quizzes is not available right now.',
+            ! $closesAt instanceof DateTimeImmutable => 'A valid availability window is required before you can start.',
             $opensAt instanceof DateTimeImmutable && $now < $opensAt => 'This quiz has not opened yet.',
             $now >= $closesAt => 'This quiz is closed for new attempts.',
-            default => 'Start is a separate server-authorized action. Timers begin only after the server accepts it.',
+            default => 'Review the details above, then select Start quiz when you are ready.',
         };
 
         return Inertia::render('Student/Quizzes/Preflight', [
             'preflight' => $payload,
-            'capabilities' => $capabilities->toArray(),
         ]);
     }
 }

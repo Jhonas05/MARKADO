@@ -15,7 +15,7 @@ class AccountAccessController extends Controller
                 'available' => false,
                 'selfRegistrationApproved' => true,
                 'automaticStudentActivationApproved' => true,
-                'message' => 'Secure one-time institutional mailbox verification is approved, but public registration and delivery remain disabled until the school configures its mail service, hourly limit, roster operations, and remaining safeguards.',
+                'message' => 'Your school must finish email delivery, roster setup, and security controls before registration can open.',
                 'requirements' => [
                     'Use your official student number and school-issued institutional email.',
                     'The number and email must match the same active, verified school roster record.',
@@ -38,7 +38,7 @@ class AccountAccessController extends Controller
         return $this->policyGate(
             'Password recovery',
             'Recovery is not available yet',
-            'The institution-managed email verification and account-recovery policy remains pending under D14.',
+            'Password recovery has not been enabled. Return to sign in or contact your school through its usual support channel.',
             'password-recovery',
         );
     }
@@ -58,7 +58,7 @@ class AccountAccessController extends Controller
         return $this->policyGate(
             'Account pending',
             'Your account is awaiting verification',
-            'You cannot enter an assessment workspace until an authorized institution workflow verifies and assigns the account.',
+            'Your school must verify and activate this account before you can open a workspace.',
             'pending',
         );
     }

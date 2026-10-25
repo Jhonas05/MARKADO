@@ -6,18 +6,10 @@ import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
 const navigation = [
   {
-    label: 'Authoring',
+    label: 'Quizzes',
     items: [
       { href: '/professor/quizzes', label: 'My quizzes', icon: 'book' },
       { href: '/professor/quizzes/create', label: 'Create quiz', icon: 'plus' },
-    ],
-  },
-  {
-    label: 'Assessment operations',
-    items: [
-      { href: '/professor/quizzes', label: 'Publishing', icon: 'send' },
-      { label: 'Submissions', icon: 'users', disabled: true },
-      { label: 'Results', icon: 'barChart', disabled: true },
     ],
   },
 ]
@@ -45,6 +37,8 @@ export default function ProfessorLayout({ children, title }) {
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label="Open professor navigation"
+            aria-controls="professor-navigation"
+            aria-expanded={mobileOpen}
           >
             <Icon name="menu" />
           </button>
@@ -54,14 +48,10 @@ export default function ProfessorLayout({ children, title }) {
           </span>
         </div>
         <div className="prof-header__context">
-          <small>Revision-backed authoring</small>
+          <small>Quiz management</small>
           <strong>{title}</strong>
         </div>
         <div className="prof-header__actions">
-          <Link className="prof-view-switch" href="/">
-            <Icon name="user" size={17} />
-            <span>Student area</span>
-          </Link>
           <Link className="prof-view-switch" href="/logout" method="delete" as="button">
             <Icon name="lock" size={17} />
             <span>Sign out</span>
@@ -85,7 +75,11 @@ export default function ProfessorLayout({ children, title }) {
             onClick={() => setMobileOpen(false)}
           />
         ) : null}
-        <aside className={`prof-sidebar${mobileOpen ? ' prof-sidebar--open' : ''}`} aria-label="Professor navigation">
+        <aside
+          className={`prof-sidebar${mobileOpen ? ' prof-sidebar--open' : ''}`}
+          id="professor-navigation"
+          aria-label="Professor navigation"
+        >
           <Link className="prof-sidebar__brand" href="/professor/quizzes" onClick={() => setMobileOpen(false)}>
             <span className="prof-sidebar__brand-lockup">
               <MarkadoLogo decorative size={22} />
@@ -95,7 +89,7 @@ export default function ProfessorLayout({ children, title }) {
           <div className="prof-sidebar__intro">
             <span>Professor</span>
             <strong>Assessment workspace</strong>
-            <small>PostgreSQL · Secure authoring</small>
+            <small>Create · publish · review</small>
           </div>
           <nav aria-label="Professor navigation">
             {navigation.map((group) => (
@@ -141,8 +135,8 @@ export default function ProfessorLayout({ children, title }) {
           <div className="prof-sidebar__policy">
             <Icon name="shield" size={18} />
             <div>
-              <strong>Owner-only publishing</strong>
-              <span>Eligibility uses verified school records. Attempts remain disabled.</span>
+              <strong>Protected publishing</strong>
+              <span>Only verified, assigned students can access a published quiz.</span>
             </div>
           </div>
         </aside>
@@ -157,7 +151,7 @@ export default function ProfessorLayout({ children, title }) {
           {children}
           <footer className="prof-footer">
             <span>MARKADO Professor workspace</span>
-            <span>Immutable revisions · school-managed eligibility</span>
+            <span>Asia/Manila · School-managed access</span>
           </footer>
         </main>
       </div>

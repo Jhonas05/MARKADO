@@ -22,10 +22,8 @@ export function PolicyBanner() {
     <div className="prof-prototype-banner" role="note">
       <Icon name="shield" size={17} />
       <p>
-        <strong>Controlled assessment boundary.</strong> Immutable revisions and
-        school-managed eligibility are active. The assessment, objective scoring,
-        and manual score/total release flow is implemented behind a server-controlled
-        activation gate. Identity authority and privileged roster changes remain gated.
+        <strong>Private by default.</strong> Only you can edit your drafts and answer
+        keys. Published quizzes are limited to verified students with an assignment.
       </p>
     </div>
   )

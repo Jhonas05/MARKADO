@@ -120,7 +120,9 @@ class ProfessorQuizController extends Controller
                     'randomizeQuestions' => (bool) $authoringRecord->randomize_questions,
                     'randomizeChoices' => (bool) $authoringRecord->randomize_choices,
                 ],
-                'resultsPath' => "/professor/quizzes/{$quiz->id}/results",
+                'resultsPath' => config('assessment.routes_enabled')
+                    ? "/professor/quizzes/{$quiz->id}/results"
+                    : null,
                 'access' => [
                     'code' => $quiz->access_code,
                     'path' => "/student/quizzes/join/{$quiz->access_code}",

@@ -20,13 +20,13 @@ class InertiaFoundationTest extends TestCase
             );
     }
 
-    public function test_foundation_route_retains_the_safe_synthetic_fixture(): void
+    public function test_public_foundation_demo_is_not_routed(): void
     {
         $this->get('/foundation')
-            ->assertOk()
+            ->assertNotFound()
             ->assertInertia(fn (Assert $page) => $page
-                ->component('Student/Dashboard')
-                ->where('foundation.persistence', 'No quiz data is persisted yet')
+                ->component('ErrorPage')
+                ->where('status', 404)
             );
     }
 

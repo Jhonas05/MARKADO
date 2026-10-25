@@ -28,6 +28,7 @@ class StudentWorkspaceController extends Controller
                 'identityMatched' => $identity->matched,
             ],
             'quizJoinUrl' => route('student.quizzes.join'),
+            'assessmentStartAvailable' => (bool) config('assessment.routes_enabled'),
         ]);
     }
 }

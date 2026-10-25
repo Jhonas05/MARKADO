@@ -2,7 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react'
 import Icon from '@prototype/components/Icon.jsx'
 import StudentQuizLayout from '../../../Layouts/StudentQuizLayout.jsx'
 
-export default function Preflight({ capabilities, preflight }) {
+export default function Preflight({ preflight }) {
   const { errors } = usePage().props
   const available = preflight.state === 'information_available' && preflight.quiz
 
@@ -12,10 +12,10 @@ export default function Preflight({ capabilities, preflight }) {
   }
 
   return (
-    <StudentQuizLayout title="Quiz preflight">
+    <StudentQuizLayout title="Quiz details">
       <main className="student-preflight-shell" id="main-content">
         <section className="student-preflight-hero">
-          <p className="section-kicker">Quiz information and instructions</p>
+          <p className="section-kicker">Review before starting</p>
           <h1>{available ? preflight.quiz.title : 'Quiz unavailable'}</h1>
           <p>{preflight.message}</p>
         </section>
@@ -23,7 +23,7 @@ export default function Preflight({ capabilities, preflight }) {
         {available ? (
           <div className="student-instructions-grid">
             <section className="panel student-quiz-info" aria-labelledby="quiz-information-title">
-              <p className="section-kicker">Verified information</p>
+              <p className="section-kicker">Quiz details</p>
               <h2 id="quiz-information-title">{preflight.quiz.courseCode}</h2>
               <p className="student-quiz-course">{preflight.quiz.courseName || 'Course name not supplied'}</p>
               <dl>
@@ -62,8 +62,8 @@ export default function Preflight({ capabilities, preflight }) {
           </button>
           <p id="start-policy-note">
             {preflight.startMessage || (preflight.canStart
-              ? 'Start is a separate server-authorized action. Timers begin only after the server accepts it.'
-              : `Operational activation remains gated by ${capabilities.attemptCreation.blockers.join(' and ')}.`)}
+              ? 'Your timer begins only after MARKADO accepts your Start request.'
+              : 'Starting this quiz is not available right now.')}
           </p>
           {errors?.assessment ? <p className="auth-error" role="alert">{errors.assessment}</p> : null}
         </section>

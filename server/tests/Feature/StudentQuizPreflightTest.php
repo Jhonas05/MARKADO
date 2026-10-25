@@ -53,6 +53,7 @@ class StudentQuizPreflightTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Student/Workspace')
                 ->where('quizJoinUrl', route('student.quizzes.join'))
+                ->where('assessmentStartAvailable', false)
                 ->where('eligibility.hasSchoolRecord', false)
             );
 
@@ -116,8 +117,6 @@ class StudentQuizPreflightTest extends TestCase
                 ->where('preflight.state', 'unavailable')
                 ->where('preflight.quiz', null)
                 ->where('preflight.canStart', false)
-                ->where('capabilities.attemptCreation.enabled', false)
-                ->where('capabilities.scoring.enabled', false)
                 ->missing('preflight.title')
                 ->missing('preflight.instructions')
                 ->missing('preflight.questions')
@@ -197,7 +196,7 @@ class StudentQuizPreflightTest extends TestCase
             ->get('/student/quizzes/join/WAND2345')
             ->assertInertia(fn (Assert $page) => $page
                 ->where('preflight.canStart', true)
-                ->where('preflight.startMessage', 'Start is a separate server-authorized action. Timers begin only after the server accepts it.')
+                ->where('preflight.startMessage', 'Review the details above, then select Start quiz when you are ready.')
             );
 
         $clock->advanceTo(new DateTimeImmutable('2026-10-24T01:01:00+00:00'));

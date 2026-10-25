@@ -14,9 +14,9 @@ function TerminalAttempt({ attempt }) {
       <main className="assessment-shell" id="main-content">
         <section className="assessment-receipt panel" aria-labelledby="receipt-title">
           <span className="assessment-receipt__icon"><Icon name="checkCircle" size={30} /></span>
-          <p className="section-kicker">Server-confirmed receipt</p>
+          <p className="section-kicker">Submission receipt</p>
           <h1 id="receipt-title">Assessment submitted</h1>
-          <p>Your terminal receipt is stable. Refreshing or retrying cannot create another submission.</p>
+          <p>Your submission has been recorded. Refreshing this page will not submit it again.</p>
           <dl>
             <div><dt>Quiz</dt><dd>{attempt.quiz.title}</dd></div>
             <div><dt>Receipt</dt><dd><code>{attempt.receipt.id}</code></dd></div>
@@ -38,9 +38,9 @@ function TerminalAttempt({ attempt }) {
                 ? 'Score processing'
                 : attempt.result.state === 'processing_failed' ? 'Score unavailable' : 'Result withheld'}</h2>
               <p>{attempt.result.state === 'processing'
-                ? 'Your submission is preserved. Release is unavailable until objective scoring completes.'
+                ? 'Your submission is saved. Your score can be released after scoring is complete.'
                 : attempt.result.state === 'processing_failed'
-                  ? 'Your submission receipt is preserved, but scoring needs authorized review before release.'
+                  ? 'Your submission is saved, but the score needs review before it can be released.'
                   : 'Your Professor has not released this score. No grade information is included in this page.'}</p>
             </>
           )}
@@ -121,9 +121,9 @@ function ActiveAssessment({ attempt, errors, flash }) {
       <main className="assessment-shell" id="main-content">
         <header className="assessment-heading">
           <div>
-            <p className="section-kicker">{attempt.quiz.courseCode} · Database-backed assessment</p>
+            <p className="section-kicker">{attempt.quiz.courseCode} · In progress</p>
             <h1>{attempt.quiz.title}</h1>
-            <p>Server timestamps and acknowledged saves are authoritative. Times display in Asia/Manila.</p>
+            <p>Times display in Asia/Manila. Only answers marked Saved are included in your submission.</p>
           </div>
           <div className="assessment-timers" aria-label="Assessment timers">
             <AssessmentTimer label="Quiz" remaining={attemptRemaining} />
@@ -170,7 +170,7 @@ function ActiveAssessment({ attempt, errors, flash }) {
               </button>
             )}
           </div>
-          {finalQuestion && !everyQuestionAnswered ? <p className="assessment-policy-note">Voluntary submission with unanswered items remains disabled. Automatic deadline finalization will preserve acknowledged answers.</p> : null}
+          {finalQuestion && !everyQuestionAnswered ? <p className="assessment-policy-note">Answer every question before submitting. If time ends, MARKADO submits your latest saved answers.</p> : null}
         </form>
       </main>
     </StudentQuizLayout>

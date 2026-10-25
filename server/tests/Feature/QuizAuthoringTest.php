@@ -293,6 +293,7 @@ class QuizAuthoringTest extends TestCase
                 ->where('quiz.id', $quiz->id)
                 ->has('quiz.questions.0.choices.0.isCorrect')
                 ->where('quiz.access.enabled', false)
+                ->where('quiz.resultsPath', null)
             );
 
         $this->actingAs($other)
