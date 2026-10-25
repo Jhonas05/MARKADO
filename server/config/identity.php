@@ -5,10 +5,16 @@ $configuredDomains = array_values(array_filter(array_map(
     explode(',', (string) env('MARKADO_INSTITUTIONAL_EMAIL_DOMAINS', '')),
 )));
 
-$configuredHourlyLimit = env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_HOURLY_LIMIT');
-$hourlyLimit = is_numeric($configuredHourlyLimit) && (int) $configuredHourlyLimit > 0
-    ? (int) $configuredHourlyLimit
-    : null;
+$configuredHourlyLimit = env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_HOURLY_LIMIT', 5);
+$configuredHourlyLimit = $configuredHourlyLimit === null || $configuredHourlyLimit === ''
+    ? 5
+    : $configuredHourlyLimit;
+$validatedHourlyLimit = is_int($configuredHourlyLimit) || is_string($configuredHourlyLimit)
+    ? filter_var($configuredHourlyLimit, FILTER_VALIDATE_INT, [
+        'options' => ['min_range' => 1, 'max_range' => 5],
+    ])
+    : false;
+$hourlyLimit = $validatedHourlyLimit === false ? null : $validatedHourlyLimit;
 
 return [
     /*
@@ -26,8 +32,9 @@ return [
 
     /*
     | ADR-011 approves the 30-minute lifetime and 60-second resend cooldown.
-    | The hourly maximum and live delivery operation remain unapproved, so an
-    | unset hourly limit and both false switches intentionally fail closed.
+    | ADR-012 caps initial issues plus resends at five per rolling hour. A
+    | lower positive limit is allowed; invalid or higher values fail closed.
+    | Both feature switches remain false until live delivery is approved.
     */
     'institutional_email_verification_enabled' => (bool) env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_ENABLED', false),
     'institutional_email_verification_delivery_enabled' => (bool) env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_DELIVERY_ENABLED', false),

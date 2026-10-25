@@ -2,7 +2,7 @@
 
 **Prepared:** 25 October 2026 (Asia/Manila)
 **Repository baseline:** `main` `5be22c6ee1d2f09ed159c98011c062c636d87aa0`
-**Status:** ADR-009 through ADR-011 directions are approved. Every item explicitly marked OPEN or PROPOSED still requires its named authority.
+**Status:** ADR-009 through ADR-012 directions are approved. Every item explicitly marked OPEN or PROPOSED still requires its named authority.
 
 ## Approved product-owner scope
 
@@ -10,6 +10,7 @@
 - **D13/D14 / ADR-009:** Student self-registration is the normal V1 Student onboarding model.
 - **D14 / ADR-010:** automatic Student-only activation after every independently approved identity, account-state, security, and anti-abuse check succeeds. No routine staff approval is required after all such checks pass.
 - **D14 / ADR-011:** cryptographically random single-use hash-at-rest mailbox challenges; exact 30-minute validity; exact 60-second resend cooldown; required hourly limiting; generic public acknowledgements. Mailbox proof alone does not activate an account.
+- **D14 / ADR-012:** initial issuance and resends share a maximum of five requests per Student account/bound mailbox in a rolling 60-minute window. Lower positive configuration is allowed; invalid or above-five configuration fails closed.
 - Registration never edits the authoritative roster, grants staff privileges, proves quiz eligibility, or activates assessment routes.
 - Missing, inactive, stale, unavailable, ambiguous, duplicate, disputed, or conflicting evidence fails closed.
 
@@ -23,7 +24,7 @@
 | D14-1 | Institutional domains | Protected server-side exact allowlist, including alias/subdomain rules | School IT + product owner |
 | D14-2 | Pending claim timing | Decide whether a pending user/claim is stored before or after mailbox proof | Product owner + security |
 | D14-3 | Mail delivery operation | Approve SMTP/API provider, sender/DNS, application origin, monitoring, and staging evidence | School IT + security |
-| D14-4 | Remaining abuse controls | Approve the numeric rolling-hour maximum plus network/account signals and monitoring; five/hour is PROPOSED only | Security + product owner |
+| D14-4 | Remaining abuse controls | Approve network/account monitoring signals, alert thresholds, response ownership, and incident procedure; the numeric maximum is decided by ADR-012 | Security + product owner |
 | D14-5 | Password/lost-mailbox recovery | Institutional mailbox and separately governed staff-assisted exception | Registrar + IT + privacy/security |
 | D13/D14-6 | Duplicate/disputed identity | Quarantine and authorized review; never auto-merge academic history | Registrar + academic/privacy |
 | D15 | Staff permissions | Resource-scoped named grants, deny by default, accountable assignment | Academic administration + security |
@@ -42,7 +43,7 @@ The repository implementation keeps public registration/recovery mutations absen
 
 - Named roster authority/source, data contract, freshness, and correction lifecycle approved.
 - Institutional domains configured privately and validated.
-- Mail provider/origin, numeric hourly maximum, network monitoring, and incident handling approved and threat-reviewed. ADR-011 already fixes token, expiry, replay, cooldown, and generic-response semantics.
+- Mail provider/origin, network monitoring, and incident handling approved and threat-reviewed. ADR-011/012 already fix token, expiry, replay, cooldown, hourly ceiling, and generic-response semantics.
 - Duplicate/dispute/mailbox-change/recovery procedures approved.
 - D15 assignment/audit and D19 privacy/retention approved where operationally required.
 - Isolated PostgreSQL migration and concurrency rehearsal, staging HTTPS/session/mail tests, monitoring, rollback, accessibility, and incident support complete.
@@ -50,4 +51,4 @@ The repository implementation keeps public registration/recovery mutations absen
 
 ## Operations hold
 
-No public signup/verification/recovery mutation, live email, staff roster mutation, `markado.public` migration, assessment activation, worker activation, or deployment is authorized by ADR-009/ADR-010/ADR-011.
+No public signup/verification/recovery mutation, live email, staff roster mutation, `markado.public` migration, assessment activation, worker activation, or deployment is authorized by ADR-009/ADR-010/ADR-011/ADR-012.

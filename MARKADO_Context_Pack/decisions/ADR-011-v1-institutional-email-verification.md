@@ -16,7 +16,7 @@
 7. Challenges bind to one Student account and a privacy-preserving fingerprint of its currently allowed institutional address. Email change clears prior proof and revokes outstanding challenges.
 8. Successful consumption establishes mailbox-possession evidence only. It never activates an account, modifies a roster record, assigns a role, or grants quiz eligibility.
 9. Consumption and issuance are serialized by Laravel/PostgreSQL transactions and row locks. Replay and competing consumption cannot create multiple successful states.
-10. Delivery must target only the bound eligible institutional address. Delivery is default-unavailable until a school-approved provider, origin, hourly maximum, monitoring policy, and operations authorization are configured.
+10. Delivery must target only the bound eligible institutional address. Delivery is default-unavailable until a school-approved provider, origin, monitoring policy, and operations authorization are configured. ADR-012 subsequently decided the hourly maximum.
 
 Laravel/PostgreSQL time and state are authoritative. Browser time, refresh, delayed cleanup, or a client-supplied flag cannot extend or establish verification.
 
@@ -28,6 +28,15 @@ Laravel/PostgreSQL time and state are authoritative. Browser time, refresh, dela
 - Safe audit records contain only account identifier, outcome, and time—not email, student number, token, or roster contents.
 - Network-aware anti-abuse is a separate reusable gate. IP address alone is not a sufficient school-network policy.
 
+## Subsequent approved decision
+
+ADR-012, recorded 25 October 2026, resolves item 5's previously open numeric
+maximum: initial issuance and resends share a maximum of five requests per
+rolling 60-minute window across the Student account and bound mailbox. A lower
+positive configured value is allowed; an invalid value or any value above five
+fails closed. Provider, origin, monitoring, recovery, and public activation
+remain open/default-off.
+
 ## Activation boundary
 
 The approved order remains:
@@ -38,7 +47,7 @@ The mailbox step may set verified-mailbox evidence. ADR-010 activation still req
 
 ## OPEN operating decisions
 
-- Exact rolling-hour numeric maximum, network/account monitoring signals, alert thresholds, and incident handling.
+- Network/account monitoring signals, alert thresholds, and incident handling. The numeric maximum is decided by ADR-012.
 - Real institutional domains, SMTP/API provider, sending domain/DNS, approved application origin, and mail operational authorization.
 - Pending-account/claim creation timing, registrar/SIS authority and freshness, duplicate/dispute procedure, lost-mailbox/password recovery, and identity correction.
 - D15 privileged permissions, D19 challenge/audit retention and deletion schedule, and D23 exceptional assessment actions.
@@ -49,7 +58,7 @@ The mailbox step may set verified-mailbox evidence. ADR-010 activation still req
 - Valid consumption succeeds once; invalid, replayed, revoked, foreign, expired, disabled, and wrong-address attempts fail.
 - Acceptance succeeds immediately before 30 minutes and fails exactly at 30 minutes and afterward.
 - Resend fails before 60 seconds and may succeed exactly at 60 seconds.
-- An explicitly configured synthetic hourly maximum is race-safe; an unset maximum denies delivery operation.
+- ADR-012's maximum-five rolling-hour policy is race-safe across the account and bound mailbox; lower positive configuration works and invalid/above-five configuration denies issuance.
 - Concurrent consumption yields one success; concurrent issue attempts yield no duplicate live challenge.
 - Email change clears `email_verified_at`, revokes outstanding challenges, and prevents an old token from verifying the new address.
 - Mailbox proof alone leaves a pending Student pending; public registration/verification/recovery mutations remain absent.

@@ -21,6 +21,8 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
 {
     private const PURPOSE = 'institutional_mailbox';
 
+    private const MAX_HOURLY_ISSUES = 5;
+
     public function __construct(
         private readonly InstitutionalEmailPolicy $emailPolicy,
         private readonly InstitutionalEmailVerificationDelivery $delivery,
@@ -37,7 +39,7 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
         }
 
         $hourlyLimit = config('identity.institutional_email_verification_hourly_limit');
-        if (! is_int($hourlyLimit) || $hourlyLimit < 1) {
+        if (! is_int($hourlyLimit) || $hourlyLimit < 1 || $hourlyLimit > self::MAX_HOURLY_ISSUES) {
             return InstitutionalEmailVerificationResult::denied('verification_hourly_policy_unavailable');
         }
 
@@ -60,9 +62,15 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
                 return InstitutionalEmailVerificationResult::denied('institutional_verification_unavailable');
             }
 
+            $emailFingerprint = $this->fingerprint($email);
+            $this->lockMailboxIssuance($emailFingerprint);
+
             $latest = InstitutionalEmailVerificationChallenge::query()
-                ->where('user_id', $lockedStudent->id)
                 ->where('purpose', self::PURPOSE)
+                ->where(function ($query) use ($lockedStudent, $emailFingerprint): void {
+                    $query->where('user_id', $lockedStudent->id)
+                        ->orWhere('email_fingerprint', $emailFingerprint);
+                })
                 ->latest('issued_at')
                 ->lockForUpdate()
                 ->first();
@@ -73,8 +81,11 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
             }
 
             $rollingHourCount = InstitutionalEmailVerificationChallenge::query()
-                ->where('user_id', $lockedStudent->id)
                 ->where('purpose', self::PURPOSE)
+                ->where(function ($query) use ($lockedStudent, $emailFingerprint): void {
+                    $query->where('user_id', $lockedStudent->id)
+                        ->orWhere('email_fingerprint', $emailFingerprint);
+                })
                 ->where('issued_at', '>', $now->subHour())
                 ->count();
 
@@ -83,8 +94,11 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
             }
 
             InstitutionalEmailVerificationChallenge::query()
-                ->where('user_id', $lockedStudent->id)
                 ->where('purpose', self::PURPOSE)
+                ->where(function ($query) use ($lockedStudent, $emailFingerprint): void {
+                    $query->where('user_id', $lockedStudent->id)
+                        ->orWhere('email_fingerprint', $emailFingerprint);
+                })
                 ->whereNull('consumed_at')
                 ->whereNull('revoked_at')
                 ->update(['revoked_at' => $now]);
@@ -95,7 +109,7 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
                 'user_id' => $lockedStudent->id,
                 'purpose' => self::PURPOSE,
                 'token_hash' => $this->hashToken($token),
-                'email_fingerprint' => $this->fingerprint($email),
+                'email_fingerprint' => $emailFingerprint,
                 'issued_at' => $now,
                 'expires_at' => $expiresAt,
             ]);
@@ -120,13 +134,15 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
             $delivered = false;
         }
 
+        $deliveryCompletedAt = $this->clock->now();
+
         if (! $delivered) {
-            $this->revokeUndelivered($challengeId, $now);
+            $this->revokeUndelivered($challengeId, $deliveryCompletedAt);
 
             return InstitutionalEmailVerificationResult::denied('verification_delivery_unavailable');
         }
 
-        return DB::transaction(function () use ($challengeId, $message, $now): InstitutionalEmailVerificationResult {
+        return DB::transaction(function () use ($challengeId, $deliveryCompletedAt, $message): InstitutionalEmailVerificationResult {
             $lockedStudent = User::query()->lockForUpdate()->find($message->studentId);
             $challenge = InstitutionalEmailVerificationChallenge::query()->lockForUpdate()->find($challengeId);
             $currentEmail = $lockedStudent === null || ! is_string($lockedStudent->email)
@@ -136,16 +152,17 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
             if ($challenge === null
                 || $lockedStudent === null
                 || $challenge->revoked_at !== null
+                || ! $deliveryCompletedAt->lt($challenge->expires_at)
                 || $currentEmail === null
                 || ! hash_equals($challenge->email_fingerprint, $this->fingerprint($currentEmail))) {
                 if ($challenge !== null && $challenge->revoked_at === null) {
-                    $challenge->forceFill(['revoked_at' => $now])->save();
+                    $challenge->forceFill(['revoked_at' => $deliveryCompletedAt])->save();
                 }
 
                 return InstitutionalEmailVerificationResult::denied('verification_delivery_unavailable');
             }
 
-            $challenge->forceFill(['delivered_at' => $now])->save();
+            $challenge->forceFill(['delivered_at' => $deliveryCompletedAt])->save();
             $this->events->record($lockedStudent, 'institutional_verification_issued');
 
             return InstitutionalEmailVerificationResult::issued();
@@ -203,6 +220,15 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
             ->whereNull('consumed_at')
             ->whereNull('revoked_at')
             ->update(['revoked_at' => $now]);
+    }
+
+    private function lockMailboxIssuance(string $emailFingerprint): void
+    {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
+        DB::select('select pg_advisory_xact_lock(hashtextextended(?, 0))', [$emailFingerprint]);
     }
 
     private function newToken(): string
