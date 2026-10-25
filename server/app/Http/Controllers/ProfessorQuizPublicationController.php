@@ -14,7 +14,11 @@ class ProfessorQuizPublicationController extends Controller
         $this->authorize('publish', $quiz);
         $revision = $service->publish($request->user(), $quiz);
 
-        return back()->with('success', "Revision {$revision->revision_number} is published. Student attempts remain disabled.");
+        $message = config('assessment.routes_enabled')
+            ? "Revision {$revision->revision_number} is published. Only verified, assigned Students can start while guarded assessment delivery is enabled."
+            : "Revision {$revision->revision_number} is published. Student attempts remain disabled.";
+
+        return back()->with('success', $message);
     }
 
     public function unpublish(Request $request, Quiz $quiz, QuizPublicationService $service): RedirectResponse
