@@ -19,7 +19,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('Auth/Login', [
             'registration' => [
                 'available' => false,
-                'message' => 'Account registration and institutional verification are awaiting approval.',
+                'message' => 'Student onboarding requires a verified institutional mailbox and matching trusted roster identity. Public account creation and activation remain unavailable.',
             ],
         ]);
     }

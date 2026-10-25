@@ -1,14 +1,20 @@
 # Student Enrollment Identity, Registration and Quiz Joining
 
 ## Baseline [REQ]
-Student registration requires **student number** and **email address** to reduce duplicate accounts. Code/link provides quiz access navigation, but authentication and authorization must still be evaluated.
+Student onboarding requires an official **student number** and a verified,
+school-issued **institutional email address** that match the same authoritative
+school roster identity (ADR-008). Personal mailboxes are not accepted for V1.
+Code/link provides quiz access navigation, but authentication, identity,
+assignment, and authorization must still be evaluated.
 
 ## Registration flow [REC]
 1. Collect student number + email with clear field labels and privacy notice.
 2. Normalize values carefully; e.g. trim permitted whitespace and compare email consistently without assuming that all address local parts can be freely rewritten.
 3. Validate format and institutional number rules once defined.
 4. Transactionally check unique key(s) in database - front-end validation alone is insufficient.
-5. Verify email/student identity only according to approved school policy.
+5. Verify institutional mailbox possession and require the number/email pair to
+   match the same trusted school record. The token/delivery mechanism remains
+   open under D14.
 6. Create account and issue a non-enumerating verification/recovery status.
 7. Record creation and email verification events where applicable.
 
@@ -25,7 +31,7 @@ Student registration requires **student number** and **email address** to reduce
 Do not expose quiz question/answer details to unauthorized link visitors. Distinguish inaccessible link from invalid authentication in user-friendly terms without confirming another person's account existence.
 
 ## Example messages [REC]
-- "Please enter your student number and school email." (The school-email limitation is [OPEN]; use "email" if not required.)
+- "Please enter your student number and school-issued institutional email."
 - "We couldn't complete registration with those details. Check your information or use account recovery."
 - "This quiz is not available right now. Check the schedule shown by your instructor."
 - "You're already taking this quiz. Continue your existing attempt." (Only when resume is supported and authorized.)

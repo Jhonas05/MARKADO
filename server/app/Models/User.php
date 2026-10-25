@@ -55,6 +55,15 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::updating(function (User $user): void {
+            if ($user->isDirty('email')) {
+                $user->email_verified_at = null;
+            }
+        });
+    }
+
     public function ownedQuizzes(): HasMany
     {
         return $this->hasMany(Quiz::class, 'owner_id');
@@ -78,5 +87,10 @@ class User extends Authenticatable
     public function schoolStudentRecord(): HasOne
     {
         return $this->hasOne(SchoolStudentRecord::class);
+    }
+
+    public function studentIdentityEvents(): HasMany
+    {
+        return $this->hasMany(StudentIdentityEvent::class);
     }
 }

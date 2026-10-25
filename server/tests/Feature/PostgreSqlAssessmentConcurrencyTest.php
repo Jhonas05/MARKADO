@@ -3,8 +3,11 @@
 namespace Tests\Feature;
 
 use App\Assessment\Contracts\AttemptSessionManager;
+use App\Enums\AccountRole;
 use App\Models\AttemptResult;
 use App\Models\QuizAttempt;
+use App\Models\SchoolStudentRecord;
+use App\Models\User;
 use DateTimeImmutable;
 use DateTimeZone;
 use Illuminate\Support\Facades\DB;
@@ -43,16 +46,7 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
 
     public function test_parallel_start_and_terminal_requests_share_one_attempt_and_receipt(): void
     {
-        if (DB::getDriverName() !== 'pgsql') {
-            $this->markTestSkipped('This test requires independent PostgreSQL connections.');
-        }
-
-        $schema = (string) config('database.connections.pgsql.search_path');
-        $database = (string) config('database.connections.pgsql.database');
-        $this->assertTrue(
-            $this->isDisposableTestSchema($schema) || $database === 'markado_ci',
-            'Concurrency testing is restricted to a disposable MARKADO test schema or CI database.',
-        );
+        $this->assertSafePostgreSqlIsolation();
         $this->assertTrue(Schema::hasTable('quiz_attempts'));
 
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
@@ -138,6 +132,33 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
         }
     }
 
+    public function test_concurrent_duplicate_roster_identity_claims_create_only_one_record(): void
+    {
+        $this->assertSafePostgreSqlIsolation();
+
+        $students = User::factory()->count(2)->create(['role' => AccountRole::Student]);
+        $payload = json_encode([
+            'student_number' => '0000123400',
+            'institutional_email' => 'identity-claim@example.test',
+        ], JSON_THROW_ON_ERROR);
+
+        try {
+            $results = $this->runConcurrently([
+                ['identity_record', (string) $students[0]->id, $payload],
+                ['identity_record', (string) $students[1]->id, $payload],
+            ]);
+
+            $this->assertEqualsCanonicalizing(['created', 'rejected'], array_column($results, 'outcome'));
+            $this->assertSame(1, SchoolStudentRecord::query()
+                ->where('student_number', '0000123400')
+                ->where('institutional_email', 'identity-claim@example.test')
+                ->count());
+        } finally {
+            SchoolStudentRecord::query()->whereIn('user_id', $students->modelKeys())->delete();
+            User::query()->whereKey($students->modelKeys())->delete();
+        }
+    }
+
     /**
      * @param  list<array{string, string, string}>  $jobs
      * @return list<array<string, mixed>>
@@ -203,6 +224,20 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
         ) === 1;
     }
 
+    private function assertSafePostgreSqlIsolation(): void
+    {
+        if (DB::getDriverName() !== 'pgsql') {
+            $this->markTestSkipped('This test requires independent PostgreSQL connections.');
+        }
+
+        $schema = (string) config('database.connections.pgsql.search_path');
+        $database = (string) config('database.connections.pgsql.database');
+        $this->assertTrue(
+            $this->isDisposableTestSchema($schema) || $database === 'markado_ci',
+            'Concurrency testing is restricted to a disposable MARKADO test schema or CI database.',
+        );
+    }
+
     private function removePublishedFixture(string $quizId, int $studentId, int $ownerId): void
     {
         DB::statement('ALTER TABLE quiz_revisions DISABLE TRIGGER guard_published_quiz_revision');
@@ -218,6 +253,7 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
                 DB::table('quiz_attempts')->where('quiz_id', $quizId)->delete();
                 DB::table('quizzes')->where('id', $quizId)->delete();
                 DB::table('school_student_records')->where('user_id', $studentId)->delete();
+                DB::table('student_identity_events')->whereIn('user_id', [$studentId, $ownerId])->delete();
                 DB::table('users')->whereIn('id', [$studentId, $ownerId])->delete();
             });
         } finally {

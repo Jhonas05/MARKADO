@@ -18,12 +18,18 @@ use App\Assessment\Support\DatabaseResultReleaseManager;
 use App\Assessment\Support\DatabaseSchoolEligibilitySource;
 use App\Assessment\Support\DatabaseScoreCalculator;
 use App\Assessment\Support\SystemAuthoritativeClock;
+use App\Identity\Contracts\InstitutionalEmailPolicy;
+use App\Identity\Contracts\StudentIdentitySource;
+use App\Identity\Support\ConfiguredInstitutionalEmailPolicy;
+use App\Identity\Support\DatabaseStudentIdentitySource;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizRevision;
+use App\Models\SchoolStudentRecord;
 use App\Policies\QuizAttemptPolicy;
 use App\Policies\QuizPolicy;
 use App\Policies\QuizRevisionPolicy;
+use App\Policies\SchoolStudentRecordPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -37,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(InstitutionalEmailPolicy::class, ConfiguredInstitutionalEmailPolicy::class);
+        $this->app->bind(StudentIdentitySource::class, DatabaseStudentIdentitySource::class);
         $this->app->bind(SchoolEligibilitySource::class, DatabaseSchoolEligibilitySource::class);
         $this->app->bind(QuizEligibilityGate::class, DatabaseQuizEligibilityGate::class);
         $this->app->bind(AuthoritativeClock::class, SystemAuthoritativeClock::class);
@@ -55,6 +63,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Quiz::class, QuizPolicy::class);
         Gate::policy(QuizAttempt::class, QuizAttemptPolicy::class);
         Gate::policy(QuizRevision::class, QuizRevisionPolicy::class);
+        Gate::policy(SchoolStudentRecord::class, SchoolStudentRecordPolicy::class);
 
         RateLimiter::for('quiz-join', fn (Request $request): Limit => Limit::perMinute(10)
             ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));

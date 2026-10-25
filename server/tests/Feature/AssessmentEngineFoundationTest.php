@@ -15,6 +15,7 @@ use App\Enums\QuestionType;
 use App\Enums\QuizRevisionStatus;
 use App\Enums\QuizStatus;
 use App\Enums\StudentVerificationStatus;
+use App\Identity\Contracts\StudentIdentitySource;
 use App\Models\AttemptAnswer;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
@@ -325,7 +326,9 @@ class AssessmentEngineFoundationTest extends TestCase
         $advancer = new QuestionDeadlineAdvancer($clock, $finalizer);
 
         return new DatabaseAttemptSessionManager(
-            new DatabaseQuizEligibilityGate(new DatabaseSchoolEligibilitySource),
+            new DatabaseQuizEligibilityGate(new DatabaseSchoolEligibilitySource(
+                app(StudentIdentitySource::class),
+            )),
             $clock,
             $finalizer,
             $advancer,
@@ -410,6 +413,7 @@ class AssessmentEngineFoundationTest extends TestCase
 
         $record = new SchoolStudentRecord([
             'student_number' => 'S-'.Str::upper(Str::random(10)),
+            'institutional_email' => $student->email,
             'verification_status' => StudentVerificationStatus::Verified,
             'is_active' => true,
             'verified_at' => new DateTimeImmutable('2026-10-22T00:00:00+00:00'),

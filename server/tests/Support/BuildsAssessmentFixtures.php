@@ -96,6 +96,7 @@ trait BuildsAssessmentFixtures
 
         $record = new SchoolStudentRecord([
             'student_number' => 'SYN-'.Str::upper(Str::random(10)),
+            'institutional_email' => $student->email,
             'verification_status' => StudentVerificationStatus::Verified,
             'is_active' => true,
             'verified_at' => new DateTimeImmutable('2026-10-23T00:00:00+00:00'),

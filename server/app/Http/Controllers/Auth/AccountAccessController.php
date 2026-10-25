@@ -13,7 +13,12 @@ class AccountAccessController extends Controller
         return Inertia::render('Auth/Register', [
             'registration' => [
                 'available' => false,
-                'message' => 'Student identity issuance and verification authority remain pending under D13 and D14.',
+                'message' => 'Institutional email and trusted roster matching are required. Account issuance, verification delivery, and activation remain disabled until the remaining D13, D14, and D15 rules are approved.',
+                'requirements' => [
+                    'A school-issued institutional email is required and must be verified.',
+                    'The student number and email must match the same trusted school roster record.',
+                    'Verification does not automatically activate an account or grant quiz eligibility.',
+                ],
             ],
         ]);
     }

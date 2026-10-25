@@ -241,6 +241,7 @@ class SchoolEligibilityTest extends TestCase
     {
         $record = new SchoolStudentRecord([
             'student_number' => 'SYN-'.str_pad((string) $student->id, 6, '0', STR_PAD_LEFT),
+            'institutional_email' => $student->email,
             'verification_status' => $status,
             'is_active' => true,
         ]);

@@ -6,6 +6,8 @@ export default function Workspace({ eligibility, quizJoinUrl }) {
   const verified = eligibility.hasSchoolRecord
     && eligibility.isActive
     && eligibility.verificationStatus === 'verified'
+    && eligibility.mailboxVerified
+    && eligibility.identityMatched
 
   return (
     <StudentQuizLayout active="workspace" title="Student dashboard">
@@ -28,6 +30,8 @@ export default function Workspace({ eligibility, quizJoinUrl }) {
             <dl>
               <div><dt>Student number</dt><dd>{eligibility.studentNumber || 'Not assigned'}</dd></div>
               <div><dt>Verification</dt><dd>{eligibility.verificationLabel}</dd></div>
+              <div><dt>Institutional mailbox</dt><dd>{eligibility.mailboxVerified ? 'Verified' : 'Verification required'}</dd></div>
+              <div><dt>Roster identity match</dt><dd>{eligibility.identityMatched ? 'Matched' : 'Not confirmed'}</dd></div>
               <div><dt>Record status</dt><dd>{eligibility.isActive ? 'Active' : 'Unavailable'}</dd></div>
             </dl>
           </section>
