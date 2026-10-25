@@ -62,6 +62,15 @@ class User extends Authenticatable
                 $user->email_verified_at = null;
             }
         });
+
+        static::updated(function (User $user): void {
+            if ($user->wasChanged('email')) {
+                $user->institutionalEmailVerificationChallenges()
+                    ->whereNull('consumed_at')
+                    ->whereNull('revoked_at')
+                    ->update(['revoked_at' => now()]);
+            }
+        });
     }
 
     public function ownedQuizzes(): HasMany
@@ -92,5 +101,10 @@ class User extends Authenticatable
     public function studentIdentityEvents(): HasMany
     {
         return $this->hasMany(StudentIdentityEvent::class);
+    }
+
+    public function institutionalEmailVerificationChallenges(): HasMany
+    {
+        return $this->hasMany(InstitutionalEmailVerificationChallenge::class);
     }
 }

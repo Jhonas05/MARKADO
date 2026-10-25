@@ -43,7 +43,7 @@ The eight features below are **requested**. Their detailed implementation criter
 - **F06.1 [REQ]** Require both student number and email to register.
 - **F06.2 [REQ]** Reject duplicates using the chosen institutional uniqueness scope.
 - **F06.3 [REC]** Add transactional uniqueness constraints; normalize appropriately; provide a safe recovery path.
-- **F06.4 [PARTIALLY DECIDED]** ADR-008 through ADR-010 approve institutional email, exact same-record roster matching, Student self-registration, and bounded automatic Student-only activation. Roster authority/source, verification mechanism, recovery, disputes, and school-year lifecycle remain open.
+- **F06.4 [PARTIALLY DECIDED]** ADR-008 through ADR-011 approve institutional email, exact same-record roster matching, Student self-registration, bounded automatic Student-only activation, and a random one-time hash-at-rest mailbox challenge with exact 30-minute validity and 60-second resend cooldown. The hourly maximum, live delivery/provider/origin, roster authority/source, recovery, disputes, and school-year lifecycle remain open.
 - **Accept:** Two near-simultaneous signups with one student number cannot both succeed; recovery does not reveal an account unnecessarily.
 
 ## F07 - Randomization
