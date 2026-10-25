@@ -11,7 +11,6 @@ use App\Http\Controllers\ProfessorQuizResultController;
 use App\Http\Controllers\ProfessorQuizRevisionController;
 use App\Http\Controllers\ProfessorQuizRevisionQuestionController;
 use App\Http\Controllers\StudentAssessmentController;
-use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentQuizJoinController;
 use App\Http\Controllers\StudentWorkspaceController;
 use App\Http\Controllers\WelcomeController;
@@ -21,8 +20,6 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', WelcomeController::class)->name('home');
-
-Route::get('/foundation', StudentDashboardController::class)->name('foundation.demo');
 
 Route::get('/account/pending', [AccountAccessController::class, 'pending'])->name('account.pending');
 Route::get('/account/disabled', [AccountAccessController::class, 'disabled'])->name('account.disabled');

@@ -30,7 +30,7 @@ export default function Welcome({ accountPolicies }) {
             <h1 id="welcome-title">Focus on the work. Trust the assessment.</h1>
             <p>
               MARKADO gives students, professors, and academic administrators one
-              server-protected place to prepare and manage assessments.
+              secure place to prepare, take, and manage assessments.
             </p>
             <div className="welcome-hero__actions">
               <Link className="button button--primary" href={user ? '/workspace' : '/login'}>
@@ -45,11 +45,11 @@ export default function Welcome({ accountPolicies }) {
 
           <aside className="welcome-security-card" aria-label="Access boundaries">
             <p className="section-kicker">Access by assignment</p>
-            <h2>Your role comes from the server.</h2>
+            <h2>Your account opens the right workspace.</h2>
             <ul>
               <li><Icon name="shield" size={18} /> Role-specific permissions</li>
-              <li><Icon name="lock" size={18} /> Laravel session protection</li>
-              <li><Icon name="clock" size={18} /> Server-authoritative assessment time</li>
+              <li><Icon name="lock" size={18} /> Protected sign-in sessions</li>
+              <li><Icon name="clock" size={18} /> Consistent assessment deadlines</li>
             </ul>
           </aside>
         </section>
@@ -63,19 +63,19 @@ export default function Welcome({ accountPolicies }) {
             <article>
               <Icon name="user" size={20} />
               <h3>Students</h3>
-              <p>Student number and email are required, but public registration remains gated until verification policy approval.</p>
-              <span>{accountPolicies.publicStudentRegistration ? 'Open' : 'Registration gated'}</span>
+              <p>Student access requires a school-issued email, official student number, and a matching school record.</p>
+              <span>{accountPolicies.publicStudentRegistration ? 'Registration open' : 'Registration unavailable'}</span>
             </article>
             <article>
               <Icon name="book" size={20} />
               <h3>Professors</h3>
-              <p>Instructor access is provisioned through an authorized workflow, never by choosing a role on the sign-in page.</p>
+              <p>Professor access is assigned by the school and cannot be selected on the sign-in page.</p>
               <span>{accountPolicies.publicStaffRegistration ? 'Open' : 'Provisioned accounts only'}</span>
             </article>
             <article>
               <Icon name="shield" size={20} />
               <h3>Administrators</h3>
-              <p>Administrative capabilities stay permission-scoped while privileged actions and support authority remain under review.</p>
+              <p>Administrator access is limited to the permissions assigned to each account.</p>
               <span>Least privilege</span>
             </article>
           </div>

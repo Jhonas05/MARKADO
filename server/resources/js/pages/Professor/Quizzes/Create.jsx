@@ -22,7 +22,7 @@ export default function CreateQuiz({ displayTimezone }) {
       <ScreenHeader
         eyebrow="Create quiz wizard"
         title="Create a new quiz"
-        description="Start with a private identity record, then build the question set in the manual editor."
+        description="Add the quiz details now, then build and review the question set."
       />
 
       <nav className="prof-builder-steps" aria-label="Quiz builder steps">
@@ -82,7 +82,7 @@ export default function CreateQuiz({ displayTimezone }) {
                 value={form.data.instructions}
                 onChange={(event) => form.setData('instructions', event.target.value)}
                 aria-invalid={Boolean(form.errors.instructions)}
-                placeholder="Describe materials or preparation without promising unapproved timing or result behavior."
+                placeholder="Tell students what to prepare and what to expect before they begin."
               />
               <FieldError message={form.errors.instructions} />
             </label>
@@ -97,12 +97,12 @@ export default function CreateQuiz({ displayTimezone }) {
         </form>
         <aside className="prof-side-card">
           <Icon name="shield" size={22} />
-          <h2>Safe defaults</h2>
-          <p>The server creates an owner-only draft with a stable UUID and reserved access code.</p>
+          <h2>Private by default</h2>
+          <p>Your new quiz stays visible only to you until you choose to publish it.</p>
           <ul>
             <li>Display timezone: {displayTimezone}</li>
-            <li>Publishing and student access remain disabled.</li>
-            <li>No points, scoring, deadlines, or timer behavior is inferred.</li>
+            <li>Students cannot open a draft.</li>
+            <li>You can add the schedule, timers, questions, and correct answers next.</li>
           </ul>
         </aside>
       </div>

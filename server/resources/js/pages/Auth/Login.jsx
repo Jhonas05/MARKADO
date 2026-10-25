@@ -32,11 +32,11 @@ export default function Login({ registration }) {
           </div>
 
           <div>
-            <p className="section-kicker">Secure assessment access</p>
+            <p className="section-kicker">School-managed access</p>
             <h1 id="auth-heading">A focused place for every assessment.</h1>
             <p>
-              Sign in through the server-protected MARKADO workspace for your assigned
-              student, professor, or academic-administration role.
+              Sign in to continue to the Student, Professor, or Administrator workspace
+              assigned to your account.
             </p>
           </div>
 
@@ -48,9 +48,9 @@ export default function Login({ registration }) {
 
         <section className="auth-card" aria-labelledby="login-title">
           <div className="auth-card__heading">
-            <p className="section-kicker">Provisioned accounts</p>
+            <p className="section-kicker">Welcome back</p>
             <h2 id="login-title">Sign in to your workspace</h2>
-            <p>Use an account supplied through an approved development or institution workflow.</p>
+            <p>Use your school-managed MARKADO account.</p>
           </div>
 
           <form id="login-form" onSubmit={submit} noValidate>
@@ -101,7 +101,7 @@ export default function Login({ registration }) {
           </form>
 
           <div className="auth-registration-note" role="note">
-            <strong>Registration is not open.</strong>
+            <strong>Student registration is not available yet.</strong>
             <span>{registration.message}</span>
             <Link href="/register">Review student registration requirements</Link>
           </div>

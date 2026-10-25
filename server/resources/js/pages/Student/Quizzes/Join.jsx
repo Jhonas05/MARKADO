@@ -14,9 +14,9 @@ export default function Join({ policyNotice }) {
     <StudentQuizLayout title="Join a quiz">
       <main className="student-preflight-shell" id="main-content">
         <section className="student-preflight-hero">
-          <p className="section-kicker">Secure join preflight</p>
+          <p className="section-kicker">Quiz access</p>
           <h1>Join a quiz</h1>
-          <p>Use the eight-character code supplied by your instructor. Signing in does not create an attempt or start a timer.</p>
+          <p>Enter the eight-character code from your professor. You can review the quiz details before any timer begins.</p>
         </section>
 
         <div className="student-preflight-grid">
@@ -46,13 +46,13 @@ export default function Join({ policyNotice }) {
           </form>
 
           <aside className="panel student-policy-card" role="note">
-            <span className="provisional-tag"><Icon name="alertCircle" size={17} /> Policy hold <strong>Phase 5C</strong></span>
-            <h2>No assessment starts here</h2>
+            <span className="provisional-tag"><Icon name="alertCircle" size={17} /> Before you continue</span>
+            <h2>Checking a code does not start the quiz</h2>
             <p>{policyNotice}</p>
             <ul>
-              <li>No attempt is created.</li>
-              <li>No timer is started.</li>
-              <li>No question or answer data is sent.</li>
+              <li>You will see the schedule before starting.</li>
+              <li>Your professor's instructions appear on the next screen.</li>
+              <li>Unavailable codes use the same private response.</li>
             </ul>
           </aside>
         </div>

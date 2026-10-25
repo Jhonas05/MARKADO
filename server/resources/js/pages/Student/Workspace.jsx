@@ -2,7 +2,7 @@ import { Link } from '@inertiajs/react'
 import Icon from '@prototype/components/Icon.jsx'
 import StudentQuizLayout from '../../Layouts/StudentQuizLayout.jsx'
 
-export default function Workspace({ eligibility, quizJoinUrl }) {
+export default function Workspace({ assessmentStartAvailable, eligibility, quizJoinUrl }) {
   const verified = eligibility.hasSchoolRecord
     && eligibility.isActive
     && eligibility.verificationStatus === 'verified'
@@ -15,8 +15,8 @@ export default function Workspace({ eligibility, quizJoinUrl }) {
         <section className="student-account-hero">
           <div>
             <p className="section-kicker">Student dashboard</p>
-            <h1>Your assessment workspace</h1>
-            <p>Review your institution-managed access status before opening a quiz.</p>
+            <h1>Your quizzes start here</h1>
+            <p>Enter a quiz code, review the instructions, and check your access before you begin.</p>
           </div>
           <Link className="button button--primary" href={quizJoinUrl}>
             Join with a code <Icon name="arrowRight" size={17} />
@@ -25,8 +25,8 @@ export default function Workspace({ eligibility, quizJoinUrl }) {
 
         <div className="student-account-grid">
           <section className="panel student-account-card" id="account" aria-labelledby="identity-heading">
-            <p className="section-kicker">School identity</p>
-            <h2 id="identity-heading">{verified ? 'Verified for eligibility checks' : 'Verification required'}</h2>
+            <p className="section-kicker">Account access</p>
+            <h2 id="identity-heading">{verified ? 'School identity verified' : 'School verification required'}</h2>
             <dl>
               <div><dt>Student number</dt><dd>{eligibility.studentNumber || 'Not assigned'}</dd></div>
               <div><dt>Verification</dt><dd>{eligibility.verificationLabel}</dd></div>
@@ -36,10 +36,12 @@ export default function Workspace({ eligibility, quizJoinUrl }) {
             </dl>
           </section>
           <section className="panel student-account-card" aria-labelledby="attempt-heading">
-            <p className="section-kicker">Assessment engine</p>
-            <h2 id="attempt-heading">Attempts remain gated</h2>
-            <p>Secure join preflight is available. Starting attempts, saving answers, timers, and scoring remain disabled on this route.</p>
-            <div className="student-account-callout" role="note"><Icon name="shield" size={18} /> Eligibility is rechecked by Laravel for every protected quiz.</div>
+            <p className="section-kicker">Quiz access</p>
+            <h2 id="attempt-heading">{assessmentStartAvailable ? 'Ready to check a quiz' : 'Quiz start is currently unavailable'}</h2>
+            <p>{assessmentStartAvailable
+              ? 'Use the code from your professor to review the quiz schedule and instructions before starting.'
+              : 'You can still enter a code and review an assigned quiz. Your school has not enabled quiz starts yet.'}</p>
+            <div className="student-account-callout" role="note"><Icon name="shield" size={18} /> A quiz code never replaces school verification or assignment.</div>
           </section>
         </div>
       </main>

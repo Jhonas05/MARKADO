@@ -17,7 +17,7 @@ export default function Register({ registration }) {
           <p className="section-kicker">Student access</p>
           <h1 id="registration-title">Student onboarding requirements</h1>
           <p className="auth-card__intro">
-            MARKADO uses Student self-registration with a school-issued email. Automatic Student-only activation can occur only after every approved identity and security check succeeds.
+            Students will register with an official student number and school-issued email. Access opens only after mailbox and school-record checks succeed.
           </p>
 
           <form className="auth-form" aria-describedby="registration-policy registration-privacy">
@@ -43,7 +43,7 @@ export default function Register({ registration }) {
               </div>
             </fieldset>
             <button className="button button--primary button--full" type="button" disabled={!registration.available}>
-              {registration.available ? 'Continue securely' : 'Registration setup in progress'}
+              {registration.available ? 'Continue securely' : 'Registration unavailable'}
             </button>
             <p className="auth-validation-status" aria-live="polite">No information has been submitted.</p>
           </form>
@@ -64,7 +64,7 @@ export default function Register({ registration }) {
           </section>
 
           <div className="auth-registration-note" id="registration-policy" role="note">
-            <strong>Approved secure foundation, not yet active</strong>
+            <strong>Registration is not available yet</strong>
             <span>{registration.message}</span>
           </div>
           <p className="auth-privacy-note" id="registration-privacy">

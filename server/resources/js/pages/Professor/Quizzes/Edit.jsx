@@ -168,24 +168,26 @@ export default function EditQuiz({ quiz, questionTypes }) {
       <ScreenHeader
         eyebrow={`${quiz.courseCode} · ${quiz.statusLabel}`}
         title={quiz.title}
-        description="Configure immutable schedules, timers, and randomization. The assessment flow is implemented behind a separate operational activation gate."
+        description="Manage the schedule, timers, question order, publishing, and student access for this quiz."
         actions={(
           <>
             <Link className="button button--secondary" href="/professor/quizzes">
               <Icon name="arrowLeft" size={18} /> All quizzes
             </Link>
-            <Link className="button button--secondary" href={quiz.resultsPath}>
-              <Icon name="barChart" size={18} /> Results
-            </Link>
+            {quiz.resultsPath ? (
+              <Link className="button button--secondary" href={quiz.resultsPath}>
+                <Icon name="barChart" size={18} /> Results
+              </Link>
+            ) : null}
           </>
         )}
       />
       <BuilderSteps published={quiz.status === 'published'} />
 
       <section className="prof-panel prof-authoring-summary" aria-label="Publication status">
-        <div><span className="section-kicker">Reserved access code</span><strong>{quiz.access.code}</strong></div>
-        <div><span>Student route</span><strong>{quiz.access.path}</strong></div>
-        <div><span>Authoring record</span><strong>{revisionLabel}</strong></div>
+        <div><span className="section-kicker">Quiz code</span><strong>{quiz.access.code}</strong></div>
+        <div><span>Share link</span><strong>{quiz.access.path}</strong></div>
+        <div><span>Working version</span><strong>{revisionLabel}</strong></div>
         <StatusBadge tone={quiz.status === 'published' ? 'success' : 'warning'}>{quiz.statusLabel}</StatusBadge>
         <button className="button button--secondary button--compact" type="button" onClick={copyCode}>
           <Icon name={copied ? 'check' : 'copy'} size={16} /> {copied ? 'Copied' : 'Copy code'}
@@ -194,7 +196,7 @@ export default function EditQuiz({ quiz, questionTypes }) {
 
       <section className="prof-panel prof-publication-card" aria-labelledby="publication-title">
         <div className="prof-panel-heading">
-          <div><p className="section-kicker">D16 approved boundary</p><h2 id="publication-title">Publication and revision history</h2></div>
+          <div><p className="section-kicker">Publishing</p><h2 id="publication-title">Publication and revision history</h2></div>
           {quiz.publication.hasUnpublishedChanges ? <StatusBadge tone="warning">Draft changes</StatusBadge> : null}
         </div>
         <p className="prof-publication-copy">
@@ -228,9 +230,9 @@ export default function EditQuiz({ quiz, questionTypes }) {
 
       <section className="prof-panel prof-assignment-preview" aria-labelledby="assignment-title">
         <div>
-          <p className="section-kicker">D22 school-managed eligibility</p>
-          <h2 id="assignment-title">Assignment preview</h2>
-          <p>Eligibility is evaluated from verified, active school records. Assignment management stays unavailable until D13–D15 permissions are approved.</p>
+          <p className="section-kicker">Student access</p>
+          <h2 id="assignment-title">Assigned students and sections</h2>
+          <p>Only verified students with an active direct or section assignment can access this quiz. Assignment changes are not available here yet.</p>
         </div>
         <dl>
           <div><dt>Direct students</dt><dd>{quiz.assignments.directStudentCount}</dd></div>
@@ -287,7 +289,7 @@ export default function EditQuiz({ quiz, questionTypes }) {
 
       <div className="prof-editor-layout prof-database-editor">
         <aside className="prof-question-list" aria-label="Quiz questions">
-          <div><span>{quiz.questions.length} {quiz.questions.length === 1 ? 'question' : 'questions'}</span><strong>Stable UUIDs</strong></div>
+          <div><span>{quiz.questions.length} {quiz.questions.length === 1 ? 'question' : 'questions'}</span><strong>Question list</strong></div>
           {quiz.questions.map((question) => (
             <button className={question.id === selectedId ? 'prof-question-item prof-question-item--active' : 'prof-question-item'} type="button" key={question.id} onClick={() => selectQuestion(question)} aria-current={question.id === selectedId ? 'true' : undefined}>
               <span>{question.position}</span>
@@ -305,7 +307,6 @@ export default function EditQuiz({ quiz, questionTypes }) {
           </div>
           <div className="prof-field-grid">
             <label className="prof-field"><span>Question type</span><select disabled={!editable} value={questionForm.data.type} onChange={(event) => changeType(event.target.value)}>{questionTypes.map((type) => <option value={type.value} key={type.value}>{type.label}</option>)}</select><FieldError message={questionForm.errors.type} /></label>
-            <div className="prof-field prof-field--question-id"><span>Stable identifier</span><code>{selected?.id ?? 'Assigned when saved'}</code></div>
             <label className="prof-field prof-field--wide"><span>Prompt</span><textarea disabled={!editable} rows="4" value={questionForm.data.prompt} onChange={(event) => questionForm.setData('prompt', event.target.value)} aria-invalid={Boolean(questionForm.errors.prompt)} /><FieldError message={questionForm.errors.prompt} /></label>
           </div>
 
@@ -324,15 +325,15 @@ export default function EditQuiz({ quiz, questionTypes }) {
           {editable && questionForm.data.type === 'multiple_choice' && questionForm.data.choices.length < 6 ? <button className="prof-text-button prof-add-choice" type="button" onClick={() => questionForm.setData('choices', [...questionForm.data.choices, { choice_text: '', is_correct: false }])}><Icon name="plus" size={16} /> Add choice</button> : null}
 
           <div className="prof-editor-footer">
-            <small className="prof-question-safety">Answer keys are returned only inside this owner-authorized editor. Published records are immutable.</small>
+            <small className="prof-question-safety">Correct answers are visible only in your quiz editor. Published versions remain read-only.</small>
             {editable ? <div>{selected ? <button className="button button--danger-soft" type="button" onClick={removeQuestion}>Remove</button> : null}<button className="button button--primary" type="submit" disabled={questionForm.processing}>{questionForm.processing ? 'Saving…' : selected ? 'Save question' : 'Add question'}</button></div> : null}
           </div>
         </form>
       </div>
 
       <section className="prof-panel prof-policy-locks" aria-labelledby="policy-locks-title">
-        <div><Icon name="lock" size={20} /><div><p className="section-kicker">Still unavailable</p><h2 id="policy-locks-title">Attempt lifecycle and grading</h2></div></div>
-        <p>Assessment Start, timers, saves, submission, scoring, and manual result release are implemented behind default-off operational gates. Roster mutation, administrator mutation, regrading, overrides, ranking, and exports remain unavailable.</p>
+        <div><Icon name="lock" size={20} /><div><p className="section-kicker">Availability</p><h2 id="policy-locks-title">Some school-managed actions are not available yet</h2></div></div>
+        <p>Quiz delivery is currently unavailable. Roster changes, regrading, overrides, rankings, and exports are also not available from this workspace.</p>
       </section>
     </ProfessorLayout>
   )
