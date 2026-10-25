@@ -252,8 +252,12 @@ class ManageAssessmentDemo extends Command
             ? explode('/', $server->server_address, 2)[0]
             : null;
         $databaseName = is_string($server?->database_name) ? trim($server->database_name) : '';
+        $configuredHost = strtolower(trim((string) config('database.connections.pgsql.host')));
+        $configuredLoopback = in_array($configuredHost, ['127.0.0.1', 'localhost', '::1'], true);
+        $containerizedCiDatabase = app()->environment('testing') && $databaseName === 'markado_ci';
 
-        if (! in_array($address, ['127.0.0.1', '::1'], true)) {
+        if (! $configuredLoopback
+            || (! in_array($address, ['127.0.0.1', '::1'], true) && ! $containerizedCiDatabase)) {
             throw new RuntimeException('The PostgreSQL server did not verify as a loopback-only connection.');
         }
 
