@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react'
-import BrandMark from '@prototype/components/BrandMark.jsx'
+import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
 export default function Workspace({ foundation }) {
@@ -15,8 +15,7 @@ export default function Workspace({ foundation }) {
 
       <header className="auth-topbar">
         <Link className="auth-brand" href="/" aria-label="MARKADO home">
-          <BrandMark />
-          <span>MARKADO</span>
+          <MarkadoLogo decorative size={28} />
         </Link>
         <div className="auth-topbar__actions">
           <ThemeToggle compact />

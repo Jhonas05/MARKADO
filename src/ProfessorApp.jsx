@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import BrandMark from './components/BrandMark.jsx'
+import MarkadoLogo from './components/MarkadoLogo.jsx'
 import Icon from './components/Icon.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
 import {
@@ -124,9 +124,8 @@ function ProfessorHeader({ currentScreen, onAdmin, onMenu, onStudent }) {
         >
           <Icon name="menu" />
         </button>
-        <BrandMark />
-        <span>
-          <strong>MARKADO</strong>
+        <span className="prof-header__brand-lockup">
+          <MarkadoLogo decorative size={20} />
           <small>Professor workspace</small>
         </span>
       </div>
@@ -1572,7 +1571,7 @@ function Exports({ onToast }) {
         </section>
         <aside className="prof-report-preview">
           <div className="prof-report-paper">
-            <div className="prof-report-brand"><span>M</span><div><strong>MARKADO</strong><small>ASSESSMENT RESULTS</small></div></div>
+            <div className="prof-report-brand"><MarkadoLogo decorative size={18} /><div><small>ASSESSMENT RESULTS</small></div></div>
             <h2>Ecosystems checkpoint</h2>
             <p>General Biology · BSBIO 1-A · Synthetic report</p>
             <dl><div><dt>Order</dt><dd>Alphabetical</dd></div><div><dt>Generated</dt><dd>22 Oct 2026 · Asia/Manila</dd></div></dl>

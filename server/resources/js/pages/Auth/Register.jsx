@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react'
-import BrandMark from '@prototype/components/BrandMark.jsx'
+import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
 export default function Register({ registration }) {
@@ -10,8 +10,7 @@ export default function Register({ registration }) {
         <section className="auth-card auth-card--registration" aria-labelledby="registration-title">
           <div className="auth-card__topline">
             <Link className="auth-brand" href="/" aria-label="MARKADO home">
-              <BrandMark size={38} />
-              <span>MARKADO</span>
+              <MarkadoLogo decorative size={30} />
             </Link>
             <ThemeToggle compact />
           </div>

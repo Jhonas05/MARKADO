@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import BrandMark from './components/BrandMark.jsx'
+import MarkadoLogo from './components/MarkadoLogo.jsx'
 import Icon from './components/Icon.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
 import ProvisionalTag from './components/ProvisionalTag.jsx'
@@ -87,9 +87,8 @@ function AdminHeader({ currentScreen, onMenu, onProfessor, onStudent }) {
         >
           <Icon name="menu" />
         </button>
-        <BrandMark />
-        <span>
-          <strong>MARKADO</strong>
+        <span className="admin-header__brand-lockup">
+          <MarkadoLogo decorative size={20} />
           <small>Administrator workspace</small>
         </span>
       </div>

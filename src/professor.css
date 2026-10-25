@@ -2093,17 +2093,6 @@
   border-bottom: 2px solid var(--green-dark);
 }
 
-.prof-report-brand > span {
-  width: 1.8rem;
-  height: 1.8rem;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  background: var(--green-dark);
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 900;
-}
-
 .prof-report-brand > div {
   display: grid;
 }
@@ -2572,7 +2561,7 @@
     padding: 1rem 0.55rem;
   }
 
-  .prof-header__brand > span:last-child,
+  .prof-header__brand-lockup small,
   .prof-profile,
   .prof-page-heading__actions .button svg {
     display: none;

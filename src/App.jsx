@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import AdminApp from './AdminApp.jsx'
-import BrandMark from './components/BrandMark.jsx'
+import MarkadoLogo from './components/MarkadoLogo.jsx'
 import Icon from './components/Icon.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
 import ProfessorApp from './ProfessorApp.jsx'
@@ -50,8 +50,7 @@ function AppHeader({
           onClick={() => onNavigate(screens.dashboard)}
           aria-label="MARKADO dashboard"
         >
-          <BrandMark />
-          <span className="brand__name">MARKADO</span>
+          <MarkadoLogo decorative size={24} />
         </button>
 
         <nav className="primary-nav" aria-label="Primary navigation">

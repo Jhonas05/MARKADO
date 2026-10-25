@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react'
 import { useState } from 'react'
-import BrandMark from '@prototype/components/BrandMark.jsx'
+import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import Icon from '@prototype/components/Icon.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
@@ -48,9 +48,8 @@ export default function ProfessorLayout({ children, title }) {
           >
             <Icon name="menu" />
           </button>
-          <BrandMark />
-          <span>
-            <strong>MARKADO</strong>
+          <span className="prof-header__brand-lockup">
+            <MarkadoLogo decorative size={20} />
             <small>Professor workspace</small>
           </span>
         </div>
@@ -88,9 +87,8 @@ export default function ProfessorLayout({ children, title }) {
         ) : null}
         <aside className={`prof-sidebar${mobileOpen ? ' prof-sidebar--open' : ''}`} aria-label="Professor navigation">
           <Link className="prof-sidebar__brand" href="/professor/quizzes" onClick={() => setMobileOpen(false)}>
-            <BrandMark size={34} />
-            <span>
-              <strong>MARKADO</strong>
+            <span className="prof-sidebar__brand-lockup">
+              <MarkadoLogo decorative size={22} />
               <small>Professor workspace</small>
             </span>
           </Link>

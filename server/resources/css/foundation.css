@@ -582,6 +582,7 @@
 .student-sidebar__brand > span {
   min-width: 0;
   display: grid;
+  gap: 3px;
 }
 
 .student-sidebar__brand strong,
@@ -847,10 +848,6 @@
   border-color: var(--line-strong);
   color: var(--ink);
   background: var(--surface);
-}
-
-.brand-mark rect {
-  transition: fill var(--motion-fast) ease;
 }
 
 @media (max-width: 767px) {
@@ -1689,6 +1686,7 @@
 .prof-sidebar__brand > span {
   min-width: 0;
   display: grid;
+  gap: 3px;
 }
 
 .prof-sidebar__brand strong {
