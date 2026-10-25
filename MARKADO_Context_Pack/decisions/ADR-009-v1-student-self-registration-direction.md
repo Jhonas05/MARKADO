@@ -3,7 +3,7 @@
 - **Decision status:** APPROVED DIRECTION ONLY (product-owner choice B); supporting implementation mechanisms remain OPEN.
 - **Decision recorded:** 25 October 2026 (Asia/Manila).
 - **Decision authority:** MARKADO product owner, in the project conversation. No registrar, academic-policy, privacy-officer, or operational approval is implied.
-- **Repository integration status:** Prepared outside Git; NOT COMMITTED or merged.
+- **Repository integration:** This decision was originally prepared outside Git and incorporated into the repository through PR #21. Git history is authoritative for its current integration and merge status.
 - **Scope:** D13/D14 student account *issuance method*, building upon ADR-003, ADR-004, and ADR-008.
 - **Repository checkpoint inspected:** `main` at `5f01263723ade995e4aa1d36db025a612d0d582f`.
 
@@ -54,7 +54,9 @@ No teacher or Administrator self-registration privilege is inferred. No student 
 - Test verification token expiry/replay/resend/throttle and account recovery/session revocation **once those mechanisms are approved**.
 - Keep `MARKADO_ASSESSMENT_ROUTES_ENABLED=false` and `MARKADO_ASSESSMENT_EXPIRATION_ENABLED=false` in non-test environments until separate activation approval.
 
-## Documentation updates needed when repository changes are authorized
+## Repository integration record
+
+PR #21 completed the documentation steps in the original integration checklist below. They are retained as the historical integration record; Git history is authoritative for current status.
 
 - Add this ADR as `MARKADO_Context_Pack/decisions/ADR-009-v1-student-self-registration-direction.md` **after confirming the number is still free**.
 - Update `MARKADO_Context_Pack/context/18_open-decisions.md`: D13/D14 PARTIALLY DECIDED; student-initiated signup direction approved; technical issuance/verification/recovery/activation authority remains open.
