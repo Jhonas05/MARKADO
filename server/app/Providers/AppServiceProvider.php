@@ -19,9 +19,17 @@ use App\Assessment\Support\DatabaseSchoolEligibilitySource;
 use App\Assessment\Support\DatabaseScoreCalculator;
 use App\Assessment\Support\SystemAuthoritativeClock;
 use App\Identity\Contracts\InstitutionalEmailPolicy;
+use App\Identity\Contracts\InstitutionalMailboxProof;
+use App\Identity\Contracts\RegistrationClaimVerifier;
+use App\Identity\Contracts\StudentActivationSecurityGate;
+use App\Identity\Contracts\StudentActivationService;
 use App\Identity\Contracts\StudentIdentitySource;
 use App\Identity\Support\ConfiguredInstitutionalEmailPolicy;
+use App\Identity\Support\DatabaseInstitutionalMailboxProof;
+use App\Identity\Support\DatabaseRegistrationClaimVerifier;
+use App\Identity\Support\DatabaseStudentActivationService;
 use App\Identity\Support\DatabaseStudentIdentitySource;
+use App\Identity\Support\DefaultDenyStudentActivationSecurityGate;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizRevision;
@@ -44,6 +52,10 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(InstitutionalEmailPolicy::class, ConfiguredInstitutionalEmailPolicy::class);
+        $this->app->bind(InstitutionalMailboxProof::class, DatabaseInstitutionalMailboxProof::class);
+        $this->app->bind(RegistrationClaimVerifier::class, DatabaseRegistrationClaimVerifier::class);
+        $this->app->bind(StudentActivationSecurityGate::class, DefaultDenyStudentActivationSecurityGate::class);
+        $this->app->bind(StudentActivationService::class, DatabaseStudentActivationService::class);
         $this->app->bind(StudentIdentitySource::class, DatabaseStudentIdentitySource::class);
         $this->app->bind(SchoolEligibilitySource::class, DatabaseSchoolEligibilitySource::class);
         $this->app->bind(QuizEligibilityGate::class, DatabaseQuizEligibilityGate::class);

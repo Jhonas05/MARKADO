@@ -13,11 +13,14 @@ class AccountAccessController extends Controller
         return Inertia::render('Auth/Register', [
             'registration' => [
                 'available' => false,
-                'message' => 'Institutional email and trusted roster matching are required. Account issuance, verification delivery, and activation remain disabled until the remaining D13, D14, and D15 rules are approved.',
+                'selfRegistrationApproved' => true,
+                'automaticStudentActivationApproved' => true,
+                'message' => 'Student self-registration and bounded automatic Student activation are approved directions. The public submission route stays disabled until mailbox delivery, anti-abuse, duplicate recovery, and school roster operations are approved and configured.',
                 'requirements' => [
-                    'A school-issued institutional email is required and must be verified.',
-                    'The student number and email must match the same trusted school roster record.',
-                    'Verification does not automatically activate an account or grant quiz eligibility.',
+                    'Use your official student number and school-issued institutional email.',
+                    'The number and email must match the same active, verified school roster record.',
+                    'You must independently prove control of the institutional mailbox.',
+                    'Activation remains separate from quiz assignment and assessment eligibility.',
                 ],
             ],
         ]);

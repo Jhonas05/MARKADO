@@ -189,6 +189,13 @@
   border-color: var(--danger);
 }
 
+.auth-field__hint {
+  margin: -2px 0 0;
+  color: var(--ink-muted);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
 .auth-error {
   color: var(--danger);
   font-size: 0.875rem;

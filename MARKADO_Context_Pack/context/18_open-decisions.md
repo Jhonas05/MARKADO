@@ -15,6 +15,8 @@ The source PDF left deployment and all implementation technologies unspecified. 
 - **ADR-007 (documented 24 October 2026; exact approval date not recorded):** D05 final-question expiry finalizes at its persisted question deadline; D12 gives each immutable MCQ/True-False snapshot one integer point for a correct stable choice and zero otherwise; D11 permits only the owning Professor to manually release score/total. No answer-key feedback, percentage, rank/tie policy, bulk release, regrade, or override is inferred. Approval evidence is the product owner's `g pre` reply in the project conversation.
 - **ADR-003 (22 October 2026):** The product owner approved a single-school V1; single-answer MCQ and True/False; one resumable attempt; Asia/Manila display timezone; professor-controlled manual result release; student number and email as future registration requirements; and limited permission-based administrator access. Only those exact boundaries are decided. See `../decisions/ADR-003-phase-5b-approved-v1-boundaries.md` for the remaining sub-policies.
 - **ADR-008 (25 October 2026):** D13/D14 now require school-issued institutional email only, verified mailbox possession, and a matching authoritative roster student number and email. Missing or mismatched evidence denies by default. Public registration, token/recovery mechanics, roster authority, activation authority, D15, and D23 remain unresolved.
+- **ADR-009 (25 October 2026):** Student self-registration is the approved normal V1 Student account-issuance direction. Registration still requires independent mailbox proof and an exact same-record active trusted-roster match; it cannot create or edit roster authority.
+- **ADR-010 (25 October 2026):** A normal pending Student activates automatically only after every approved identity, account-state, security, and anti-abuse check succeeds. The transition is atomic, idempotent, Student-only, and separate from quiz eligibility. Public registration, delivery/recovery mechanisms, operational security parameters, and activation remain default-gated.
 
 ## Decision register
 | ID | Decision / question | Status | Owner or reviewer |
@@ -31,9 +33,9 @@ The source PDF left deployment and all implementation technologies unspecified. 
 | D10 | Timezone standard and open/close semantics | **DECIDED** - inclusive opening, exclusive closing, UTC persistence, Asia/Manila display, server clock authoritative | Product (user), 23 Oct 2026 |
 | D11 | Result release timing and answer feedback | **DECIDED WITH EXCLUSIONS** - owning Professor manually releases score/total only; item feedback, answer keys, leaderboard, bulk/revoke remain excluded | Product (user); ADR-007; exact approval date not recorded |
 | D12 | Ranking/scoring/tie and repeat-attempt aggregation rules | **DECIDED WITH EXCLUSIONS** - MCQ/True-False score 1 correct and 0 incorrect/unanswered; weighting, percentages, ranks, ties, repeats and regrading remain excluded/open | Product (user); ADR-007; exact approval date not recorded |
-| D13 | Student number issuance and verification | **PARTIALLY DECIDED** - official number must match the same authoritative roster identity as the institutional email; issuer, import/correction authority, and canonicalization remain open | Product (user), 25 Oct 2026 |
-| D14 | Email verification and duplicate recovery | **PARTIALLY DECIDED** - school-issued institutional email only; mailbox must be verified and match the trusted roster; token/delivery/recovery/duplicate rules remain open | Product (user), 25 Oct 2026 |
-| D15 | Instructor/administrator privileges | **PARTIALLY DECIDED** - limited permission-based administration; exact grants remain open | Product (user) |
+| D13 | Student number issuance and verification | **PARTIALLY DECIDED** - official number must match the same authoritative roster identity as the institutional email; Student self-registration is the normal V1 issuance direction; issuer, source/import, freshness, correction authority, and canonicalization remain open | Product (user), 25 Oct 2026; ADR-008/009 |
+| D14 | Email verification and duplicate recovery | **PARTIALLY DECIDED** - institutional mailbox proof and exact roster match are required; automatic Student-only activation follows all approved checks; challenge/delivery/recovery/duplicate/dispute/anti-abuse mechanisms remain open and public mutations stay disabled | Product (user), 25 Oct 2026; ADR-008/009/010 |
+| D15 | Instructor/administrator privileges | **PARTIALLY DECIDED** - limited permission-based administration; automatic Student activation grants no staff power and exact staff grants remain open | Product (user) |
 | D16 | Live quiz edits, revision handling and unpublish | **DECIDED** - immutable published revisions; separate draft edits; explicit re-publish; unpublish blocks new starts without deciding running attempts | Product (user), 23 Oct 2026 |
 | D17 | Uploads: file types, OCR and size limits | **OPEN** | To assign |
 | D18 | AI provider and upload-processing permissions | **OPEN** | To assign |
@@ -49,15 +51,17 @@ The source PDF left deployment and all implementation technologies unspecified. 
 | D28 | Production hosting, queues, storage and recovery goals | **OPEN** | Technical + operations |
 | D29 | Laravel version/PHP runtime and dependency support | **OPEN** | Technical lead |
 
-ADR-008 decides only its exact D13/D14 boundaries. The remaining recommendations
-in `../../docs/v8-account-security-activation-readiness.md` and
-`../../docs/v8-2-identity-permission-signoff.md` are **PROPOSED only** and do not
-authorize a registration, recovery, roster, privilege, or assessment mutation.
+ADR-008 through ADR-010 decide only their exact D13/D14 boundaries. The remaining
+recommendations in `../../docs/v8-account-security-activation-readiness.md`,
+`../../docs/v8-2-identity-permission-signoff.md`, and
+`../../docs/v8-5-account-security-signoff.md` are **PROPOSED only** unless an ADR
+marks the exact rule approved. No ADR here authorizes public registration,
+recovery, roster/staff privilege mutations, assessment activation, or deployment.
 
 ## Architecture-dependent blockers [OPEN]
 - **Platform:** PostgreSQL (D26) and React/Inertia.js (D27) are **DECIDED**. D28 hosting/managed PostgreSQL/queues/storage/backups and D29 Laravel/PHP plus React/Inertia dependency versions remain OPEN. Do not silently swap the database/frontend or infer Railway, AWS, Supabase, Tailwind, TypeScript or any provider/package.
 - **Academic policy:** ADR-006 and ADR-007 resolve the ordinary V1 rules for D04-D12 only to their stated boundaries. D08/D09 exceptional staff or institution-wide remedies, D11 bulk/revoke/item-feedback behavior, D12 percentages/ranking/ties/repeats, and D23 regrade/override authority remain unresolved. D07 is fixed by ADR-005 and must not be weakened by implementation defaults.
-- **Identity/privacy:** ADR-008 fixes institutional-email and trusted roster-match requirements. Remaining D13-D15 actors, verification/recovery mechanics, privileged mutations, and D19-D21 retention/accessibility rules are still open. D22 eligibility evaluation is decided.
+- **Identity/privacy:** ADR-008 through ADR-010 fix institutional-email, same-record roster match, Student self-registration, and bounded automatic Student-only activation directions. Roster authority/source/freshness, verification delivery and abuse parameters, recovery/disputes, D15 staff grants, and D19-D21 retention/accessibility rules remain open. Public mutations remain disabled. D22 eligibility evaluation is decided.
 - **AI/material workflow:** D17, D18 and D20 must be settled before transferring educational source material to any service.
 
 ## Decision record template [REC]

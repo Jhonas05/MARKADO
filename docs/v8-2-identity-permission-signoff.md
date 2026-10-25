@@ -5,6 +5,12 @@
 **Status:** Decision-ready proposals only. ADR-008 is approved only for the
 institutional-email and trusted roster-match boundaries it states.
 
+> **Historical worksheet note (25 October 2026):** ADR-009 subsequently approved
+> Student self-registration as the normal V1 direction, and ADR-010 subsequently
+> approved bounded automatic Student-only activation after all approved checks.
+> The token, delivery, recovery, roster-authority, D15, D19, and D23 proposals
+> below remain unapproved. This note preserves the worksheet's original context.
+
 ## D13/D14 choices still required
 
 | Topic | Recommended V1 rule | Status |
