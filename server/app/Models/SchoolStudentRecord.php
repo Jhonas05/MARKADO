@@ -12,9 +12,15 @@ class SchoolStudentRecord extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['student_number', 'verification_status', 'is_active', 'verified_at'];
+    protected $fillable = [
+        'student_number',
+        'institutional_email',
+        'verification_status',
+        'is_active',
+        'verified_at',
+    ];
 
-    protected $hidden = ['student_number'];
+    protected $hidden = ['student_number', 'institutional_email'];
 
     protected function casts(): array
     {

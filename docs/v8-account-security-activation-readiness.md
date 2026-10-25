@@ -2,7 +2,9 @@
 
 **Prepared:** 24 October 2026
 
-**Status:** Decision-ready proposal. Nothing in this document is approved policy.
+**Status:** ADR-008 now approves only the institutional-email and trusted
+roster-match boundaries. All remaining recommendations in this document are
+still proposed unless another dated ADR says otherwise.
 
 **Applies to:** D13, D14, D15, D23, account security, and later controlled assessment activation.
 
@@ -12,7 +14,8 @@
 - Student number and email are required for future registration, but registration,
   verification, recovery, privileged provisioning, and exceptional assessment
   mutations remain disabled.
-- The recommendations below are **PROPOSED**, not **APPROVED**. They cannot be
+- Except for ADR-008's exact D13/D14 boundaries, the recommendations below are
+  **PROPOSED**, not **APPROVED**. They cannot be
   used to enable a route, worker, or administrative mutation before a dated ADR
   records the product owner and academic-policy approver's decision.
 - `MARKADO_ASSESSMENT_ROUTES_ENABLED` and
@@ -59,7 +62,11 @@ that safety boundary. These checks remain required before staging activation.
 
 ## D13 — student-number authority and roster lifecycle
 
-**PROPOSED recommendation**
+**APPROVED by ADR-008:** the official student number must match the same
+authoritative roster identity as the verified institutional email. A number by
+itself proves neither ownership nor eligibility.
+
+**Remaining PROPOSED recommendation**
 
 1. The school registrar or SIS is the authoritative issuer of student numbers;
    MARKADO never invents or self-verifies one.
@@ -91,14 +98,20 @@ ambiguous duplicate quarantined without record merge.
 
 ## D14 — email, verification, pending behavior, and recovery
 
-**PROPOSED recommendation**
+**APPROVED by ADR-008:** V1 uses school-issued institutional email only; the
+mailbox must be verified and must match the same trusted roster identity as the
+student number. Personal mailboxes and domain-only activation are rejected.
+
+**Remaining PROPOSED recommendation**
 
 1. V1 login and recovery use a school-controlled institutional email from an
    explicit domain allowlist. Do not accept a personal recovery address until
    its purpose, retention, and lawful basis are approved.
-2. Verify possession with a single-use signed token stored only as a hash,
-   expiring after 30 minutes. Resend and verify endpoints use generic responses,
-   rate limits, and audit events that never reveal whether an account exists.
+2. Verify possession with a high-entropy single-use token stored only as a hash
+   and expiring after a separately approved lifetime. Resend and verify
+   endpoints use generic responses, rate limits, and audit events that never
+   reveal whether an account exists. The lifetime and delivery service remain
+   OPEN.
 3. Pending accounts may view only the pending-information screen. They cannot
    enter role workspaces, preflight a quiz, or create/resume an attempt.
 4. Password recovery is permitted only through the verified institutional
@@ -113,8 +126,8 @@ ambiguous duplicate quarantined without record merge.
 
 **Trade-offs:** institutional email is easier to govern and recover securely,
 but excludes students before mailbox provisioning and needs a staffed recovery
-path. A short-lived signed token limits exposure but creates support load for
-expired messages.
+path. A shorter token lifetime limits exposure but creates more support load;
+the exact value requires separate approval.
 
 **Minimum acceptance tests:** allowed/disallowed domain; hashed token at rest;
 single use and exact expiry; generic unknown-account response; resend/recovery
@@ -241,6 +254,7 @@ and revisit trigger. Until then, every recommendation in this document remains
 - `MARKADO_Context_Pack/decisions/ADR-005-v1-hard-close-auto-submission.md`
 - `MARKADO_Context_Pack/decisions/ADR-006-v1-dual-timers-and-attempt-policy.md`
 - `MARKADO_Context_Pack/decisions/ADR-007-v1-final-question-scoring-and-result-release.md`
+- `MARKADO_Context_Pack/decisions/ADR-008-v1-institutional-student-onboarding.md`
 - `MARKADO_Context_Pack/context/03_roles-and-permissions.md`
 - `MARKADO_Context_Pack/context/06_student-registration-and-access.md`
 - `MARKADO_Context_Pack/context/14_security-privacy-and-risk.md`

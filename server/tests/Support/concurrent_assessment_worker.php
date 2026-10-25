@@ -6,8 +6,10 @@ use App\Assessment\Contracts\AttemptSessionManager;
 use App\Assessment\Data\AnswerSaveCommand;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
+use App\Models\SchoolStudentRecord;
 use App\Models\User;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Database\QueryException;
 
 require dirname(__DIR__, 2).'/vendor/autoload.php';
 
@@ -29,6 +31,25 @@ if (! file_exists($barrier)) {
 }
 
 try {
+    if ($action === 'identity_record') {
+        $payload = json_decode($relatedId, true, flags: JSON_THROW_ON_ERROR);
+
+        try {
+            $record = new SchoolStudentRecord([
+                'student_number' => $payload['student_number'],
+                'institutional_email' => $payload['institutional_email'],
+                'verification_status' => 'unverified',
+                'is_active' => true,
+            ]);
+            $record->user()->associate(User::query()->findOrFail($subjectId));
+            $record->save();
+            echo json_encode(['outcome' => 'created'], JSON_THROW_ON_ERROR);
+        } catch (QueryException) {
+            echo json_encode(['outcome' => 'rejected'], JSON_THROW_ON_ERROR);
+        }
+        exit(0);
+    }
+
     if ($action === 'start') {
         $session = $app->make(AttemptSessionManager::class)->resumeOrCreate(
             User::query()->findOrFail($subjectId),

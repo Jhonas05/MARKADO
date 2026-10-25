@@ -5,6 +5,7 @@ namespace App\Assessment\Support;
 use App\Assessment\Contracts\SchoolEligibilitySource;
 use App\Assessment\Data\QuizEligibilityDecision;
 use App\Enums\StudentVerificationStatus;
+use App\Identity\Contracts\StudentIdentitySource;
 use App\Models\Quiz;
 use App\Models\QuizSectionAssignment;
 use App\Models\QuizStudentAssignment;
@@ -13,8 +14,14 @@ use App\Models\User;
 
 final class DatabaseSchoolEligibilitySource implements SchoolEligibilitySource
 {
+    public function __construct(private readonly StudentIdentitySource $identitySource) {}
+
     public function evaluate(User $student, Quiz $quiz): QuizEligibilityDecision
     {
+        if (! $this->identitySource->evaluate($student)->matched) {
+            return QuizEligibilityDecision::denied('school_identity_not_verified');
+        }
+
         $record = SchoolStudentRecord::query()
             ->whereBelongsTo($student)
             ->where('verification_status', StudentVerificationStatus::Verified->value)
