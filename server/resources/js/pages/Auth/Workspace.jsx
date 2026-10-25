@@ -46,10 +46,6 @@ export default function Workspace({ foundation }) {
                 <dd>{user.name}</dd>
               </div>
               <div>
-                <dt>Email</dt>
-                <dd>{user.email}</dd>
-              </div>
-              <div>
                 <dt>Role</dt>
                 <dd>{user.roleLabel ?? 'Not assigned'}</dd>
               </div>

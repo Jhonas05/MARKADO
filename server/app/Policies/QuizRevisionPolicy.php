@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\AccountRole;
+use App\Enums\AccountStatus;
 use App\Enums\QuizRevisionStatus;
 use App\Models\QuizRevision;
 use App\Models\User;
@@ -23,7 +24,8 @@ class QuizRevisionPolicy
 
     private function owns(User $user, QuizRevision $revision): bool
     {
-        return $user->role === AccountRole::Instructor
+        return $user->account_status === AccountStatus::Active
+            && $user->role === AccountRole::Instructor
             && $revision->quiz?->owner_id === $user->getKey();
     }
 }

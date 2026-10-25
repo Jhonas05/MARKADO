@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\AccountStatus;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +19,12 @@ class EnsureAccountRole
     {
         $role = $request->user()?->role?->value;
 
-        abort_unless($role !== null && in_array($role, $roles, true), 403);
+        abort_unless(
+            $request->user()?->account_status === AccountStatus::Active
+                && $role !== null
+                && in_array($role, $roles, true),
+            403,
+        );
 
         return $next($request);
     }

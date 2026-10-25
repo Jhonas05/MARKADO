@@ -39,19 +39,21 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/workspace', AuthenticatedWorkspaceController::class)->name('workspace');
+    Route::get('/workspace', AuthenticatedWorkspaceController::class)
+        ->middleware('active-account')
+        ->name('workspace');
     Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
-Route::middleware(['auth', 'account-role:student'])
+Route::middleware(['auth', 'active-account', 'account-role:student'])
     ->get('/student/dashboard', StudentWorkspaceController::class)
     ->name('student.dashboard');
 
-Route::middleware(['auth', 'account-role:academic_administrator'])
+Route::middleware(['auth', 'active-account', 'account-role:academic_administrator'])
     ->get('/admin/dashboard', AdministratorDashboardController::class)
     ->name('administrator.dashboard');
 
-Route::middleware(['auth', 'account-role:student', 'throttle:quiz-join'])
+Route::middleware(['auth', 'active-account', 'account-role:student', 'throttle:quiz-join'])
     ->prefix('student/quizzes')
     ->name('student.quizzes.')
     ->group(function () {
@@ -63,7 +65,7 @@ Route::middleware(['auth', 'account-role:student', 'throttle:quiz-join'])
             ->name('attempts.store');
     });
 
-Route::middleware(['auth', 'account-role:student', 'assessment-enabled'])
+Route::middleware(['auth', 'active-account', 'account-role:student', 'assessment-enabled'])
     ->prefix('student/attempts')
     ->name('student.attempts.')
     ->group(function () {
@@ -73,7 +75,7 @@ Route::middleware(['auth', 'account-role:student', 'assessment-enabled'])
         Route::post('{attempt}/submit', [StudentAssessmentController::class, 'submit'])->name('submit');
     });
 
-Route::middleware(['auth', 'account-role:instructor'])
+Route::middleware(['auth', 'active-account', 'account-role:instructor'])
     ->prefix('professor')
     ->name('professor.')
     ->group(function () {

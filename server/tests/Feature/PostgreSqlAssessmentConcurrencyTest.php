@@ -19,6 +19,28 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
 {
     use BuildsAssessmentFixtures;
 
+    public function test_disposable_schema_guard_rejects_protected_and_ambiguous_search_paths(): void
+    {
+        foreach ([
+            'markado_test',
+            'markado_test_v8_20261025',
+            'markado_v7_assessment_20261024',
+            'markado_v8_rehearsal_20261024_1024',
+        ] as $schema) {
+            $this->assertTrue($this->isDisposableTestSchema($schema), "{$schema} should be accepted.");
+        }
+
+        foreach ([
+            'public',
+            'markado_v8_rehearsal_',
+            'markado_v8_rehearsal_safe,public',
+            'markado_test,public',
+            'markado_v8_rehearsal_safe public',
+        ] as $schema) {
+            $this->assertFalse($this->isDisposableTestSchema($schema), "{$schema} should be rejected.");
+        }
+    }
+
     public function test_parallel_start_and_terminal_requests_share_one_attempt_and_receipt(): void
     {
         if (DB::getDriverName() !== 'pgsql') {
@@ -28,8 +50,8 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
         $schema = (string) config('database.connections.pgsql.search_path');
         $database = (string) config('database.connections.pgsql.database');
         $this->assertTrue(
-            str_starts_with($schema, 'markado_v7_assessment_') || $database === 'markado_ci',
-            'Concurrency testing is restricted to the disposable V7 schema or CI database.',
+            $this->isDisposableTestSchema($schema) || $database === 'markado_ci',
+            'Concurrency testing is restricted to a disposable MARKADO test schema or CI database.',
         );
         $this->assertTrue(Schema::hasTable('quiz_attempts'));
 
@@ -122,7 +144,7 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
      */
     private function runConcurrently(array $jobs): array
     {
-        $barrier = tempnam(sys_get_temp_dir(), 'markado-v7-barrier-');
+        $barrier = tempnam(sys_get_temp_dir(), 'markado-assessment-barrier-');
         if ($barrier === false) {
             self::fail('Unable to allocate the concurrency barrier.');
         }
@@ -171,6 +193,14 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
         }
 
         return $results;
+    }
+
+    private function isDisposableTestSchema(string $schema): bool
+    {
+        return preg_match(
+            '/^markado_(?:test(?:_[a-z0-9]+)*|v\d+_(?:assessment|rehearsal)(?:_[a-z0-9]+)+)$/D',
+            $schema,
+        ) === 1;
     }
 
     private function removePublishedFixture(string $quizId, int $studentId, int $ownerId): void

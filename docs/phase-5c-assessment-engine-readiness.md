@@ -203,9 +203,9 @@ not be used to smuggle an unresolved policy into an earlier one.
 
 ## Pull-request integration gate
 
-- [x] PR #1–#15 were integrated into `main` under separate approvals.
-- [x] V7 starts from verified integrated main
-  `23eee253b730c1c88dda4fe7400f4696bc74e2a7`.
+- [x] PR #1–#16 were integrated into `main` under separate approvals.
+- [x] V8 starts from verified integrated main
+  `b8bb567b19724cf6fe761c2fd19bdda191f6d1d9`.
 - [x] Existing feature branches and ancestry were preserved during integration.
 - [x] The active local development checkout and ignored `.env` were preserved;
   Phase 5D work uses an isolated worktree.
@@ -213,7 +213,7 @@ not be used to smuggle an unresolved policy into an earlier one.
   V7 implementation pull request before any future merge approval.
 - [ ] Never force-push, rewrite the stack, or auto-merge a dependent PR.
 
-The former PR #1–#15 dependency chain is complete. New implementation work must
+The former PR #1–#16 dependency chain is complete. New implementation work must
 use a separate branch and must not be merged without separate authorization.
 
 ## Phase 5C exit criteria

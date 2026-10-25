@@ -58,11 +58,28 @@ class AuthenticationTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Student/Workspace')
                 ->where('auth.user.id', $user->id)
-                ->where('auth.user.email', $user->email)
                 ->where('auth.user.role', AccountRole::Student->value)
+                ->missing('auth.user.email')
                 ->missing('auth.user.password')
                 ->missing('auth.user.remember_token')
             );
+    }
+
+    public function test_client_supplied_role_cannot_change_the_server_assigned_destination(): void
+    {
+        $student = User::factory()->create([
+            'password' => Hash::make('valid-test-credential'),
+            'role' => AccountRole::Student,
+        ]);
+
+        $this->post('/login', [
+            'email' => $student->email,
+            'password' => 'valid-test-credential',
+            'role' => AccountRole::AcademicAdministrator->value,
+            'account_status' => AccountStatus::Active->value,
+        ])->assertRedirect('/student/dashboard');
+
+        $this->assertAuthenticatedAs($student);
     }
 
     public function test_each_server_stored_role_receives_its_own_destination(): void
@@ -111,6 +128,48 @@ class AuthenticationTest extends TestCase
             ])->assertRedirect($case['destination']);
 
             $this->assertGuest();
+        }
+    }
+
+    public function test_account_status_changes_revoke_an_existing_workspace_session_on_the_next_request(): void
+    {
+        foreach ([
+            AccountRole::Student->value => '/student/dashboard',
+            AccountRole::Instructor->value => '/professor/quizzes',
+            AccountRole::AcademicAdministrator->value => '/admin/dashboard',
+        ] as $role => $protectedPath) {
+            foreach ([
+                AccountStatus::Pending->value => '/account/pending',
+                AccountStatus::Disabled->value => '/account/disabled',
+            ] as $status => $destination) {
+                $user = User::factory()->create([
+                    'role' => $role,
+                    'account_status' => AccountStatus::Active,
+                ]);
+
+                $this->actingAs($user);
+                $user->update(['account_status' => $status]);
+
+                $this->get($protectedPath)->assertRedirect($destination);
+                $this->assertGuest();
+            }
+        }
+    }
+
+    public function test_all_authenticated_workspaces_require_request_time_active_account_checks(): void
+    {
+        foreach ([
+            'workspace',
+            'student.dashboard',
+            'student.quizzes.join',
+            'student.attempts.show',
+            'professor.quizzes.index',
+            'administrator.dashboard',
+        ] as $routeName) {
+            $route = Route::getRoutes()->getByName($routeName);
+            $middleware = $route->gatherMiddleware();
+
+            $this->assertContains('active-account', $middleware, "{$routeName} must recheck account status.");
         }
     }
 
