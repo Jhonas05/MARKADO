@@ -1,5 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react'
-import BrandMark from '@prototype/components/BrandMark.jsx'
+import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
 export default function Login({ registration }) {
@@ -26,8 +26,7 @@ export default function Login({ registration }) {
         <section className="auth-story" aria-labelledby="auth-heading">
           <div className="auth-brand-row">
             <Link className="auth-brand" href="/" aria-label="MARKADO home">
-              <BrandMark size={42} />
-              <span>MARKADO</span>
+              <MarkadoLogo decorative size={34} />
             </Link>
             <ThemeToggle compact />
           </div>

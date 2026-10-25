@@ -49,4 +49,26 @@ class InertiaFoundationTest extends TestCase
         $this->assertStringContainsString("env('DB_CONNECTION', 'pgsql')", $databaseConfig);
         $this->assertContains(config('database.default'), ['pgsql', 'sqlite']);
     }
+
+    public function test_official_brand_assets_and_browser_metadata_are_available(): void
+    {
+        $canonical = public_path('branding/markado-logo.png');
+        $wordmark = public_path('branding/markado-logo-transparent.png');
+        $symbol = public_path('branding/markado-symbol.png');
+
+        $this->assertFileExists($canonical);
+        $this->assertFileExists($wordmark);
+        $this->assertFileExists($symbol);
+        $this->assertSame([1672, 941], array_slice(getimagesize($canonical), 0, 2));
+        $this->assertSame([1561, 272], array_slice(getimagesize($wordmark), 0, 2));
+        $this->assertSame([320, 320], array_slice(getimagesize($symbol), 0, 2));
+        $this->assertGreaterThan(0, filesize(public_path('favicon.ico')));
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('content="MARKADO"', false)
+            ->assertSee('href="/favicon.ico"', false)
+            ->assertSee('href="/branding/favicon-32x32.png"', false)
+            ->assertSee('href="/branding/apple-touch-icon.png"', false);
+    }
 }

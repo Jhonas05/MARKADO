@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react'
-import BrandMark from '@prototype/components/BrandMark.jsx'
+import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import Icon from '@prototype/components/Icon.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
@@ -41,9 +41,8 @@ export default function StudentShell({
 
       <aside className="student-sidebar" aria-label="Student navigation">
         <Link className="student-sidebar__brand" href={homeHref} aria-label="MARKADO student home">
-          <BrandMark size={34} />
-          <span>
-            <strong>MARKADO</strong>
+          <span className="student-sidebar__brand-lockup">
+            <MarkadoLogo decorative size={22} />
             <small>Assessment workspace</small>
           </span>
         </Link>
@@ -79,8 +78,7 @@ export default function StudentShell({
       <div className="student-shell__content">
         <header className="student-mobile-header">
           <Link className="student-mobile-header__brand" href={homeHref} aria-label="MARKADO student home">
-            <BrandMark size={30} />
-            <strong>MARKADO</strong>
+            <MarkadoLogo decorative size={20} />
           </Link>
           <div className="student-mobile-header__actions">
             <ThemeToggle compact />

@@ -154,19 +154,6 @@ summary {
   background: transparent;
 }
 
-.brand__mark {
-  width: 2.35rem;
-  height: 2.35rem;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  background: var(--green-dark);
-  border-radius: 0.5rem;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.25rem;
-  font-weight: 800;
-}
-
 .brand__name {
   font-size: 0.85rem;
   font-weight: 900;

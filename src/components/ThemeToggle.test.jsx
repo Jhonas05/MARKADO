@@ -6,7 +6,7 @@ import { resolveTheme, THEME_STORAGE_KEY } from '../theme.js'
 describe('ThemeToggle', () => {
   beforeEach(() => {
     window.localStorage.clear()
-    document.documentElement.classList.remove('dark')
+    document.documentElement.classList.remove('dark', 'light')
     delete document.documentElement.dataset.theme
     delete document.documentElement.dataset.themePreference
   })
@@ -28,6 +28,7 @@ describe('ThemeToggle', () => {
     fireEvent.click(screen.getByRole('button', { name: /use light theme/i }))
 
     expect(document.documentElement).not.toHaveClass('dark')
+    expect(document.documentElement).toHaveClass('light')
     expect(document.documentElement).toHaveAttribute('data-theme', 'light')
     expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe('light')
   })

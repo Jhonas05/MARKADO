@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react'
-import BrandMark from '@prototype/components/BrandMark.jsx'
+import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import Icon from '@prototype/components/Icon.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
@@ -12,7 +12,7 @@ export default function Dashboard({ boundaries }) {
       <a className="skip-link" href="#main-content">Skip to content</a>
       <header className="auth-topbar">
         <Link className="auth-brand" href="/admin/dashboard" aria-label="MARKADO administrator dashboard">
-          <BrandMark size={34} /><span>MARKADO</span>
+          <MarkadoLogo decorative size={26} />
         </Link>
         <div className="auth-topbar__actions"><ThemeToggle compact /><Link className="button button--secondary" href="/logout" method="delete" as="button">Sign out</Link></div>
       </header>

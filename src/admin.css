@@ -1374,7 +1374,7 @@
 }
 
 @media (max-width: 680px) {
-  .admin-header__brand > span:last-child,
+  .admin-header__brand-lockup small,
   .admin-profile {
     display: none;
   }

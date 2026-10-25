@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react'
-import BrandMark from '@prototype/components/BrandMark.jsx'
+import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import Icon from '@prototype/components/Icon.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
@@ -18,8 +18,7 @@ export default function PolicyGate({ heading, message, state, title }) {
       <main className="auth-state-card" id="main-content">
         <div className="auth-card__topline">
           <Link className="auth-brand" href="/" aria-label="MARKADO home">
-            <BrandMark size={38} />
-            <span>MARKADO</span>
+            <MarkadoLogo decorative size={30} />
           </Link>
           <ThemeToggle compact />
         </div>

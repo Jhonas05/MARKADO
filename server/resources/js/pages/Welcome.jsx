@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react'
-import BrandMark from '@prototype/components/BrandMark.jsx'
+import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import Icon from '@prototype/components/Icon.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
@@ -13,8 +13,7 @@ export default function Welcome({ accountPolicies }) {
 
       <header className="welcome-header">
         <Link className="auth-brand" href="/" aria-label="MARKADO home">
-          <BrandMark size={36} />
-          <span>MARKADO</span>
+          <MarkadoLogo decorative size={28} />
         </Link>
         <div className="welcome-header__actions">
           <ThemeToggle compact />

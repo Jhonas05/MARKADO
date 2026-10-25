@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="color-scheme" content="light dark">
         <meta name="theme-color" content="#FFFFFF">
+        <meta name="application-name" content="MARKADO">
+        <meta name="description" content="MARKADO secure academic assessment workspace">
+        <link rel="icon" href="/favicon.ico" sizes="any">
+        <link rel="icon" href="/branding/favicon-32x32.png" type="image/png" sizes="32x32">
+        <link rel="apple-touch-icon" href="/branding/apple-touch-icon.png" sizes="180x180">
 
         <script>
             (() => {

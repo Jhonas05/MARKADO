@@ -30,6 +30,7 @@ export function applyTheme(
   const resolved = resolveTheme(normalized, systemDark)
 
   if (root) {
+    root.classList.toggle('light', resolved === 'light')
     root.classList.toggle('dark', resolved === 'dark')
     root.dataset.theme = resolved
     root.dataset.themePreference = normalized
