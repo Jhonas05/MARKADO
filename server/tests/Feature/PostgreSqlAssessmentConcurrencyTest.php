@@ -7,11 +7,13 @@ use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
 use App\Enums\StudentVerificationStatus;
 use App\Models\AttemptResult;
+use App\Models\InstitutionalEmailVerificationChallenge;
 use App\Models\QuizAttempt;
 use App\Models\SchoolStudentRecord;
 use App\Models\User;
 use DateTimeImmutable;
 use DateTimeZone;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\Group;
@@ -207,6 +209,125 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
             DB::table('student_identity_events')->whereIn('user_id', [$student->id, $verifier->id])->delete();
             SchoolStudentRecord::query()->whereKey($record->id)->delete();
             User::query()->whereIn('id', [$student->id, $verifier->id])->delete();
+        }
+    }
+
+    public function test_concurrent_mailbox_consumption_succeeds_once_and_resend_creates_one_live_challenge(): void
+    {
+        $this->assertSafePostgreSqlIsolation();
+
+        $student = User::factory()->create([
+            'email' => 'verification-race@students.example.edu',
+            'email_verified_at' => null,
+            'role' => AccountRole::Student,
+            'account_status' => AccountStatus::Pending,
+        ]);
+        $token = 'synthetic-concurrency-verification-token';
+        $now = now('UTC');
+        InstitutionalEmailVerificationChallenge::query()->create([
+            'user_id' => $student->id,
+            'purpose' => 'institutional_mailbox',
+            'token_hash' => hash_hmac('sha256', $token, (string) config('app.key')),
+            'email_fingerprint' => hash_hmac(
+                'sha256',
+                'institutional-email:'.$student->email,
+                (string) config('app.key'),
+            ),
+            'issued_at' => $now,
+            'expires_at' => $now->copy()->addMinutes(30),
+            'delivered_at' => $now,
+        ]);
+
+        try {
+            $consumptions = $this->runConcurrently([
+                ['verify_mailbox', (string) $student->id, $token],
+                ['verify_mailbox', (string) $student->id, $token],
+            ]);
+
+            $this->assertEqualsCanonicalizing([false, true], array_column($consumptions, 'successful'));
+            $this->assertEqualsCanonicalizing(
+                ['institutional_mailbox_verified', 'institutional_verification_invalid'],
+                array_column($consumptions, 'reason'),
+            );
+            $this->assertNotNull($student->fresh()->email_verified_at);
+            $this->assertSame(1, InstitutionalEmailVerificationChallenge::query()
+                ->whereNotNull('consumed_at')->count());
+            $this->assertSame(1, DB::table('student_identity_events')
+                ->where('user_id', $student->id)
+                ->where('outcome', 'institutional_mailbox_verified')
+                ->count());
+
+            InstitutionalEmailVerificationChallenge::query()->delete();
+            $student->forceFill(['email_verified_at' => null])->save();
+            $issues = $this->runConcurrently([
+                ['issue_mailbox', (string) $student->id, '-'],
+                ['issue_mailbox', (string) $student->id, '-'],
+            ]);
+
+            $this->assertEqualsCanonicalizing([false, true], array_column($issues, 'successful'));
+            $this->assertEqualsCanonicalizing(
+                ['institutional_verification_issued', 'verification_resend_cooldown'],
+                array_column($issues, 'reason'),
+            );
+            $this->assertSame(1, InstitutionalEmailVerificationChallenge::query()
+                ->whereNull('consumed_at')->whereNull('revoked_at')->count());
+        } finally {
+            InstitutionalEmailVerificationChallenge::query()->where('user_id', $student->id)->delete();
+            DB::table('student_identity_events')->where('user_id', $student->id)->delete();
+            User::query()->whereKey($student->id)->delete();
+        }
+    }
+
+    public function test_postgresql_enforces_verification_hash_and_timestamp_constraints(): void
+    {
+        $this->assertSafePostgreSqlIsolation();
+
+        $student = User::factory()->create([
+            'email' => 'verification-constraints@students.example.edu',
+            'role' => AccountRole::Student,
+            'account_status' => AccountStatus::Pending,
+        ]);
+        $now = now('UTC')->startOfSecond();
+        $attributes = [
+            'user_id' => $student->id,
+            'purpose' => 'institutional_mailbox',
+            'token_hash' => str_repeat('a', 64),
+            'email_fingerprint' => str_repeat('b', 64),
+            'issued_at' => $now,
+            'expires_at' => $now->copy()->addMinutes(30),
+            'delivered_at' => $now,
+        ];
+
+        try {
+            InstitutionalEmailVerificationChallenge::query()->create($attributes);
+
+            foreach ([
+                ['token_hash' => str_repeat('a', 64)],
+                ['token_hash' => str_repeat('c', 64), 'expires_at' => $now],
+                [
+                    'token_hash' => str_repeat('d', 64),
+                    'delivered_at' => null,
+                    'consumed_at' => $now,
+                ],
+                [
+                    'token_hash' => str_repeat('e', 64),
+                    'consumed_at' => $now,
+                    'revoked_at' => $now,
+                ],
+            ] as $invalid) {
+                try {
+                    DB::transaction(fn () => InstitutionalEmailVerificationChallenge::query()
+                        ->create(array_merge($attributes, $invalid)));
+                    self::fail('PostgreSQL accepted an invalid verification challenge state.');
+                } catch (QueryException) {
+                    $this->addToAssertionCount(1);
+                }
+            }
+
+            $this->assertSame(1, InstitutionalEmailVerificationChallenge::query()->count());
+        } finally {
+            InstitutionalEmailVerificationChallenge::query()->where('user_id', $student->id)->delete();
+            User::query()->whereKey($student->id)->delete();
         }
     }
 

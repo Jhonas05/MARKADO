@@ -4,8 +4,12 @@ use App\Assessment\Contracts\AnswerStore;
 use App\Assessment\Contracts\AttemptFinalizer;
 use App\Assessment\Contracts\AttemptSessionManager;
 use App\Assessment\Data\AnswerSaveCommand;
+use App\Identity\Contracts\InstitutionalEmailVerificationDelivery;
+use App\Identity\Contracts\InstitutionalEmailVerificationService;
+use App\Identity\Contracts\InstitutionalVerificationAbuseGate;
 use App\Identity\Contracts\StudentActivationSecurityGate;
 use App\Identity\Contracts\StudentActivationService;
+use App\Identity\Data\InstitutionalEmailVerificationMessage;
 use App\Identity\Data\StudentIdentityDecision;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
@@ -34,6 +38,50 @@ if (! file_exists($barrier)) {
 }
 
 try {
+    if ($action === 'verify_mailbox') {
+        config()->set('identity.institutional_email_domains', ['students.example.edu']);
+        config()->set('identity.institutional_email_verification_enabled', true);
+        $result = $app->make(InstitutionalEmailVerificationService::class)->consume(
+            User::query()->findOrFail($subjectId),
+            $relatedId,
+        );
+        echo json_encode([
+            'successful' => $result->successful,
+            'reason' => $result->reason,
+        ], JSON_THROW_ON_ERROR);
+        exit(0);
+    }
+
+    if ($action === 'issue_mailbox') {
+        config()->set('identity.institutional_email_domains', ['students.example.edu']);
+        config()->set('identity.institutional_email_verification_enabled', true);
+        config()->set('identity.institutional_email_verification_delivery_enabled', true);
+        config()->set('identity.institutional_email_verification_hourly_limit', 5);
+        $app->instance(InstitutionalVerificationAbuseGate::class, new class implements InstitutionalVerificationAbuseGate
+        {
+            public function evaluate(User $student, ?string $networkContext): StudentIdentityDecision
+            {
+                return StudentIdentityDecision::matched();
+            }
+        });
+        $app->instance(InstitutionalEmailVerificationDelivery::class, new class implements InstitutionalEmailVerificationDelivery
+        {
+            public function deliver(InstitutionalEmailVerificationMessage $message): bool
+            {
+                return true;
+            }
+        });
+        $result = $app->make(InstitutionalEmailVerificationService::class)->issue(
+            User::query()->findOrFail($subjectId),
+            'synthetic-school-network',
+        );
+        echo json_encode([
+            'successful' => $result->successful,
+            'reason' => $result->reason,
+        ], JSON_THROW_ON_ERROR);
+        exit(0);
+    }
+
     if ($action === 'activate_student') {
         $payload = json_decode($relatedId, true, flags: JSON_THROW_ON_ERROR);
         config()->set('identity.institutional_email_domains', ['students.example.edu']);

@@ -10,21 +10,28 @@ approved identity, account-state, security, and anti-abuse gate succeeds.
 Code/link provides quiz access navigation, but authentication, identity,
 assignment, and authorization must still be evaluated.
 
-## Registration flow [DECIDED direction + OPEN mechanisms]
+## Registration flow [PARTIALLY DECIDED + OPEN operations]
 1. Collect student number + email with clear field labels and privacy notice.
 2. Normalize values carefully; e.g. trim permitted whitespace and compare email consistently without assuming that all address local parts can be freely rewritten.
 3. Validate format and institutional number rules once defined.
 4. Transactionally check unique key(s) in database - front-end validation alone is insufficient.
-5. Verify institutional mailbox possession and require the number/email pair to
-   match the same trusted school record. The token/delivery mechanism remains
-   open under D14.
+5. Verify institutional mailbox possession with the ADR-011 random, hash-at-rest,
+   single-use challenge: exact 30-minute validity, exact 60-second resend
+   cooldown, generic responses, and a required rolling-hour limit.
 6. Recheck current roster/account evidence and the approved security gate.
 7. Atomically link and activate only a pending Student; record a privacy-safe event.
 8. Apply quiz eligibility independently. Activation alone grants no quiz access.
 
-The pending-claim creation point, verification challenge/provider, rate limits,
-recovery, and school roster operations remain OPEN. Public mutation routes stay
-disabled until those mechanisms and operations are separately approved.
+The exact rolling-hour maximum, network monitoring policy, mail provider/origin,
+pending-claim creation point, recovery, and school roster operations remain
+OPEN. Five issues per rolling hour is only a PROPOSED test configuration, not a
+production default. Public mutation routes stay disabled until those operations
+are separately approved and configured.
+
+Mailbox proof is not enrollment proof. A consumed challenge may establish
+`email_verified_at`, but it does not activate the Student, edit the roster, or
+grant quiz eligibility. Email changes clear that evidence and revoke outstanding
+challenges.
 
 ## Proposed identity and uniqueness invariants [REC]
 - Student number must have a **defined uniqueness scope**: institution, campus, or global [OPEN].

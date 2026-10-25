@@ -234,7 +234,12 @@ class StudentSelfRegistrationActivationTest extends TestCase
                 ->where('registration.available', false)
                 ->where('registration.selfRegistrationApproved', true)
                 ->where('registration.automaticStudentActivationApproved', true)
-                ->has('registration.requirements', 4));
+                ->has('registration.requirements', 4)
+                ->has('registration.verificationStates', 4)
+                ->where(
+                    'registration.resendAcknowledgement',
+                    'If the account is eligible, verification instructions will be sent.',
+                ));
 
         foreach (['register', 'forgot-password', 'reset-password'] as $uri) {
             $this->post($uri)->assertStatus(405);

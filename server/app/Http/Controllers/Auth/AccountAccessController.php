@@ -15,13 +15,20 @@ class AccountAccessController extends Controller
                 'available' => false,
                 'selfRegistrationApproved' => true,
                 'automaticStudentActivationApproved' => true,
-                'message' => 'Student self-registration and bounded automatic Student activation are approved directions. The public submission route stays disabled until mailbox delivery, anti-abuse, duplicate recovery, and school roster operations are approved and configured.',
+                'message' => 'Secure one-time institutional mailbox verification is approved, but public registration and delivery remain disabled until the school configures its mail service, hourly limit, roster operations, and remaining safeguards.',
                 'requirements' => [
                     'Use your official student number and school-issued institutional email.',
                     'The number and email must match the same active, verified school roster record.',
                     'You must independently prove control of the institutional mailbox.',
                     'Activation remains separate from quiz assignment and assessment eligibility.',
                 ],
+                'verificationStates' => [
+                    'School email verification required',
+                    'Verification pending',
+                    'Link expired or already used',
+                    'Verification temporarily unavailable',
+                ],
+                'resendAcknowledgement' => 'If the account is eligible, verification instructions will be sent.',
             ],
         ]);
     }

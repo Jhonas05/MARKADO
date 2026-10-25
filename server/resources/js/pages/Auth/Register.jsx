@@ -55,8 +55,16 @@ export default function Register({ registration }) {
             </ul>
           </section>
 
+          <section className="identity-requirements" aria-labelledby="verification-states-title">
+            <h2 id="verification-states-title">Verification states</h2>
+            <ul>
+              {registration.verificationStates.map((state) => <li key={state}>{state}</li>)}
+            </ul>
+            <p className="auth-field__hint">Generic resend acknowledgement: {registration.resendAcknowledgement}</p>
+          </section>
+
           <div className="auth-registration-note" id="registration-policy" role="note">
-            <strong>Approved direction, not yet active</strong>
+            <strong>Approved secure foundation, not yet active</strong>
             <span>{registration.message}</span>
           </div>
           <p className="auth-privacy-note" id="registration-privacy">
