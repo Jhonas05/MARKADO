@@ -163,6 +163,10 @@ class ProfessorQuizController extends Controller
                         ])->values(),
                     'managementEnabled' => false,
                 ],
+                'delivery' => [
+                    'enabled' => (bool) config('assessment.routes_enabled'),
+                    'scope' => config('assessment.routes_enabled') ? 'isolated_demo' : 'disabled',
+                ],
                 'questions' => $questions->map(fn ($question): array => [
                     'id' => $question->id,
                     'type' => $question->type->value,

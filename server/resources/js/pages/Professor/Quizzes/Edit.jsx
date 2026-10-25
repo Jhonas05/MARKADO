@@ -333,7 +333,9 @@ export default function EditQuiz({ quiz, questionTypes }) {
 
       <section className="prof-panel prof-policy-locks" aria-labelledby="policy-locks-title">
         <div><Icon name="lock" size={20} /><div><p className="section-kicker">Availability</p><h2 id="policy-locks-title">Some school-managed actions are not available yet</h2></div></div>
-        <p>Quiz delivery is currently unavailable. Roster changes, regrading, overrides, rankings, and exports are also not available from this workspace.</p>
+        <p>{quiz.delivery.enabled
+          ? 'Guarded assessment delivery is enabled for this isolated demo. Only verified, explicitly assigned Students can start. Roster changes, regrading, overrides, rankings, and exports remain unavailable from this workspace.'
+          : 'Quiz delivery is currently unavailable. Roster changes, regrading, overrides, rankings, and exports are also not available from this workspace.'}</p>
       </section>
     </ProfessorLayout>
   )
