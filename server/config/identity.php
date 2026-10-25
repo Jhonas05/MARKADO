@@ -11,4 +11,11 @@ return [
     | trusted server configuration and are never accepted from request input.
     */
     'institutional_email_domains' => $configuredDomains,
+
+    /*
+    | Direction is approved, but public mutations and the operational security
+    | gate remain default-off until the school-specific controls are approved.
+    */
+    'student_self_registration_enabled' => (bool) env('MARKADO_STUDENT_SELF_REGISTRATION_ENABLED', false),
+    'automatic_student_activation_enabled' => (bool) env('MARKADO_STUDENT_AUTO_ACTIVATION_ENABLED', false),
 ];

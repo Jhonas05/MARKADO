@@ -18,6 +18,7 @@ class SchoolStudentRecord extends Model
         'verification_status',
         'is_active',
         'verified_at',
+        'linked_at',
     ];
 
     protected $hidden = ['student_number', 'institutional_email'];
@@ -28,6 +29,7 @@ class SchoolStudentRecord extends Model
             'verification_status' => StudentVerificationStatus::class,
             'is_active' => 'boolean',
             'verified_at' => 'immutable_datetime',
+            'linked_at' => 'immutable_datetime',
         ];
     }
 

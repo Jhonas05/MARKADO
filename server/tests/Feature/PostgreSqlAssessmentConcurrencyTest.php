@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Assessment\Contracts\AttemptSessionManager;
 use App\Enums\AccountRole;
+use App\Enums\AccountStatus;
+use App\Enums\StudentVerificationStatus;
 use App\Models\AttemptResult;
 use App\Models\QuizAttempt;
 use App\Models\SchoolStudentRecord;
@@ -156,6 +158,55 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
         } finally {
             SchoolStudentRecord::query()->whereIn('user_id', $students->modelKeys())->delete();
             User::query()->whereKey($students->modelKeys())->delete();
+        }
+    }
+
+    public function test_concurrent_activation_requests_link_one_student_and_emit_one_activation_event(): void
+    {
+        $this->assertSafePostgreSqlIsolation();
+
+        $student = User::factory()->create([
+            'email' => 'activation-race@students.example.edu',
+            'email_verified_at' => now(),
+            'role' => AccountRole::Student,
+            'account_status' => AccountStatus::Pending,
+        ]);
+        $verifier = User::factory()->create(['role' => AccountRole::Instructor]);
+        $record = new SchoolStudentRecord([
+            'student_number' => '0000456700',
+            'institutional_email' => $student->email,
+            'verification_status' => StudentVerificationStatus::Verified,
+            'is_active' => true,
+            'verified_at' => now(),
+        ]);
+        $record->verifiedBy()->associate($verifier);
+        $record->save();
+        $payload = json_encode([
+            'student_number' => $record->student_number,
+            'institutional_email' => $student->email,
+        ], JSON_THROW_ON_ERROR);
+
+        try {
+            $results = $this->runConcurrently([
+                ['activate_student', (string) $student->id, $payload],
+                ['activate_student', (string) $student->id, $payload],
+            ]);
+
+            $this->assertEqualsCanonicalizing(
+                ['student_activated', 'student_already_active'],
+                array_column($results, 'reason'),
+            );
+            $this->assertEqualsCanonicalizing([false, true], array_column($results, 'changed'));
+            $this->assertSame(AccountStatus::Active, $student->fresh()->account_status);
+            $this->assertSame($student->id, $record->fresh()->user_id);
+            $this->assertSame(1, DB::table('student_identity_events')
+                ->where('user_id', $student->id)
+                ->where('outcome', 'student_activated_automatically')
+                ->count());
+        } finally {
+            DB::table('student_identity_events')->whereIn('user_id', [$student->id, $verifier->id])->delete();
+            SchoolStudentRecord::query()->whereKey($record->id)->delete();
+            User::query()->whereIn('id', [$student->id, $verifier->id])->delete();
         }
     }
 

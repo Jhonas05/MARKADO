@@ -11,8 +11,8 @@ D09,"Late saves, outage and reconnection policy",Product (user),DECIDED_WITH_OPE
 D10,Timezone standard and open/close semantics,Product (user),DECIDED,2026-10-23,Inclusive opening; exclusive closing; UTC persistence; Asia/Manila display; ADR-006
 D11,Result release timing and answer feedback,Product (user),DECIDED_WITH_EXCLUSIONS,,"Owning Professor manually releases; student sees score/total only; no answer key item correctness or leaderboard; ADR-007; exact later approval date not recorded"
 D12,Ranking/scoring/tie and repeat-attempt aggregation rules,Product (user),DECIDED_WITH_EXCLUSIONS,,"MCQ and True/False score 1 correct and 0 incorrect/unanswered from immutable snapshots; no weighting percentage rank or tie policy; ADR-007; exact approval date not recorded"
-D13,Student number issuance and verification,Product (user),PARTIALLY_DECIDED,2026-10-22,Student number required; issuance and verification open
-D14,Email verification and duplicate recovery,Product (user),PARTIALLY_DECIDED,2026-10-22,Email required; verification and recovery open
+D13,Student number issuance and verification,Product (user),PARTIALLY_DECIDED,2026-10-25,Official number and same-record roster match plus Student self-registration approved; issuer source import freshness correction and canonicalization open; ADR-008 ADR-009
+D14,Email verification and duplicate recovery,Product (user),PARTIALLY_DECIDED,2026-10-25,Institutional email and mailbox proof plus bounded automatic Student-only activation approved; token delivery recovery duplicate and abuse mechanisms open; ADR-008 ADR-009 ADR-010
 D15,Instructor/administrator privileges,Product (user),PARTIALLY_DECIDED,2026-10-22,Limited permission-based access; exact grants open
 D16,"Live quiz edits, revision handling and unpublish",Product (user),DECIDED,2026-10-23,Immutable revisions; separate drafts; explicit publish; unpublish blocks new starts
 D17,"Uploads: file types, OCR and size limits",unassigned,OPEN,,File processing

@@ -4,6 +4,9 @@ use App\Assessment\Contracts\AnswerStore;
 use App\Assessment\Contracts\AttemptFinalizer;
 use App\Assessment\Contracts\AttemptSessionManager;
 use App\Assessment\Data\AnswerSaveCommand;
+use App\Identity\Contracts\StudentActivationSecurityGate;
+use App\Identity\Contracts\StudentActivationService;
+use App\Identity\Data\StudentIdentityDecision;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\SchoolStudentRecord;
@@ -31,6 +34,32 @@ if (! file_exists($barrier)) {
 }
 
 try {
+    if ($action === 'activate_student') {
+        $payload = json_decode($relatedId, true, flags: JSON_THROW_ON_ERROR);
+        config()->set('identity.institutional_email_domains', ['students.example.edu']);
+        config()->set('identity.student_self_registration_enabled', true);
+        config()->set('identity.automatic_student_activation_enabled', true);
+        $app->instance(StudentActivationSecurityGate::class, new class implements StudentActivationSecurityGate
+        {
+            public function evaluate(User $student, string $rosterRecordId): StudentIdentityDecision
+            {
+                return StudentIdentityDecision::matched();
+            }
+        });
+
+        $result = $app->make(StudentActivationService::class)->activate(
+            User::query()->findOrFail($subjectId),
+            $payload['student_number'],
+            $payload['institutional_email'],
+        );
+        echo json_encode([
+            'successful' => $result->successful,
+            'changed' => $result->changed,
+            'reason' => $result->reason,
+        ], JSON_THROW_ON_ERROR);
+        exit(0);
+    }
+
     if ($action === 'identity_record') {
         $payload = json_decode($relatedId, true, flags: JSON_THROW_ON_ERROR);
 

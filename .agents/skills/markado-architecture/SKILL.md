@@ -34,7 +34,7 @@ Keep **MARKADO**, the single-school, internet-hosted academic quiz and assessmen
 | Questions | V1 single-answer **MCQ** and **True/False** | Other formats, partial credit and weighted scoring are outside current V1 approval. |
 | Publication | Immutable published revisions; editable successor drafts | Existing attempts retain their revision, snapshot and key. Unpublish blocks new starts; other effects need separately approved semantics. |
 | Quiz eligibility | Trusted school identity plus active direct/section assignment | Quiz code is a locator, **not** an authorization credential. Fail closed for absent/stale/unverified eligibility. |
-| Student onboarding | **School-issued institutional email only**, verified and matched to official roster + student number (**approved direction**) | Actual school domain, registrar/SIS authority, self-registration, token lifetime, recovery and privileged account provisioning are **not** thereby approved. Check whether ADR-008 is actually integrated; a draft outside the repo is not a merged ADR. |
+| Student onboarding | **Student self-registration** using school-issued institutional email, verified mailbox, and exact same-record official roster/student-number match; bounded **automatic Student-only activation** after all approved checks (**approved directions**) | Actual domain, registrar/SIS authority, verification/delivery/abuse mechanisms, recovery and privileged provisioning remain open. Public mutation routes stay default-off; check ADR-008 through ADR-010. |
 | Timer/attempt engine | One resumable attempt, persisted UTC deadlines, server-controlled transitions | Hard close and earliest applicable deadline apply. Browser countdowns cannot alter time. |
 | Results | Objective 1/0 scoring; manual Professor release of **earned/maximum** only | Hide keys, item correctness, unreleased scores and other students' results. Ranking/tie policy and exports are not implicitly approved. |
 | AI question drafting | Human-reviewed editable drafts; provider/integration still decision-dependent | No automatic publication of generated answer keys or new AI provider without applicable approval. |
@@ -54,7 +54,7 @@ Avoid adding Next.js, Tailwind, TypeScript migrations, Redis, queue vendors, S3,
 - **Immutable grading:** correct MCQ/True-False = 1 integer point; wrong/unanswered = 0; no weights, penalties, partial credit, percentage grade or leaderboard by default. Grade against the immutable attempt snapshot; later publication revisions cannot change past results.
 - **Manual result visibility:** only the authorized owning Professor releases a scored result. Until release, no earned points leak; afterward Student sees earned/maximum points only. Correct answers and item-level feedback stay server-private.
 - **Resource authorization, not just role checks:** own attempt for Student, owned quiz/result for Instructor, named and scoped privileges for Admin. Revoked, disabled or pending accounts lose protected access on their next request. No role selector can grant powers.
-- **Institutional identity is fail-closed:** an allowed email domain or submitted student number alone is never proof of roster identity. Pending D13/D14 and D15 details prevent unrestricted self-registration, identity marking or privileged roster mutation.
+- **Institutional identity is fail-closed:** an allowed email domain or submitted student number alone is never proof of roster identity. ADR-009 permits Student-initiated signup and ADR-010 permits automatic Student-only activation only after every approved independent check; unresolved D13/D14 mechanisms and D15 prevent live public mutation, identity marking, or privileged roster mutation.
 - **Data minimization:** no answer keys, foreign attempt data, protected questions, passwords, tokens, unapproved scores or unnecessary institutional emails in Student/Inertia shared props, logs, exports or error messages.
 - **Assessment activation defaults stay OFF:** `MARKADO_ASSESSMENT_ROUTES_ENABLED=false` and `MARKADO_ASSESSMENT_EXPIRATION_ENABLED=false` outside expressly controlled test environments until separate operational approval.
 - **Development database is protected:** existing local `markado.public`, ignored `server/.env`, existing branches and user worktrees must not be migrated, reset, seeded, overwritten or cleaned up without explicit permission. Use proved-isolated disposable PostgreSQL schemas for tests.
@@ -70,7 +70,7 @@ Avoid adding Next.js, Tailwind, TypeScript migrations, Redis, queue vendors, S3,
 | D07/D10 | Hard global close, opening inclusive and closing exclusive, UTC persistence/Asia-Manila display decided. |
 | D08/D09 | One resumable attempt, no Student reset, no reconnection grace, server-acknowledged saves; exceptional institutional remedies still open. |
 | D11/D12 | 1/0 integer scoring; Professor manually releases score/total only. Bulk/revoke release, ranks/ties, exports, overrides remain outside approval. |
-| D13/D14 | Institutional email only + official student number/roster association approved **as a direction**; domain(s), issuance authority, verification mechanism, recovery and duplicates still need decisions. |
+| D13/D14 | Institutional email + official same-record roster match, Student self-registration, and bounded automatic Student-only activation approved **as directions**; domain(s), roster authority/source/freshness, verification delivery/abuse mechanism, recovery and disputes still need decisions. |
 | D15/D23 | Limited permission-based Admin principle; exact grants, resets, accommodations, regrading and appeals not approved. |
 | D16/D22 | Immutable publication and verified school-managed direct/section eligibility decided. |
 | D17-D21/D28-D29 | AI/materials/privacy/accessibility and production operations/runtime details retain any unresolved portions in the current register. |
@@ -122,7 +122,7 @@ These are **contract descriptions**, not permission to claim a route, endpoint, 
 Preferred order for remaining work; update from actual repo and user priorities:
 
 1. Integrate approved, reviewed security/assessment work through individually authorized PR merges.
-2. Implement only the approved institutional-email + roster-match foundation; leave precise domain/registrar/recovery permissions in proposed state until decided.
+2. Implement only the approved institutional-email, roster-match, Student self-registration, and bounded automatic-activation foundation; leave public routes, domain/registrar/source/freshness, verification delivery/abuse, recovery, and staff permissions default-gated until decided.
 3. Complete D13/D14/D15 role/identity authority with named school approvers and least-privilege, audited contracts.
 4. Rehearse outstanding Laravel migrations, backup/restore and synthetic end-to-end accounts in **isolated PostgreSQL**; migrate `markado.public` only with separate explicit authorization.
 5. Complete authenticated Student/Professor/Admin desktop/mobile and light/dark QA, keyboard/screen-reader accessibility checks and security threat review.

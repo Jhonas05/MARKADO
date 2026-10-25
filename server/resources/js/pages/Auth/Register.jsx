@@ -17,19 +17,21 @@ export default function Register({ registration }) {
           <p className="section-kicker">Student access</p>
           <h1 id="registration-title">Student onboarding requirements</h1>
           <p className="auth-card__intro">
-            MARKADO accepts school-issued institutional email only. Your mailbox, student number, and trusted school roster identity must all match before an account can be considered for activation.
+            MARKADO uses Student self-registration with a school-issued email. Automatic Student-only activation can occur only after every approved identity and security check succeeds.
           </p>
 
           <form className="auth-form" aria-describedby="registration-policy registration-privacy">
-            <fieldset disabled>
+            <fieldset disabled={!registration.available}>
               <legend className="sr-only">Student onboarding fields</legend>
               <div className="auth-field">
                 <label htmlFor="student-number">Official student number</label>
-                <input id="student-number" name="student_number" autoComplete="off" placeholder="Preserved exactly as issued" />
+                <input id="student-number" name="student_number" autoComplete="off" placeholder="Preserved exactly as issued" aria-describedby="student-number-hint" />
+                <p className="auth-field__hint" id="student-number-hint">This must match the number on the trusted school roster.</p>
               </div>
               <div className="auth-field">
                 <label htmlFor="registration-email">Institutional email address</label>
-                <input id="registration-email" name="email" type="email" autoComplete="email" placeholder="School-issued mailbox only" />
+                <input id="registration-email" name="email" type="email" autoComplete="email" placeholder="School-issued mailbox only" aria-describedby="registration-email-hint" />
+                <p className="auth-field__hint" id="registration-email-hint">Personal email and lookalike domains are not accepted.</p>
               </div>
               <div className="auth-field">
                 <label htmlFor="registration-password">Password</label>
@@ -40,8 +42,8 @@ export default function Register({ registration }) {
                 <input id="registration-password-confirmation" name="password_confirmation" type="password" autoComplete="new-password" />
               </div>
             </fieldset>
-            <button className="button button--primary button--full" type="button" disabled>
-              Registration unavailable
+            <button className="button button--primary button--full" type="button" disabled={!registration.available}>
+              {registration.available ? 'Continue securely' : 'Registration setup in progress'}
             </button>
             <p className="auth-validation-status" aria-live="polite">No information has been submitted.</p>
           </form>
@@ -54,7 +56,7 @@ export default function Register({ registration }) {
           </section>
 
           <div className="auth-registration-note" id="registration-policy" role="note">
-            <strong>Why is this disabled?</strong>
+            <strong>Approved direction, not yet active</strong>
             <span>{registration.message}</span>
           </div>
           <p className="auth-privacy-note" id="registration-privacy">

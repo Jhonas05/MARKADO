@@ -194,7 +194,9 @@ class StudentIdentityFoundationTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->where('registration.available', false)
-                ->has('registration.requirements', 3));
+                ->where('registration.selfRegistrationApproved', true)
+                ->where('registration.automaticStudentActivationApproved', true)
+                ->has('registration.requirements', 4));
 
         foreach (['register', 'forgot-password', 'reset-password'] as $uri) {
             $this->post($uri)->assertStatus(405);
