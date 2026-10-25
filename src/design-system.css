@@ -604,6 +604,15 @@ html[data-theme='dark'] .markado-logo--symbol .markado-logo__surface {
   padding: 24px;
 }
 
+.prof-side-card h2 {
+  color: var(--ink);
+}
+
+.prof-side-card p,
+.prof-side-card li {
+  color: var(--ink-muted);
+}
+
 .panel--featured,
 .result-detail {
   border-top-color: var(--line);
