@@ -8,11 +8,13 @@ institutional-email and trusted roster-match boundaries it states.
 > **Historical worksheet note (25 October 2026):** ADR-009 subsequently approved
 > Student self-registration as the normal V1 direction, ADR-010 subsequently
 > approved bounded automatic Student-only activation after all approved checks,
-> and ADR-011 subsequently approved the narrow token/expiry/cooldown/generic-
-> response mechanism. The hourly numeric maximum, live delivery/provider,
-> recovery, roster-authority, D15, D19, and D23 proposals below remain unapproved.
-> The table is retained as a historical worksheet; ADR-011 supersedes its token
-> and lifetime rows only for the exact rules stated there.
+> ADR-011 subsequently approved the narrow token/expiry/cooldown/generic-
+> response mechanism, and ADR-012 subsequently approved the maximum-five
+> account/bound-mailbox rolling-hour issuance ceiling. Live delivery/provider,
+> monitoring, recovery, roster-authority, D15, D19, and D23 proposals below
+> remain unapproved. The table is retained as a historical worksheet;
+> ADR-011/012 supersede its token, lifetime, and hourly-limit rows only for the
+> exact rules stated there.
 
 ## D13/D14 choices still required
 

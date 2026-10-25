@@ -278,6 +278,65 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
         }
     }
 
+    public function test_concurrent_fifth_and_sixth_mailbox_issues_cannot_exceed_the_shared_ceiling(): void
+    {
+        $this->assertSafePostgreSqlIsolation();
+
+        $email = 'verification-shared-limit@students.example.edu';
+        $students = User::factory()->count(2)->create([
+            'email' => $email,
+            'email_verified_at' => null,
+            'role' => AccountRole::Student,
+            'account_status' => AccountStatus::Pending,
+        ]);
+        $now = now('UTC');
+        $fingerprint = hash_hmac(
+            'sha256',
+            'institutional-email:'.$email,
+            (string) config('app.key'),
+        );
+
+        foreach (range(1, 4) as $index) {
+            $issuedAt = $now->copy()->subMinutes(12 - ($index * 2));
+            InstitutionalEmailVerificationChallenge::query()->create([
+                'user_id' => $students[0]->id,
+                'purpose' => 'institutional_mailbox',
+                'token_hash' => hash('sha256', "synthetic-shared-limit-{$index}"),
+                'email_fingerprint' => $fingerprint,
+                'issued_at' => $issuedAt,
+                'expires_at' => $issuedAt->copy()->addMinutes(30),
+                'revoked_at' => $issuedAt,
+            ]);
+        }
+
+        try {
+            $issues = $this->runConcurrently([
+                ['issue_mailbox', (string) $students[0]->id, '-'],
+                ['issue_mailbox', (string) $students[1]->id, '-'],
+            ]);
+
+            $this->assertEqualsCanonicalizing([false, true], array_column($issues, 'successful'));
+            $this->assertContains(
+                collect($issues)->firstWhere('successful', false)['reason'],
+                ['verification_resend_cooldown', 'verification_hourly_limit_reached'],
+            );
+            $this->assertSame(5, InstitutionalEmailVerificationChallenge::query()
+                ->where('email_fingerprint', $fingerprint)
+                ->count());
+            $this->assertSame(1, InstitutionalEmailVerificationChallenge::query()
+                ->where('email_fingerprint', $fingerprint)
+                ->whereNull('consumed_at')
+                ->whereNull('revoked_at')
+                ->count());
+        } finally {
+            InstitutionalEmailVerificationChallenge::query()
+                ->where('email_fingerprint', $fingerprint)
+                ->delete();
+            DB::table('student_identity_events')->whereIn('user_id', $students->modelKeys())->delete();
+            User::query()->whereKey($students->modelKeys())->delete();
+        }
+    }
+
     public function test_postgresql_enforces_verification_hash_and_timestamp_constraints(): void
     {
         $this->assertSafePostgreSqlIsolation();

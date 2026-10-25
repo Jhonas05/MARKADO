@@ -11,6 +11,7 @@ use App\Identity\Contracts\InstitutionalVerificationClock;
 use App\Identity\Data\InstitutionalEmailVerificationMessage;
 use App\Identity\Data\InstitutionalEmailVerificationResult;
 use App\Identity\Data\StudentIdentityDecision;
+use App\Identity\Support\DefaultDenyInstitutionalVerificationAbuseGate;
 use App\Identity\Support\LaravelMailInstitutionalEmailVerificationDelivery;
 use App\Identity\Support\UnavailableInstitutionalEmailVerificationDelivery;
 use App\Mail\InstitutionalEmailVerificationMail;
@@ -40,7 +41,6 @@ class InstitutionalEmailVerificationTest extends TestCase
         config()->set('identity.institutional_email_domains', ['students.example.edu']);
         config()->set('identity.institutional_email_verification_enabled', true);
         config()->set('identity.institutional_email_verification_delivery_enabled', true);
-        config()->set('identity.institutional_email_verification_hourly_limit', 5);
 
         $this->clock = new MutableInstitutionalVerificationClock(
             CarbonImmutable::parse('2026-10-25 01:00:00', 'UTC'),
@@ -114,6 +114,31 @@ class InstitutionalEmailVerificationTest extends TestCase
         $this->assertNull(InstitutionalEmailVerificationChallenge::query()->sole()->consumed_at);
     }
 
+    public function test_disabled_account_and_default_abuse_gate_fail_closed(): void
+    {
+        $student = $this->student();
+        $service = app(InstitutionalEmailVerificationService::class);
+        $this->assertTrue($service->issue($student)->successful);
+        $token = $this->delivery->latest()->token;
+
+        $student->forceFill(['account_status' => AccountStatus::Disabled])->save();
+        $this->assertSame(
+            'institutional_verification_invalid',
+            $service->consume($student->fresh(), $token)->reason,
+        );
+
+        $other = $this->student();
+        $this->app->instance(
+            InstitutionalVerificationAbuseGate::class,
+            new DefaultDenyInstitutionalVerificationAbuseGate,
+        );
+        $denied = app(InstitutionalEmailVerificationService::class)->issue($other);
+
+        $this->assertFalse($denied->successful);
+        $this->assertSame('verification_abuse_policy_unavailable', $denied->reason);
+        $this->assertSame(1, InstitutionalEmailVerificationChallenge::query()->count());
+    }
+
     public function test_exact_expiration_boundary_is_rejected(): void
     {
         $student = $this->student();
@@ -174,7 +199,65 @@ class InstitutionalEmailVerificationTest extends TestCase
         $this->assertTrue($service->issue($student)->successful);
     }
 
-    public function test_unapproved_hourly_maximum_and_default_delivery_fail_closed(): void
+    public function test_default_limit_counts_initial_issue_and_resends_then_rejects_the_sixth(): void
+    {
+        $this->assertSame(5, config('identity.institutional_email_verification_hourly_limit'));
+        $student = $this->student();
+        $service = app(InstitutionalEmailVerificationService::class);
+        $start = $this->clock->current;
+
+        foreach (range(0, 4) as $index) {
+            $this->clock->current = $start->addSeconds($index * 60);
+            $this->assertTrue($service->issue($student->fresh())->successful);
+        }
+
+        $this->clock->current = $start->addSeconds(300);
+        $sixth = $service->issue($student->fresh());
+
+        $this->assertFalse($sixth->successful);
+        $this->assertSame('verification_hourly_limit_reached', $sixth->reason);
+        $this->assertCount(5, $this->delivery->messages);
+        $this->assertDatabaseCount('institutional_email_verification_challenges', 5);
+    }
+
+    public function test_exact_rolling_hour_boundary_releases_the_oldest_issue(): void
+    {
+        $student = $this->student();
+        $service = app(InstitutionalEmailVerificationService::class);
+        $start = $this->clock->current;
+
+        foreach (range(0, 4) as $index) {
+            $this->clock->current = $start->addSeconds($index * 60);
+            $this->assertTrue($service->issue($student->fresh())->successful);
+        }
+
+        $this->clock->current = $start->addHour();
+
+        $this->assertTrue($service->issue($student->fresh())->successful);
+        $this->assertDatabaseCount('institutional_email_verification_challenges', 6);
+    }
+
+    public function test_lower_limit_is_allowed_but_invalid_and_above_ceiling_values_fail_closed(): void
+    {
+        $student = $this->student();
+        $service = app(InstitutionalEmailVerificationService::class);
+        config()->set('identity.institutional_email_verification_hourly_limit', 1);
+
+        $this->assertTrue($service->issue($student)->successful);
+        $this->clock->current = $this->clock->current->addSeconds(60);
+        $this->assertSame('verification_hourly_limit_reached', $service->issue($student)->reason);
+
+        foreach ([null, 0, 6, '5', 2.5, true] as $invalidLimit) {
+            config()->set('identity.institutional_email_verification_hourly_limit', $invalidLimit);
+            $other = $this->student();
+            $result = $service->issue($other);
+
+            $this->assertFalse($result->successful);
+            $this->assertSame('verification_hourly_policy_unavailable', $result->reason);
+        }
+    }
+
+    public function test_invalid_hourly_policy_and_default_delivery_fail_closed(): void
     {
         $student = $this->student();
         config()->set('identity.institutional_email_verification_hourly_limit', null);
@@ -196,6 +279,76 @@ class InstitutionalEmailVerificationTest extends TestCase
             app(InstitutionalEmailVerificationService::class)->issue($student)->reason,
         );
         $this->assertNotNull(InstitutionalEmailVerificationChallenge::query()->sole()->revoked_at);
+    }
+
+    public function test_failed_delivery_counts_toward_the_rolling_hour_ceiling(): void
+    {
+        $student = $this->student();
+        $this->app->instance(InstitutionalEmailVerificationDelivery::class, new FailingVerificationDelivery);
+        $service = app(InstitutionalEmailVerificationService::class);
+        $start = $this->clock->current;
+
+        foreach (range(0, 4) as $index) {
+            $this->clock->current = $start->addSeconds($index * 60);
+            $this->assertSame('verification_delivery_unavailable', $service->issue($student->fresh())->reason);
+        }
+
+        $this->clock->current = $start->addSeconds(300);
+        $this->assertSame('verification_hourly_limit_reached', $service->issue($student->fresh())->reason);
+        $this->assertSame(5, InstitutionalEmailVerificationChallenge::query()
+            ->whereNotNull('revoked_at')->count());
+    }
+
+    public function test_delivery_finishing_at_expiry_is_revoked_and_never_becomes_consumable(): void
+    {
+        $student = $this->student();
+        $delivery = new DelayedVerificationDelivery($this->clock, 30);
+        $this->app->instance(InstitutionalEmailVerificationDelivery::class, $delivery);
+        $service = app(InstitutionalEmailVerificationService::class);
+
+        $result = $service->issue($student);
+        $challenge = InstitutionalEmailVerificationChallenge::query()->sole();
+
+        $this->assertFalse($result->successful);
+        $this->assertSame('verification_delivery_unavailable', $result->reason);
+        $this->assertNull($challenge->delivered_at);
+        $this->assertNotNull($challenge->revoked_at);
+        $this->assertFalse($service->consume($student->fresh(), $delivery->message->token)->successful);
+    }
+
+    public function test_email_change_during_delivery_revokes_the_issued_challenge(): void
+    {
+        $student = $this->student();
+        $delivery = new EmailChangingVerificationDelivery($student, 'changed@students.example.edu');
+        $this->app->instance(InstitutionalEmailVerificationDelivery::class, $delivery);
+
+        $result = app(InstitutionalEmailVerificationService::class)->issue($student);
+
+        $this->assertFalse($result->successful);
+        $this->assertSame('verification_delivery_unavailable', $result->reason);
+        $this->assertNotNull(InstitutionalEmailVerificationChallenge::query()->sole()->revoked_at);
+        $this->assertNull($student->fresh()->email_verified_at);
+    }
+
+    public function test_same_bound_mailbox_shares_cooldown_and_hourly_budget_across_accounts(): void
+    {
+        $student = $this->student('shared@students.example.edu');
+        $other = $this->student('shared@students.example.edu');
+        $service = app(InstitutionalEmailVerificationService::class);
+
+        $this->assertTrue($service->issue($student)->successful);
+        $this->assertSame('verification_resend_cooldown', $service->issue($other)->reason);
+
+        $start = $this->clock->current;
+        foreach (range(1, 4) as $index) {
+            $this->clock->current = $start->addSeconds($index * 60);
+            $account = $index % 2 === 0 ? $student : $other;
+            $this->assertTrue($service->issue($account->fresh())->successful);
+        }
+
+        $this->clock->current = $start->addSeconds(300);
+        $this->assertSame('verification_hourly_limit_reached', $service->issue($other->fresh())->reason);
+        $this->assertDatabaseCount('institutional_email_verification_challenges', 5);
     }
 
     public function test_email_change_clears_proof_revokes_challenge_and_blocks_old_token(): void
@@ -309,6 +462,47 @@ final class CapturingVerificationDelivery implements InstitutionalEmailVerificat
     public function latest(): InstitutionalEmailVerificationMessage
     {
         return $this->messages[array_key_last($this->messages)];
+    }
+}
+
+final class FailingVerificationDelivery implements InstitutionalEmailVerificationDelivery
+{
+    public function deliver(InstitutionalEmailVerificationMessage $message): bool
+    {
+        return false;
+    }
+}
+
+final class DelayedVerificationDelivery implements InstitutionalEmailVerificationDelivery
+{
+    public InstitutionalEmailVerificationMessage $message;
+
+    public function __construct(
+        private readonly MutableInstitutionalVerificationClock $clock,
+        private readonly int $minutes,
+    ) {}
+
+    public function deliver(InstitutionalEmailVerificationMessage $message): bool
+    {
+        $this->message = $message;
+        $this->clock->current = $this->clock->current->addMinutes($this->minutes);
+
+        return true;
+    }
+}
+
+final class EmailChangingVerificationDelivery implements InstitutionalEmailVerificationDelivery
+{
+    public function __construct(
+        private readonly User $student,
+        private readonly string $replacementEmail,
+    ) {}
+
+    public function deliver(InstitutionalEmailVerificationMessage $message): bool
+    {
+        $this->student->forceFill(['email' => $this->replacementEmail])->save();
+
+        return true;
     }
 }
 

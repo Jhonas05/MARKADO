@@ -15,18 +15,20 @@ assignment, and authorization must still be evaluated.
 2. Normalize values carefully; e.g. trim permitted whitespace and compare email consistently without assuming that all address local parts can be freely rewritten.
 3. Validate format and institutional number rules once defined.
 4. Transactionally check unique key(s) in database - front-end validation alone is insufficient.
-5. Verify institutional mailbox possession with the ADR-011 random, hash-at-rest,
+5. Verify institutional mailbox possession with the ADR-011/ADR-012 random, hash-at-rest,
    single-use challenge: exact 30-minute validity, exact 60-second resend
-   cooldown, generic responses, and a required rolling-hour limit.
+   cooldown, generic responses, and a maximum of five initial/resend issuance
+   requests per account/bound mailbox in a rolling 60-minute window.
 6. Recheck current roster/account evidence and the approved security gate.
 7. Atomically link and activate only a pending Student; record a privacy-safe event.
 8. Apply quiz eligibility independently. Activation alone grants no quiz access.
 
-The exact rolling-hour maximum, network monitoring policy, mail provider/origin,
-pending-claim creation point, recovery, and school roster operations remain
-OPEN. Five issues per rolling hour is only a PROPOSED test configuration, not a
-production default. Public mutation routes stay disabled until those operations
-are separately approved and configured.
+Network monitoring policy, mail provider/origin, pending-claim creation point,
+recovery, and school roster operations remain OPEN. ADR-012 approves five
+issues per rolling hour as the maximum and default, while permitting a lower
+positive deployment value; invalid or above-five values fail closed. Public
+mutation routes stay disabled until the remaining operations are separately
+approved and configured.
 
 Mailbox proof is not enrollment proof. A consumed challenge may establish
 `email_verified_at`, but it does not activate the Student, edit the roster, or

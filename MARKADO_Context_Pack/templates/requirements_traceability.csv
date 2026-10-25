@@ -4,8 +4,8 @@ F02,REQ,Results and exports,QA-049,unassigned,proposed,
 F03,REQ,Quiz code and link,QA-006,unassigned,proposed,
 F04,REQ,Material based question generation,QA-038,unassigned,proposed,
 F05,REQ,Date time availability,QA-012,unassigned,proposed,
-F06,REQ,Student self-registration with institutional email exact roster match hash-only mailbox verification and bounded automatic Student activation,QA-004,product owner,approved_direction_implementation_gated,ADR-008 ADR-009 ADR-010 ADR-011 StudentSelfRegistrationActivationTest and InstitutionalEmailVerificationTest
-D14,DECISION,Single-use random hash-at-rest mailbox challenge with exact 30-minute expiry 60-second cooldown hourly limiting requirement and generic responses,QA-D14,product owner,implemented_default_off_hourly_number_open,ADR-011 InstitutionalEmailVerificationTest and PostgreSqlAssessmentConcurrencyTest
+F06,REQ,Student self-registration with institutional email exact roster match hash-only mailbox verification and bounded automatic Student activation,QA-004,product owner,approved_direction_implementation_gated,ADR-008 ADR-009 ADR-010 ADR-011 ADR-012 StudentSelfRegistrationActivationTest StudentOnboardingIntegrationTest and InstitutionalEmailVerificationTest
+D14,DECISION,Single-use random hash-at-rest mailbox challenge with exact 30-minute expiry 60-second cooldown maximum five account/bound-mailbox issues per rolling hour and generic responses,QA-D14,product owner,implemented_default_off_live_delivery_gated,ADR-011 ADR-012 InstitutionalEmailVerificationTest StudentOnboardingIntegrationTest and PostgreSqlAssessmentConcurrencyTest
 F07,REQ,Randomized questions and choices,QA-031,unassigned,proposed,
 F08,REQ,Help and guide,QA-055,unassigned,proposed,
 D16,DECISION,Immutable published revisions and separate editable drafts,QA-D16,product owner,tested_locally_and_ci,ADR-004 and QuizPublicationTest
