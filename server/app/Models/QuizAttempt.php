@@ -92,6 +92,11 @@ class QuizAttempt extends Model
         return $this->hasOne(AttemptResult::class, 'attempt_id');
     }
 
+    public function coinReward(): HasOne
+    {
+        return $this->hasOne(AttemptCoinReward::class, 'attempt_id');
+    }
+
     public function auditEvents(): HasMany
     {
         return $this->hasMany(AssessmentAuditEvent::class, 'attempt_id');

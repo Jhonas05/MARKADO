@@ -30,6 +30,29 @@ const authJourney = [
 ].map(read).join('\n')
 
 describe('Laravel/Inertia production UI delivery', () => {
+  it('keeps role logout discoverable across desktop and mobile shells', () => {
+    const studentShell = read('server/resources/js/Layouts/StudentShell.jsx')
+    const professorShell = read('server/resources/js/Layouts/ProfessorLayout.jsx')
+    const routes = read('server/routes/web.php')
+
+    expect(professorShell).toContain('prof-sidebar__signout')
+    expect(professorShell).toContain('method="delete"')
+    expect(studentShell).toContain('student-mobile-signout')
+    expect(studentShell).toContain('method="delete"')
+    expect(routes).toContain("Route::delete('/logout'")
+    expect(routes).not.toContain("Route::get('/logout'")
+  })
+
+  it('uses fluid responsive reward layouts and explicit pre-paint theme classes', () => {
+    const styles = read('server/resources/css/foundation.css')
+    const blade = read('server/resources/views/app.blade.php')
+
+    expect(styles).toContain('minmax(min(100%, 260px), 1fr)')
+    expect(styles).toContain('@media (max-width: 390px)')
+    expect(styles).toContain('.prof-main { max-width: none; margin-inline: auto; }')
+    expect(blade).toContain("root.classList.toggle('light', !dark)")
+  })
+
   it('keeps the synthetic foundation dashboard off public routes', () => {
     const routes = read('server/routes/web.php')
 

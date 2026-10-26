@@ -83,6 +83,21 @@ class User extends Authenticatable
         return $this->hasMany(QuizAttempt::class, 'student_id');
     }
 
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(StudentWallet::class, 'student_id');
+    }
+
+    public function characters(): HasMany
+    {
+        return $this->hasMany(StudentCharacter::class, 'student_id');
+    }
+
+    public function coinLedgerEntries(): HasMany
+    {
+        return $this->hasMany(CoinLedgerEntry::class, 'student_id');
+    }
+
     public function releasedQuizResults(): HasMany
     {
         return $this->hasMany(QuizAttempt::class, 'result_released_by');

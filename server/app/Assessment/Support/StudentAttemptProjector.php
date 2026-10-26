@@ -3,6 +3,7 @@
 namespace App\Assessment\Support;
 
 use App\Assessment\Contracts\AuthoritativeClock;
+use App\Gamification\Support\GamificationEnvironment;
 use App\Models\QuizAttempt;
 
 final class StudentAttemptProjector
@@ -17,6 +18,7 @@ final class StudentAttemptProjector
             'questionSnapshots.state',
             'answers',
             'result',
+            'coinReward',
         ]);
 
         $answers = $attempt->answers->keyBy('question_snapshot_id');
@@ -90,6 +92,10 @@ final class StudentAttemptProjector
                 'reason' => $attempt->finalization_reason,
             ] : null,
             'result' => $resultProjection,
+            'reward' => GamificationEnvironment::enabled() && $attempt->coinReward !== null ? [
+                'coins' => $attempt->coinReward->coins,
+                'awardedAt' => $attempt->coinReward->awarded_at->toIso8601String(),
+            ] : null,
         ];
     }
 }

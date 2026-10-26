@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
 use App\Enums\StudentVerificationStatus;
+use App\Gamification\Support\CharacterCatalogSynchronizer;
+use App\Gamification\Support\CharacterEconomyService;
 use App\Models\Quiz;
 use App\Models\QuizStudentAssignment;
 use App\Models\SchoolStudentRecord;
@@ -126,6 +128,12 @@ class ManageAssessmentDemo extends Command
                 'linked_at' => now(),
             ])->save();
         });
+
+        if (config('gamification.enabled')) {
+            app(CharacterCatalogSynchronizer::class)->sync();
+            $student = User::query()->where('email', self::STUDENT_EMAIL)->firstOrFail();
+            app(CharacterEconomyService::class)->provisionStarterCharacter($student);
+        }
 
         $this->writeCredentials($schema, $credentials);
         $this->components->info("Loopback database [{$this->databaseName}] and isolated demo schema [{$schema}] are migrated and provisioned.");

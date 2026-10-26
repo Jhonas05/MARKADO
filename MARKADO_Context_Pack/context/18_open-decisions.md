@@ -18,6 +18,7 @@ The source PDF left deployment and all implementation technologies unspecified. 
 - **ADR-009 (25 October 2026):** Student self-registration is the approved normal V1 Student account-issuance direction. Registration still requires independent mailbox proof and an exact same-record active trusted-roster match; it cannot create or edit roster authority.
 - **ADR-010 (25 October 2026):** A normal pending Student activates automatically only after every approved identity, account-state, security, and anti-abuse check succeeds. The transition is atomic, idempotent, Student-only, and separate from quiz eligibility. Public registration, delivery/recovery mechanisms, operational security parameters, and activation remain default-gated.
 - **ADR-011 (25 October 2026):** D14 mailbox verification uses a random single-use hash-at-rest challenge, exact 30-minute validity, exact 60-second resend cooldown, required rolling-hour limiting, and generic public responses. The hourly number, real delivery provider/origin, monitoring, recovery, and activation operations remain open/default-off.
+- **ADR-012 (26 October 2026):** V9 character rewards are approved only for a guarded isolated demo. One eligible completed attempt with at least one acknowledged answer earns 10 coins once; Byte is free, Mochi costs 10, and Pixel costs 20. Coins and cosmetics cannot affect grades, timers, eligibility, rankings, or result release. Production policy and activation remain open/default-off.
 
 ## Decision register
 | ID | Decision / question | Status | Owner or reviewer |

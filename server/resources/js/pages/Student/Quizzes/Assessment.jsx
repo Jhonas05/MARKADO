@@ -1,4 +1,4 @@
-import { router, usePage } from '@inertiajs/react'
+import { Link, router, usePage } from '@inertiajs/react'
 import { useEffect, useRef, useState } from 'react'
 import Icon from '@prototype/components/Icon.jsx'
 import AssessmentTimer from '../../../Components/AssessmentTimer.jsx'
@@ -45,6 +45,7 @@ function TerminalAttempt({ attempt }) {
             </>
           )}
         </section>
+        {attempt.reward ? <section className="assessment-reward panel" aria-live="polite"><span><Icon name="medal" size={22} /></span><div><p className="section-kicker">Participation reward</p><h2>+{attempt.reward.coins} MARKADO Coins</h2><p>This cosmetic reward is independent of your academic score.</p></div><Link className="button button--secondary" href="/student/characters/shop">Visit Shop</Link></section> : null}
       </main>
     </StudentQuizLayout>
   )
@@ -117,7 +118,7 @@ function ActiveAssessment({ attempt, errors, flash }) {
   }
 
   return (
-    <StudentQuizLayout active="join" title="Assessment">
+    <StudentQuizLayout active="join" showRewards={false} title="Assessment">
       <main className="assessment-shell" id="main-content">
         <header className="assessment-heading">
           <div>

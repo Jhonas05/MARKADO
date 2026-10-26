@@ -6,6 +6,7 @@ use App\Assessment\Contracts\AttemptFinalizer;
 use App\Assessment\Contracts\AuthoritativeClock;
 use App\Assessment\Contracts\ScoreCalculator;
 use App\Assessment\Data\AttemptFinalizationReceipt;
+use App\Gamification\Contracts\AttemptRewarder;
 use App\Models\AttemptQuestionState;
 use App\Models\AttemptResult;
 use App\Models\QuizAttempt;
@@ -24,6 +25,7 @@ final class AttemptFinalizationCoordinator implements AttemptFinalizer
         private readonly AuthoritativeClock $clock,
         private readonly ?ScoreCalculator $scoreCalculator = null,
         private readonly ?AssessmentAuditRecorder $audit = null,
+        private readonly ?AttemptRewarder $attemptRewarder = null,
     ) {}
 
     public function submitByStudent(QuizAttempt $attempt): AttemptFinalizationReceipt
@@ -86,6 +88,7 @@ final class AttemptFinalizationCoordinator implements AttemptFinalizer
                     $lockedAttempt->save();
                 }
                 $this->ensurePendingResult($lockedAttempt);
+                $this->attemptRewarder?->reward($lockedAttempt);
 
                 return $this->receipt($lockedAttempt, true);
             }
@@ -157,6 +160,7 @@ final class AttemptFinalizationCoordinator implements AttemptFinalizer
                 'lock_version' => $lockedAttempt->lock_version + 1,
             ])->save();
             $this->ensurePendingResult($lockedAttempt);
+            $this->attemptRewarder?->reward($lockedAttempt);
             $newTransition = true;
 
             return $this->receipt($lockedAttempt, false);

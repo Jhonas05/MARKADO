@@ -6,16 +6,25 @@ use App\Assessment\Contracts\AttemptSessionManager;
 use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
 use App\Enums\StudentVerificationStatus;
+use App\Gamification\Support\CharacterCatalogSynchronizer;
+use App\Gamification\Support\CharacterEconomyService;
+use App\Models\AttemptAnswer;
+use App\Models\AttemptCoinReward;
 use App\Models\AttemptResult;
+use App\Models\Character;
+use App\Models\CoinLedgerEntry;
 use App\Models\InstitutionalEmailVerificationChallenge;
 use App\Models\QuizAttempt;
 use App\Models\SchoolStudentRecord;
+use App\Models\StudentCharacter;
+use App\Models\StudentWallet;
 use App\Models\User;
 use DateTimeImmutable;
 use DateTimeZone;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\Process\Process;
 use Tests\Support\BuildsAssessmentFixtures;
@@ -25,6 +34,67 @@ use Tests\TestCase;
 class PostgreSqlAssessmentConcurrencyTest extends TestCase
 {
     use BuildsAssessmentFixtures;
+
+    public function test_parallel_rewards_and_competing_purchases_remain_single_spend(): void
+    {
+        $this->assertSafePostgreSqlIsolation();
+        config()->set('gamification.enabled', true);
+        app(CharacterCatalogSynchronizer::class)->sync();
+        $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
+        [, $student, $quiz] = $this->assessmentFixture(
+            questionCount: 1,
+            randomize: false,
+            opensAt: $now->modify('-5 minutes'),
+            closesAt: $now->modify('+1 hour'),
+        );
+
+        try {
+            app(CharacterEconomyService::class)->provisionStarterCharacter($student);
+            $attemptId = app(AttemptSessionManager::class)->resumeOrCreate($student, $quiz)->attemptId;
+            $attempt = QuizAttempt::query()->with('questionSnapshots')->findOrFail($attemptId);
+            $snapshot = $attempt->questionSnapshots->firstOrFail();
+            $answer = new AttemptAnswer([
+                'selected_choice_id' => $snapshot->choices[0]['id'],
+                'version' => 1,
+                'saved_at' => now(),
+            ]);
+            $answer->attempt()->associate($attempt);
+            $answer->questionSnapshot()->associate($snapshot);
+            $answer->save();
+            $attempt->forceFill([
+                'status' => 'submitted',
+                'submitted_at' => now(),
+                'finalized_at' => now(),
+                'finalization_reason' => 'student_submitted',
+                'terminal_receipt_id' => (string) Str::uuid(),
+                'progress_state' => 'finalized',
+            ])->save();
+
+            $rewards = $this->runConcurrently([
+                ['reward_attempt', $attempt->id, '-'],
+                ['reward_attempt', $attempt->id, '-'],
+            ]);
+            $this->assertSame($rewards[0]['reward_id'], $rewards[1]['reward_id']);
+            $this->assertSame(1, AttemptCoinReward::query()->where('attempt_id', $attempt->id)->count());
+            $this->assertSame(10, StudentWallet::query()->findOrFail($student->id)->balance);
+
+            $mochi = Character::query()->where('slug', 'mochi')->firstOrFail();
+            $pixel = Character::query()->where('slug', 'pixel')->firstOrFail();
+            $pixel->update(['price' => 10]);
+            $purchases = $this->runConcurrently([
+                ['purchase_character', (string) $student->id, $mochi->id],
+                ['purchase_character', (string) $student->id, $pixel->id],
+            ]);
+
+            $this->assertEqualsCanonicalizing(['purchased', 'rejected'], array_column($purchases, 'outcome'));
+            $this->assertSame(0, StudentWallet::query()->findOrFail($student->id)->balance);
+            $this->assertSame(2, StudentCharacter::query()->where('student_id', $student->id)->count());
+            $this->assertSame(1, CoinLedgerEntry::query()->where('entry_type', 'character_purchase')->count());
+        } finally {
+            $this->removePublishedFixture($quiz->id, $student->id, $quiz->owner_id);
+            Character::query()->delete();
+        }
+    }
 
     public function test_disposable_schema_guard_rejects_protected_and_ambiguous_search_paths(): void
     {

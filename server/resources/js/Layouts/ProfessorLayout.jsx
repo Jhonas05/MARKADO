@@ -52,7 +52,7 @@ export default function ProfessorLayout({ children, title }) {
           <strong>{title}</strong>
         </div>
         <div className="prof-header__actions">
-          <Link className="prof-view-switch" href="/logout" method="delete" as="button">
+          <Link className="prof-view-switch" href="/logout" method="delete" as="button" aria-label="Sign out of Professor workspace">
             <Icon name="lock" size={17} />
             <span>Sign out</span>
           </Link>
@@ -131,6 +131,10 @@ export default function ProfessorLayout({ children, title }) {
           <div className="prof-sidebar__appearance">
             <p>Appearance</p>
             <ThemeToggle />
+          </div>
+          <div className="prof-sidebar__account">
+            <div className="prof-sidebar__profile" aria-label={`Signed in as ${auth.user.name}`}><span>{initials}</span><div><strong>{auth.user.name}</strong><small>{auth.user.roleLabel}</small></div></div>
+            <Link className="prof-sidebar__signout" href="/logout" method="delete" as="button" aria-label="Sign out of Professor workspace"><Icon name="lock" size={17} /><span>Sign out</span></Link>
           </div>
           <div className="prof-sidebar__policy">
             <Icon name="shield" size={18} />

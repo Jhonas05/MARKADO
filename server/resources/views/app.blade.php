@@ -19,6 +19,7 @@
                     const dark = preference === 'dark'
                         || (preference === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
                     const root = document.documentElement;
+                    root.classList.toggle('light', !dark);
                     root.classList.toggle('dark', dark);
                     root.dataset.theme = dark ? 'dark' : 'light';
                     root.dataset.themePreference = preference;

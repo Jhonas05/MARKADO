@@ -5,12 +5,17 @@ namespace Tests\Feature;
 use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
 use App\Enums\StudentVerificationStatus;
+use App\Gamification\Support\CharacterCatalogSynchronizer;
+use App\Gamification\Support\CharacterEconomyService;
 use App\Models\AssessmentAuditEvent;
+use App\Models\AttemptCoinReward;
 use App\Models\AttemptResult;
+use App\Models\Character;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizStudentAssignment;
 use App\Models\SchoolStudentRecord;
+use App\Models\StudentWallet;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -29,6 +34,8 @@ class FunctionalAssessmentDemoFlowTest extends TestCase
         config()->set('assessment.routes_enabled', true);
         config()->set('assessment.expiration_enabled', false);
         config()->set('identity.institutional_email_domains', ['students.example.edu']);
+        config()->set('gamification.enabled', true);
+        app(CharacterCatalogSynchronizer::class)->sync();
     }
 
     public function test_authenticated_professor_to_student_assessment_flow_uses_real_http_routes(): void
@@ -62,6 +69,7 @@ class FunctionalAssessmentDemoFlowTest extends TestCase
         $record->user()->associate($student);
         $record->verifiedBy()->associate($professor);
         $record->save();
+        app(CharacterEconomyService::class)->provisionStarterCharacter($student);
         $unassignedPassword = 'synthetic-unassigned-passphrase';
         $unassigned = User::factory()->create([
             'name' => 'Unassigned Student Demo',
@@ -203,6 +211,7 @@ class FunctionalAssessmentDemoFlowTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->where('attempt.status', 'submitted')
                 ->where('attempt.result.state', 'withheld')
+                ->where('attempt.reward.coins', 10)
                 ->missing('attempt.result.earnedPoints')
                 ->missing('attempt.result.correctAnswers'));
         $this->assertDatabaseHas('attempt_results', [
@@ -211,6 +220,18 @@ class FunctionalAssessmentDemoFlowTest extends TestCase
             'earned_points' => 1,
             'maximum_points' => 2,
         ]);
+        $this->assertSame(10, StudentWallet::query()->findOrFail($student->id)->balance);
+        $this->assertSame(1, AttemptCoinReward::query()->where('attempt_id', $attempt->id)->count());
+
+        $mochi = Character::query()->where('slug', 'mochi')->firstOrFail();
+        $this->get('/student/characters/shop')
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Student/Gamification/Shop')
+                ->where('economy.balance', 10));
+        $this->post("/student/characters/{$mochi->id}/purchase")
+            ->assertRedirect('/student/characters/collection');
+        $this->post("/student/characters/{$mochi->id}/equip")->assertRedirect();
+        $this->assertSame(0, StudentWallet::query()->findOrFail($student->id)->balance);
 
         $this->delete('/logout');
         $this->post('/login', [
@@ -238,6 +259,10 @@ class FunctionalAssessmentDemoFlowTest extends TestCase
                 ->where('attempt.result.maximumPoints', 2)
                 ->missing('attempt.result.itemResults')
                 ->missing('attempt.result.correctAnswers'));
+        $this->get('/student/characters/collection')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('economy.balance', 0)
+                ->where('economy.equippedCharacter.slug', 'mochi'));
 
         $this->assertSame(1, AttemptResult::query()->where('attempt_id', $attempt->id)->count());
         $this->assertSame(1, AssessmentAuditEvent::query()->where('event_type', 'result_released')->count());
