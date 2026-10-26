@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
+  <title id="title">Pixel</title><desc id="desc">A playful geometric creature made from stepped black and white blocks.</desc>
+  <rect width="320" height="320" rx="56" fill="#f2f2f2"/><path d="M94 71h44V49h44v22h44v44h22v92h-22v44h-44v22h-44v-22H94v-44H72v-92h22Z" fill="#fff" stroke="#1d1d1f" stroke-width="12" stroke-linejoin="round"/><rect x="112" y="123" width="34" height="34" rx="5" fill="#1d1d1f"/><rect x="174" y="123" width="34" height="34" rx="5" fill="#1d1d1f"/>
+  <path d="M121 194h22v18h34v-18h22" fill="none" stroke="#1d1d1f" stroke-width="10"/><path d="M94 103H61M226 103h33M94 231H61M226 231h33" stroke="#a5a5aa" stroke-width="12" stroke-linecap="round"/>
+</svg>

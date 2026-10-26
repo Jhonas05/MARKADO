@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfessorQuizResultController;
 use App\Http\Controllers\ProfessorQuizRevisionController;
 use App\Http\Controllers\ProfessorQuizRevisionQuestionController;
 use App\Http\Controllers\StudentAssessmentController;
+use App\Http\Controllers\StudentCharacterController;
 use App\Http\Controllers\StudentQuizJoinController;
 use App\Http\Controllers\StudentWorkspaceController;
 use App\Http\Controllers\WelcomeController;
@@ -45,6 +46,16 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'active-account', 'account-role:student'])
     ->get('/student/dashboard', StudentWorkspaceController::class)
     ->name('student.dashboard');
+
+Route::middleware(['auth', 'active-account', 'account-role:student', 'gamification-enabled'])
+    ->prefix('student/characters')
+    ->name('student.characters.')
+    ->group(function () {
+        Route::get('collection', [StudentCharacterController::class, 'collection'])->name('collection');
+        Route::get('shop', [StudentCharacterController::class, 'shop'])->name('shop');
+        Route::post('{character}/purchase', [StudentCharacterController::class, 'purchase'])->name('purchase');
+        Route::post('{character}/equip', [StudentCharacterController::class, 'equip'])->name('equip');
+    });
 
 Route::middleware(['auth', 'active-account', 'account-role:academic_administrator'])
     ->get('/admin/dashboard', AdministratorDashboardController::class)

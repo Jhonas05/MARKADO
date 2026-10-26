@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\AccountRole;
+use App\Gamification\Support\CharacterEconomyService;
+use App\Gamification\Support\GamificationEnvironment;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -31,6 +34,23 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'assessment' => fn () => $request->session()->get('assessment'),
             ],
+            'gamification' => fn () => $this->gamification($request),
+        ];
+    }
+
+    private function gamification(Request $request): array
+    {
+        $student = $request->user();
+        if ($student?->role !== AccountRole::Student || ! GamificationEnvironment::enabled()) {
+            return ['enabled' => false];
+        }
+
+        $snapshot = app(CharacterEconomyService::class)->snapshot($student);
+
+        return [
+            'enabled' => true,
+            'balance' => $snapshot['balance'],
+            'equippedCharacter' => $snapshot['equippedCharacter'],
         ];
     }
 }

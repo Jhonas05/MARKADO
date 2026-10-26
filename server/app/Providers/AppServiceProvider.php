@@ -18,6 +18,8 @@ use App\Assessment\Support\DatabaseResultReleaseManager;
 use App\Assessment\Support\DatabaseSchoolEligibilitySource;
 use App\Assessment\Support\DatabaseScoreCalculator;
 use App\Assessment\Support\SystemAuthoritativeClock;
+use App\Gamification\Contracts\AttemptRewarder;
+use App\Gamification\Support\DatabaseAttemptRewarder;
 use App\Identity\Contracts\InstitutionalEmailPolicy;
 use App\Identity\Contracts\InstitutionalEmailVerificationDelivery;
 use App\Identity\Contracts\InstitutionalEmailVerificationService;
@@ -77,6 +79,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AnswerStore::class, DatabaseAnswerStore::class);
         $this->app->bind(ScoreCalculator::class, DatabaseScoreCalculator::class);
         $this->app->bind(ResultReleaseManager::class, DatabaseResultReleaseManager::class);
+        $this->app->bind(AttemptRewarder::class, DatabaseAttemptRewarder::class);
     }
 
     /**

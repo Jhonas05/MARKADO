@@ -901,7 +901,7 @@
     z-index: 70;
     min-height: calc(64px + env(safe-area-inset-bottom, 0px));
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
     padding: 5px 8px env(safe-area-inset-bottom, 0px);
     border-top: 1px solid var(--line);
     background: color-mix(in srgb, var(--canvas-raised), transparent 4%);
@@ -2063,4 +2063,151 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* V9 responsive account access and isolated-demo character rewards. */
+.prof-main { max-width: none; margin-inline: auto; }
+
+.prof-sidebar__account {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.prof-sidebar__profile { min-width: 0; display: flex; align-items: center; gap: 10px; padding: 6px 8px; }
+.prof-sidebar__profile > span { width: 34px; height: 34px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: var(--surface-sunken); font-size: 0.72rem; font-weight: 750; }
+.prof-sidebar__profile > div { min-width: 0; display: grid; }
+.prof-sidebar__profile strong,
+.prof-sidebar__profile small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prof-sidebar__profile small { color: var(--ink-muted); }
+
+.prof-sidebar__signout,
+.student-mobile-signout,
+.student-wallet-link,
+.student-mobile-wallet {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.prof-sidebar__signout:hover,
+.student-mobile-signout:hover,
+.student-wallet-link:hover,
+.student-mobile-wallet:hover { border-color: var(--line-strong); background: var(--surface-sunken); }
+
+.prof-sidebar__signout:focus-visible,
+.student-mobile-signout:focus-visible,
+.student-wallet-link:focus-visible,
+.student-mobile-wallet:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+.student-wallet-link { justify-content: flex-start; padding-inline: 12px; }
+.student-wallet-link strong { font-size: 1rem; }
+.student-mobile-wallet { min-width: 44px; padding-inline: 10px; }
+.student-mobile-signout { padding-inline: 12px; }
+
+.student-flash { width: min(1320px, calc(100% - 32px)); display: flex; align-items: center; gap: 10px; margin: 18px auto 0; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); color: var(--ink); background: var(--surface); box-shadow: var(--shadow-sm); font-size: 0.88rem; font-weight: 650; }
+
+.gamification-page { width: min(1320px, calc(100% - 2 * clamp(1rem, 3vw, 2.5rem))); margin-inline: auto; padding: clamp(32px, 5vw, 68px) 0 96px; }
+.gamification-hero { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+.gamification-hero > div:first-child { max-width: 760px; }
+.gamification-hero h1 { margin: 8px 0 10px; font-size: clamp(2.4rem, 5vw, 4.8rem); line-height: 0.98; }
+.gamification-hero p:last-child { color: var(--ink-muted); font-size: 1rem; }
+
+.wallet-card { min-width: 210px; display: flex; align-items: center; gap: 12px; padding: 16px 18px; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); color: var(--ink); background: var(--surface); box-shadow: var(--shadow-sm); }
+.wallet-card span { display: grid; color: var(--ink-muted); font-size: 0.75rem; }
+.wallet-card strong { color: var(--ink); font-size: 1.55rem; line-height: 1; }
+
+.character-shop-note,
+.gamification-alert { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-mid); background: var(--surface-sunken); }
+.character-shop-note p { flex: 1; margin: 0; }
+.character-shop-note a { color: var(--ink); font-weight: 700; white-space: nowrap; }
+.gamification-alert { border-color: var(--line-strong); color: var(--ink); font-weight: 700; }
+
+.character-section { margin-top: 36px; }
+.character-section__heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.character-section__heading h2 { margin: 0; font-size: clamp(1.35rem, 2vw, 1.8rem); }
+.character-section__heading span { color: var(--ink-muted); font-size: 0.82rem; }
+.character-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: clamp(14px, 2vw, 22px); }
+
+.character-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-sm); }
+.character-card--equipped { border-color: var(--ink); }
+.character-card__art { position: relative; aspect-ratio: 16 / 11; display: grid; place-items: center; padding: 20px; background: var(--surface-sunken); }
+.character-card__art img { width: min(72%, 210px); height: 100%; object-fit: contain; }
+.dark .character-card__art img,
+.dark .equipped-card img,
+.dark .student-character-summary img { filter: invert(0.88) hue-rotate(180deg); }
+.character-card__art > span { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 5px; padding: 6px 9px; border-radius: var(--radius-full); color: var(--on-primary); background: var(--primary); font-size: 0.7rem; font-weight: 750; }
+.character-card__body { display: grid; gap: 14px; padding: 20px; }
+.character-card__heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.character-card h2 { margin: 0; font-size: 1.35rem; }
+.character-card p { min-height: 3rem; margin: 0; color: var(--ink-muted); font-size: 0.9rem; line-height: 1.55; }
+.coin-price { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); font-size: 0.82rem; font-weight: 750; white-space: nowrap; }
+.character-card__action { width: 100%; }
+.character-card__action:disabled { color: var(--ink-muted); background: var(--surface-strong); cursor: not-allowed; opacity: 1; box-shadow: none; }
+.character-grid--locked .character-card__art img { filter: grayscale(1); opacity: 0.58; }
+
+.equipped-card,
+.student-character-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 24px; }
+.equipped-card h2 { margin: 6px 0; font-size: clamp(1.6rem, 3vw, 2.4rem); }
+.equipped-card p:last-child { margin: 0; color: var(--ink-muted); }
+.equipped-card img { width: 116px; height: 116px; object-fit: contain; }
+.student-character-summary { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) auto; }
+.student-character-summary img { width: 128px; height: 128px; object-fit: contain; }
+.student-character-summary__actions { display: flex; align-items: center; gap: 18px; margin-top: 20px; }
+.student-character-summary__actions a { color: var(--ink); font-weight: 700; }
+
+.assessment-reward { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; margin-top: 16px; padding: 22px clamp(22px, 4vw, 38px); }
+.assessment-reward > span { width: 48px; height: 48px; display: grid; place-items: center; border-radius: var(--radius-md); background: var(--primary-soft); }
+.assessment-reward h2 { margin: 3px 0; font-size: 1.5rem; }
+.assessment-reward p:last-child { margin: 0; color: var(--ink-muted); }
+
+@media (min-width: 1500px) {
+  .student-account-page { width: min(1280px, calc(100% - 64px)); }
+  .assessment-shell { width: min(1240px, calc(100% - 64px)); }
+  .prof-main { padding-inline: clamp(32px, 4vw, 64px); }
+}
+
+@media (max-width: 920px) {
+  .equipped-card { grid-template-columns: minmax(0, 1fr) auto; }
+  .equipped-card .button { grid-column: 1 / -1; }
+}
+
+@media (max-width: 767px) {
+  .prof-header .prof-view-switch { display: inline-flex; }
+  .student-mobile-signout span { display: none; }
+  .gamification-hero { align-items: stretch; flex-direction: column; }
+  .wallet-card { min-width: 0; width: 100%; }
+}
+
+@media (max-width: 620px) {
+  .gamification-page { width: min(100% - 24px, 1320px); padding-top: 24px; }
+  .gamification-hero h1 { font-size: clamp(2.1rem, 12vw, 3.25rem); }
+  .character-shop-note { align-items: flex-start; flex-wrap: wrap; }
+  .character-shop-note p { min-width: calc(100% - 36px); }
+  .equipped-card { grid-template-columns: 1fr; }
+  .equipped-card img { width: 96px; height: 96px; grid-row: 1; }
+  .assessment-reward { grid-template-columns: auto minmax(0, 1fr); }
+  .assessment-reward .button { grid-column: 1 / -1; width: 100%; }
+  .student-character-summary { grid-template-columns: 1fr; }
+  .student-character-summary img { width: 96px; height: 96px; grid-row: 1; }
+  .student-character-summary__actions { align-items: flex-start; flex-direction: column; gap: 10px; }
+}
+
+@media (max-width: 390px) {
+  .student-mobile-header { padding-inline: 10px; }
+  .student-mobile-wallet { padding-inline: 8px; }
+  .student-mobile-signout { min-width: 42px; padding-inline: 8px; }
+  .student-bottom-nav__item { font-size: 0.62rem; }
+  .character-card__body { padding: 16px; }
 }

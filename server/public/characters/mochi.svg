@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
+  <title id="title">Mochi</title><desc id="desc">A soft abstract creature with rounded ears and a peaceful expression.</desc>
+  <rect width="320" height="320" rx="56" fill="#eeeeef"/><path d="M91 104 72 57c-4-12 9-22 19-14l43 34M229 104l19-47c4-12-9-22-19-14l-43 34" fill="#fff" stroke="#1d1d1f" stroke-width="12" stroke-linejoin="round"/><path d="M57 178c0-70 45-112 103-112s103 42 103 112c0 62-39 103-103 103S57 240 57 178Z" fill="#fff" stroke="#1d1d1f" stroke-width="12"/>
+  <circle cx="121" cy="164" r="12" fill="#1d1d1f"/><circle cx="199" cy="164" r="12" fill="#1d1d1f"/><path d="M145 197c9 8 21 8 30 0" fill="none" stroke="#1d1d1f" stroke-width="9" stroke-linecap="round"/><path d="M88 202c14 5 22 13 25 24M232 202c-14 5-22 13-25 24" fill="none" stroke="#a5a5aa" stroke-width="8" stroke-linecap="round"/><circle cx="160" cy="117" r="10" fill="#a5a5aa"/>
+</svg>

@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react'
+import { Head, Link, usePage } from '@inertiajs/react'
 import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import Icon from '@prototype/components/Icon.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
@@ -33,7 +33,10 @@ export default function StudentShell({
   navigation,
   profile,
   title,
+  wallet,
 }) {
+  const { flash } = usePage().props
+
   return (
     <div className="student-shell">
       <Head title={title} />
@@ -55,6 +58,7 @@ export default function StudentShell({
         </nav>
 
         <div className="student-sidebar__footer">
+          {wallet ? <Link className="student-wallet-link" href="/student/characters/collection" aria-label={`${wallet.balance} MARKADO Coins; open collection`}><Icon name="medal" size={18} /><span><strong>{wallet.balance}</strong> MARKADO Coins</span></Link> : null}
           <div>
             <p>Appearance</p>
             <ThemeToggle />
@@ -81,12 +85,16 @@ export default function StudentShell({
             <MarkadoLogo decorative size={20} />
           </Link>
           <div className="student-mobile-header__actions">
+            {wallet ? <Link className="student-mobile-wallet" href="/student/characters/collection" aria-label={`${wallet.balance} MARKADO Coins`}><Icon name="medal" size={17} /><span>{wallet.balance}</span></Link> : null}
             <ThemeToggle compact />
             <span className="student-mobile-header__avatar" aria-label={`Signed in as ${profile.name}`}>
               {profile.initials}
             </span>
+            {authenticated ? <Link className="student-mobile-signout" href="/logout" method="delete" as="button" aria-label="Sign out of Student workspace"><Icon name="lock" size={17} /><span>Sign out</span></Link> : null}
           </div>
         </header>
+
+        {flash?.success ? <div className="student-flash" role="status"><Icon name="checkCircle" size={18} /><span>{flash.success}</span></div> : null}
 
         {children}
       </div>

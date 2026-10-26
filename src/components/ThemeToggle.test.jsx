@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import ThemeToggle from './ThemeToggle.jsx'
-import { resolveTheme, THEME_STORAGE_KEY } from '../theme.js'
+import { applyTheme, resolveTheme, THEME_STORAGE_KEY } from '../theme.js'
 
 describe('ThemeToggle', () => {
   beforeEach(() => {
@@ -37,5 +37,28 @@ describe('ThemeToggle', () => {
     expect(resolveTheme('system', true)).toBe('dark')
     expect(resolveTheme('system', false)).toBe('light')
     expect(resolveTheme('unexpected', true)).toBe('dark')
+  })
+
+  it('keeps an explicit light preference authoritative on a dark system', () => {
+    applyTheme('light', { root: document.documentElement, systemDark: true })
+
+    expect(document.documentElement).toHaveClass('light')
+    expect(document.documentElement).not.toHaveClass('dark')
+    expect(document.documentElement).toHaveAttribute('data-theme-preference', 'light')
+  })
+
+  it('follows a live system preference change while system mode is selected', () => {
+    let listener
+    window.matchMedia = () => ({
+      matches: false,
+      addEventListener: (_event, callback) => { listener = callback },
+      removeEventListener: () => {},
+    })
+    render(<ThemeToggle />)
+    fireEvent.click(screen.getByRole('button', { name: /use system theme/i }))
+    listener({ matches: true })
+
+    expect(document.documentElement).toHaveClass('dark')
+    expect(document.documentElement).not.toHaveClass('light')
   })
 })

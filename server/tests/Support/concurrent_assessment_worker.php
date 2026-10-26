@@ -4,6 +4,8 @@ use App\Assessment\Contracts\AnswerStore;
 use App\Assessment\Contracts\AttemptFinalizer;
 use App\Assessment\Contracts\AttemptSessionManager;
 use App\Assessment\Data\AnswerSaveCommand;
+use App\Gamification\Contracts\AttemptRewarder;
+use App\Gamification\Support\CharacterEconomyService;
 use App\Identity\Contracts\InstitutionalEmailVerificationDelivery;
 use App\Identity\Contracts\InstitutionalEmailVerificationService;
 use App\Identity\Contracts\InstitutionalVerificationAbuseGate;
@@ -11,6 +13,7 @@ use App\Identity\Contracts\StudentActivationSecurityGate;
 use App\Identity\Contracts\StudentActivationService;
 use App\Identity\Data\InstitutionalEmailVerificationMessage;
 use App\Identity\Data\StudentIdentityDecision;
+use App\Models\Character;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\SchoolStudentRecord;
@@ -38,6 +41,27 @@ if (! file_exists($barrier)) {
 }
 
 try {
+    if ($action === 'reward_attempt') {
+        config()->set('gamification.enabled', true);
+        $reward = $app->make(AttemptRewarder::class)->reward(QuizAttempt::query()->findOrFail($subjectId));
+        echo json_encode(['reward_id' => $reward?->id, 'coins' => $reward?->coins], JSON_THROW_ON_ERROR);
+        exit(0);
+    }
+
+    if ($action === 'purchase_character') {
+        config()->set('gamification.enabled', true);
+        try {
+            $ownership = $app->make(CharacterEconomyService::class)->purchase(
+                User::query()->findOrFail($subjectId),
+                Character::query()->findOrFail($relatedId),
+            );
+            echo json_encode(['outcome' => 'purchased', 'ownership_id' => $ownership->id], JSON_THROW_ON_ERROR);
+        } catch (DomainException $exception) {
+            echo json_encode(['outcome' => 'rejected', 'reason' => $exception->getMessage()], JSON_THROW_ON_ERROR);
+        }
+        exit(0);
+    }
+
     if ($action === 'verify_mailbox') {
         config()->set('identity.institutional_email_domains', ['students.example.edu']);
         config()->set('identity.institutional_email_verification_enabled', true);

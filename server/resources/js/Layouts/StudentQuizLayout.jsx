@@ -1,16 +1,18 @@
 import { usePage } from '@inertiajs/react'
 import StudentShell from './StudentShell.jsx'
 
-const navigation = [
-  { href: '/student/dashboard', icon: 'home', label: 'Workspace', key: 'workspace' },
-  { href: '/student/quizzes/join', icon: 'book', label: 'Join a quiz', key: 'join' },
-  { icon: 'medal', label: 'Results', key: 'results', disabled: true },
-  { href: '/student/dashboard#account', icon: 'user', label: 'Account', key: 'account' },
-]
-
-export default function StudentQuizLayout({ active = 'join', children, title }) {
-  const { auth } = usePage().props
+export default function StudentQuizLayout({ active = 'join', children, showRewards = true, title }) {
+  const { auth, gamification } = usePage().props
   const user = auth.user
+  const navigation = [
+    { href: '/student/dashboard', icon: 'home', label: 'Workspace', key: 'workspace' },
+    { href: '/student/quizzes/join', icon: 'book', label: 'Join quiz', key: 'join' },
+    ...(gamification?.enabled && showRewards ? [
+      { href: '/student/characters/collection', icon: 'trophy', label: 'Collection', key: 'collection' },
+      { href: '/student/characters/shop', icon: 'spark', label: 'Shop', key: 'shop' },
+    ] : []),
+    { href: '/student/dashboard#account', icon: 'user', label: 'Account', key: 'account' },
+  ]
   const initials = user.name
     .split(/\s+/)
     .filter(Boolean)
@@ -27,6 +29,7 @@ export default function StudentQuizLayout({ active = 'join', children, title }) 
       navigation={navigation}
       profile={{ detail: user.roleLabel || 'Student', initials, name: user.name }}
       title={title}
+      wallet={showRewards && gamification?.enabled ? gamification : null}
     >
       {children}
     </StudentShell>
