@@ -45,7 +45,17 @@ function TerminalAttempt({ attempt }) {
             </>
           )}
         </section>
-        {attempt.reward ? <section className="assessment-reward panel" aria-live="polite"><span><Icon name="medal" size={22} /></span><div><p className="section-kicker">Participation reward</p><h2>+{attempt.reward.coins} MARKADO Coins</h2><p>This cosmetic reward is independent of your academic score.</p></div><Link className="button button--secondary" href="/student/characters/shop">Visit Shop</Link></section> : null}
+        {attempt.reward ? (
+          <section className="assessment-reward panel" aria-labelledby="reward-title" aria-live="polite">
+            <span className="assessment-reward__burst"><Icon name="trophy" size={28} /></span>
+            <div className="assessment-reward__copy">
+              <p className="section-kicker">Quiz complete · Participation reward</p>
+              <h2 id="reward-title"><strong>+{attempt.reward.coins}</strong> MARKADO Coins</h2>
+              <p>Your one-time cosmetic reward is ready. It is completely separate from your academic result.</p>
+            </div>
+            <Link className="button button--secondary" href="/student/characters/shop">Meet the characters <Icon name="arrowRight" size={16} /></Link>
+          </section>
+        ) : null}
       </main>
     </StudentQuizLayout>
   )

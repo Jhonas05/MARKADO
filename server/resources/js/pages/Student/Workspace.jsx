@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react'
 import Icon from '@prototype/components/Icon.jsx'
+import CharacterArtwork from '../../Components/CharacterArtwork.jsx'
 import StudentQuizLayout from '../../Layouts/StudentQuizLayout.jsx'
 
 export default function Workspace({ assessmentStartAvailable, eligibility, quizJoinUrl }) {
@@ -25,7 +26,23 @@ export default function Workspace({ assessmentStartAvailable, eligibility, quizJ
         </section>
 
         <div className="student-account-grid">
-          {gamification?.enabled ? <section className="panel student-account-card student-character-summary" aria-labelledby="character-heading"><div><p className="section-kicker">Character companion</p><h2 id="character-heading">{gamification.equippedCharacter?.name || 'Your collection is ready'}</h2><p>{gamification.equippedCharacter?.description || 'Choose an owned character to accompany your workspace.'}</p><div className="student-character-summary__actions"><span className="coin-price"><Icon name="medal" size={16} /> {gamification.balance} coins</span><Link href="/student/characters/collection">Open collection</Link></div></div>{gamification.equippedCharacter ? <img src={gamification.equippedCharacter.artworkPath} alt="" /> : null}</section> : null}
+          {gamification?.enabled ? (
+            <section className="panel student-account-card student-character-summary" aria-labelledby="character-heading">
+              <div className="student-character-summary__art" aria-hidden="true">
+                {gamification.equippedCharacter ? <CharacterArtwork character={gamification.equippedCharacter} decorative /> : <Icon name="spark" size={36} />}
+              </div>
+              <div className="student-character-summary__copy">
+                <span className="character-state-pill"><Icon name="check" size={14} /> Dashboard companion</span>
+                <p className="section-kicker">Character companion</p>
+                <h2 id="character-heading">{gamification.equippedCharacter?.name || 'Your collection is ready'}</h2>
+                <p>{gamification.equippedCharacter?.description || 'Choose an owned character to accompany your workspace.'}</p>
+                <div className="student-character-summary__actions">
+                  <span className="coin-price"><Icon name="medal" size={16} /> {gamification.balance} coins</span>
+                  <Link href="/student/characters/collection">Open collection <Icon name="arrowRight" size={15} /></Link>
+                </div>
+              </div>
+            </section>
+          ) : null}
           <section className="panel student-account-card" id="account" aria-labelledby="identity-heading">
             <p className="section-kicker">Account access</p>
             <h2 id="identity-heading">{verified ? 'School identity verified' : 'School verification required'}</h2>

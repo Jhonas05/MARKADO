@@ -46,11 +46,32 @@ describe('Laravel/Inertia production UI delivery', () => {
   it('uses fluid responsive reward layouts and explicit pre-paint theme classes', () => {
     const styles = read('server/resources/css/foundation.css')
     const blade = read('server/resources/views/app.blade.php')
+    const tabletRewardMedia = styles.slice(
+      styles.lastIndexOf('@media (max-width: 920px)'),
+      styles.lastIndexOf('@media (max-width: 767px)'),
+    )
 
-    expect(styles).toContain('minmax(min(100%, 260px), 1fr)')
+    expect(styles).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))')
+    expect(styles).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))')
+    expect(styles).toContain('.character-grid { grid-template-columns: 1fr; }')
+    expect(styles).toContain('.character-card__art img { z-index: 1; position: absolute; top: 20px; bottom: 10px; left: 50%; width: min(84%, 250px); height: calc(100% - 30px); object-fit: contain;')
+    expect(tabletRewardMedia).toContain('.assessment-reward { grid-template-columns: auto minmax(0, 1fr); }')
+    expect(tabletRewardMedia).toContain('.assessment-reward .button { grid-column: 1 / -1; width: 100%; }')
     expect(styles).toContain('@media (max-width: 390px)')
     expect(styles).toContain('.prof-main { max-width: none; margin-inline: auto; }')
     expect(blade).toContain("root.classList.toggle('light', !dark)")
+  })
+
+  it('uses versioned character art and exposes clear collectible states', () => {
+    const catalog = read('server/config/gamification.php')
+    const card = read('server/resources/js/Components/CharacterCard.jsx')
+
+    expect(catalog).toContain("'/characters/byte-v2.png'")
+    expect(catalog).toContain("'/characters/mochi-v2.png'")
+    expect(catalog).toContain("'/characters/pixel-v2.png'")
+    expect(card).toContain("equipped: { icon: 'check', label: 'Equipped' }")
+    expect(card).toContain("available: { icon: 'spark', label: 'Ready to unlock' }")
+    expect(card).toContain("insufficient: { icon: 'lock', label: 'More coins needed' }")
   })
 
   it('keeps the synthetic foundation dashboard off public routes', () => {
