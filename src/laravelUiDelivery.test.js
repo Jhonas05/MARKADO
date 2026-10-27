@@ -50,6 +50,7 @@ describe('Laravel/Inertia production UI delivery', () => {
     expect(styles).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))')
     expect(styles).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))')
     expect(styles).toContain('.character-grid { grid-template-columns: 1fr; }')
+    expect(styles).toContain('.character-card__art img { z-index: 1; width: min(84%, 250px); height: auto; max-height: 100%; object-fit: contain;')
     expect(styles).toContain('@media (max-width: 390px)')
     expect(styles).toContain('.prof-main { max-width: none; margin-inline: auto; }')
     expect(blade).toContain("root.classList.toggle('light', !dark)")
