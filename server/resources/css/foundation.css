@@ -2175,6 +2175,11 @@
 .character-card__art::after { position: absolute; right: 8%; bottom: 6%; left: 8%; height: 18%; border-radius: 50%; background: rgb(0 0 0 / 9%); filter: blur(16px); content: ""; transform: scaleX(0.72); }
 .character-card__art img { z-index: 1; width: min(84%, 250px); height: 100%; object-fit: contain; filter: drop-shadow(0 12px 10px rgb(0 0 0 / 14%)); transition: transform var(--motion-normal) var(--motion-ease); }
 .character-card:hover .character-card__art img { transform: translateY(-3px) scale(1.02); }
+.character-artwork { display: block; max-width: 100%; }
+.character-artwork--placeholder { z-index: 1; width: min(84%, 250px); height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 16px; color: var(--ink-muted); text-align: center; }
+.character-artwork--placeholder svg { flex: 0 0 auto; }
+.character-artwork__placeholder-name { color: var(--ink-strong); font-size: 0.9rem; font-weight: 750; line-height: 1.2; }
+.character-artwork__placeholder-note { font-size: 0.74rem; line-height: 1.2; }
 .character-card__status { z-index: 2; position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border: 1px solid rgb(255 255 255 / 42%); border-radius: var(--radius-full); color: rgb(34 34 36); background: rgb(255 255 255 / 86%); box-shadow: 0 4px 12px rgb(0 0 0 / 8%); backdrop-filter: blur(8px); font-size: 0.68rem; font-weight: 800; }
 .dark .character-card__status { border-color: rgb(255 255 255 / 12%); color: rgb(245 245 247); background: rgb(24 24 24 / 84%); }
 .character-card--equipped .character-card__status { color: rgb(16 70 62); background: color-mix(in srgb, var(--game-mint), white 72%); }
@@ -2193,6 +2198,7 @@
 .character-card--owned .character-card__action:disabled,
 .character-card--equipped .character-card__action:disabled { color: var(--ink-mid); background: color-mix(in srgb, var(--game-mint), var(--surface) 88%); }
 .character-grid--locked .character-card__art img { filter: grayscale(0.85) drop-shadow(0 10px 9px rgb(0 0 0 / 10%)); opacity: 0.6; }
+.character-grid--locked .character-artwork--placeholder { opacity: 0.65; }
 
 .equipped-card { position: relative; display: grid; grid-template-columns: 180px minmax(0, 1fr) auto; align-items: center; gap: clamp(22px, 4vw, 46px); overflow: hidden; padding: clamp(22px, 4vw, 38px); border-color: color-mix(in srgb, var(--game-mint), var(--line) 55%); background: linear-gradient(125deg, color-mix(in srgb, var(--game-mint), var(--surface) 91%), var(--surface) 58%); }
 .equipped-card__art { position: relative; height: 160px; display: grid; place-items: center; border-radius: var(--radius-lg); color: var(--ink-muted); background: radial-gradient(circle, color-mix(in srgb, var(--game-mint), transparent 62%), transparent 68%); }

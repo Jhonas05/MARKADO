@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react'
 import Icon from '@prototype/components/Icon.jsx'
 import CharacterCard from '../../../Components/CharacterCard.jsx'
+import CharacterArtwork from '../../../Components/CharacterArtwork.jsx'
 import StudentQuizLayout from '../../../Layouts/StudentQuizLayout.jsx'
 
 export default function Collection({ economy }) {
@@ -18,7 +19,7 @@ export default function Collection({ economy }) {
         </header>
         {errors?.equip ? <div className="gamification-alert" role="alert">{errors.equip}</div> : null}
         <section className="equipped-card panel" aria-labelledby="equipped-title">
-          <div className="equipped-card__art" aria-hidden="true">{economy.equippedCharacter ? <img src={economy.equippedCharacter.artworkPath} alt="" /> : <Icon name="spark" size={34} />}</div>
+          <div className="equipped-card__art" aria-hidden="true">{economy.equippedCharacter ? <CharacterArtwork character={economy.equippedCharacter} decorative /> : <Icon name="spark" size={34} />}</div>
           <div className="equipped-card__copy"><span className="character-state-pill"><Icon name="check" size={14} /> Equipped companion</span><h2 id="equipped-title">{economy.equippedCharacter?.name || 'Choose a companion'}</h2><p>{economy.equippedCharacter?.description || 'Equip one of your owned characters below.'}</p></div>
           <Link className="button button--secondary" href="/student/characters/shop">Open Shop <Icon name="arrowRight" size={16} /></Link>
         </section>

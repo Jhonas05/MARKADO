@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react'
 import { useState } from 'react'
 import Icon from '@prototype/components/Icon.jsx'
+import CharacterArtwork from './CharacterArtwork.jsx'
 
 const characterDetails = {
   byte: { edition: 'Starter companion', accent: 'mint' },
@@ -48,7 +49,7 @@ export default function CharacterCard({ balance = 0, character, mode, canAfford 
   return (
     <article className={`character-card character-card--${state} character-card--${details.accent}`} data-character-state={state}>
       <div className="character-card__art">
-        <img src={character.artworkPath} alt={`${character.name}, an original MARKADO character`} />
+        <CharacterArtwork character={character} />
         <span className="character-card__status"><Icon name={status.icon} size={14} /> {status.label}</span>
       </div>
       <div className="character-card__body">

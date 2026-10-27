@@ -9,7 +9,10 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
+      '@inertiajs/react': path.resolve(directory, 'server/node_modules/@inertiajs/react/dist/index.js'),
       '@prototype': path.resolve(directory, 'src'),
+      react: path.resolve(directory, 'node_modules/react'),
+      'react-dom': path.resolve(directory, 'node_modules/react-dom'),
     },
   },
   test: {
@@ -20,4 +23,3 @@ export default defineConfig({
     maxWorkers: 1,
   },
 })
-

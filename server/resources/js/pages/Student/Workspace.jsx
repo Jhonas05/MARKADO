@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react'
 import Icon from '@prototype/components/Icon.jsx'
+import CharacterArtwork from '../../Components/CharacterArtwork.jsx'
 import StudentQuizLayout from '../../Layouts/StudentQuizLayout.jsx'
 
 export default function Workspace({ assessmentStartAvailable, eligibility, quizJoinUrl }) {
@@ -28,7 +29,7 @@ export default function Workspace({ assessmentStartAvailable, eligibility, quizJ
           {gamification?.enabled ? (
             <section className="panel student-account-card student-character-summary" aria-labelledby="character-heading">
               <div className="student-character-summary__art" aria-hidden="true">
-                {gamification.equippedCharacter ? <img src={gamification.equippedCharacter.artworkPath} alt="" /> : <Icon name="spark" size={36} />}
+                {gamification.equippedCharacter ? <CharacterArtwork character={gamification.equippedCharacter} decorative /> : <Icon name="spark" size={36} />}
               </div>
               <div className="student-character-summary__copy">
                 <span className="character-state-pill"><Icon name="check" size={14} /> Dashboard companion</span>
