@@ -1704,10 +1704,38 @@
   color: var(--ink-mid) !important;
 }
 
+.prof-policy-locks > p {
+  color: var(--ink-mid);
+}
+
+.prof-field input:disabled,
+.prof-field textarea:disabled,
+.prof-field select:disabled,
+.prof-choice-editor label > input:last-child:disabled,
+.prof-duration-input input:disabled,
+.prof-points-field input:disabled {
+  color: var(--ink-mid);
+  background: var(--surface-sunken);
+  -webkit-text-fill-color: var(--ink-mid);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
 .prof-field input[aria-invalid='true'],
 .prof-field textarea[aria-invalid='true'],
 .student-join-card input[aria-invalid='true'] {
   border-color: var(--ink);
+}
+
+@media (max-width: 900px) {
+  .prof-page-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .prof-page-heading__actions {
+    flex-wrap: wrap;
+  }
 }
 
 @media (min-width: 861px) {
