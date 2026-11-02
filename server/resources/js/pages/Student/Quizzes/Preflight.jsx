@@ -56,10 +56,17 @@ export default function Preflight({ preflight }) {
           <Link className="button button--secondary" href="/student/quizzes/join">
             <Icon name="arrowLeft" size={18} /> Try another code
           </Link>
-          <button className="button button--primary" type="button" disabled={!preflight.canStart} onClick={startAssessment} aria-describedby="start-policy-note">
-            Start quiz
-            <Icon name="arrowRight" size={18} />
-          </button>
+          {preflight.attempt ? (
+            <Link className="button button--primary" href={preflight.attempt.url} aria-describedby="start-policy-note">
+              {preflight.attempt.status === 'in_progress' ? 'Continue quiz' : 'View submission'}
+              <Icon name="arrowRight" size={18} />
+            </Link>
+          ) : (
+            <button className="button button--primary" type="button" disabled={!preflight.canStart} onClick={startAssessment} aria-describedby="start-policy-note">
+              Start quiz
+              <Icon name="arrowRight" size={18} />
+            </button>
+          )}
           <p id="start-policy-note">
             {preflight.startMessage || (preflight.canStart
               ? 'Your timer begins only after MARKADO accepts your Start request.'

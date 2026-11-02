@@ -183,6 +183,11 @@ class FunctionalAssessmentDemoFlowTest extends TestCase
         $this->post("/student/quizzes/{$quiz->id}/attempts")->assertRedirect();
 
         $attempt = QuizAttempt::query()->with('questionSnapshots')->sole();
+        $this->get("/student/quizzes/join/{$quiz->access_code}")
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('preflight.canStart', false)
+                ->where('preflight.attempt.status', 'in_progress')
+                ->where('preflight.attempt.url', route('student.attempts.show', $attempt)));
         $first = $attempt->questionSnapshots->firstWhere('position', 1);
         $second = $attempt->questionSnapshots->firstWhere('position', 2);
 
@@ -216,6 +221,12 @@ class FunctionalAssessmentDemoFlowTest extends TestCase
                 ->where('attempt.reward.coins', 10)
                 ->missing('attempt.result.earnedPoints')
                 ->missing('attempt.result.correctAnswers'));
+        $this->get("/student/quizzes/join/{$quiz->access_code}")
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('preflight.canStart', false)
+                ->where('preflight.attempt.status', 'submitted')
+                ->where('preflight.attempt.url', route('student.attempts.show', $attempt))
+                ->missing('preflight.quiz.answerKey'));
         $this->assertDatabaseHas('attempt_results', [
             'attempt_id' => $attempt->id,
             'status' => 'scored',
