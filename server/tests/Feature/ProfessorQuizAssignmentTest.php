@@ -6,6 +6,7 @@ use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
 use App\Enums\QuizStatus;
 use App\Enums\StudentVerificationStatus;
+use App\Models\AssessmentAuditEvent;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizStudentAssignment;
@@ -95,6 +96,81 @@ class ProfessorQuizAssignmentTest extends TestCase
         $this->assertTrue($reactivated->is_active);
         $this->assertNull($reactivated->deactivated_by);
         $this->assertNull($reactivated->deactivated_at);
+    }
+
+    public function test_assignment_removal_history_survives_reactivation_without_student_identity_data(): void
+    {
+        $owner = $this->instructor();
+        $quiz = $this->quizFor($owner);
+        $record = $this->recordFor($this->student(), $owner);
+        $path = "/professor/quizzes/{$quiz->id}/student-assignments";
+
+        $this->actingAs($owner)
+            ->post($path, ['student_number' => $record->student_number])
+            ->assertSessionHas('success', 'Student assigned to this quiz.');
+        $assignment = QuizStudentAssignment::query()->sole();
+
+        $this->actingAs($owner)
+            ->delete("{$path}/{$assignment->id}")
+            ->assertSessionHas('success', 'Direct Student assignment removed.');
+
+        $removedAt = $assignment->fresh()->deactivated_at;
+        $this->assertNotNull($removedAt);
+
+        $this->actingAs($owner)
+            ->post($path, ['student_number' => $record->student_number])
+            ->assertSessionHas('success', 'Student assignment restored.');
+
+        $reactivated = $assignment->fresh();
+        $this->assertTrue($reactivated->is_active);
+        $this->assertNull($reactivated->deactivated_by);
+        $this->assertNull($reactivated->deactivated_at);
+
+        $events = AssessmentAuditEvent::query()
+            ->where('quiz_id', $quiz->id)
+            ->get();
+
+        $this->assertEqualsCanonicalizing([
+            'quiz_assignment_assigned',
+            'quiz_assignment_removed',
+            'quiz_assignment_reactivated',
+        ], $events->pluck('event_type')->all());
+
+        foreach ($events as $event) {
+            $this->assertSame($quiz->id, $event->quiz_id);
+            $this->assertSame($owner->id, $event->actor_id);
+            $this->assertNull($event->attempt_id);
+            $this->assertNotNull($event->occurred_at);
+            $this->assertSame(['assignment_id' => $assignment->id], $event->context);
+            $this->assertArrayNotHasKey('student_number', $event->context);
+            $this->assertArrayNotHasKey('institutional_email', $event->context);
+            $this->assertArrayNotHasKey('student_record_id', $event->context);
+            $this->assertArrayNotHasKey('user_id', $event->context);
+        }
+
+        $removal = $events->firstWhere('event_type', 'quiz_assignment_removed');
+        $this->assertNotNull($removal);
+        $this->assertTrue($removal->occurred_at->greaterThanOrEqualTo($removedAt));
+    }
+
+    public function test_exact_number_assignment_endpoint_is_rate_limited_per_authenticated_instructor(): void
+    {
+        $owner = $this->instructor();
+        $quiz = $this->quizFor($owner);
+        $path = "/professor/quizzes/{$quiz->id}/student-assignments";
+
+        for ($attempt = 1; $attempt <= 20; $attempt++) {
+            $this->actingAs($owner)
+                ->post($path, ['student_number' => "UNKNOWN-{$attempt}"])
+                ->assertRedirect()
+                ->assertSessionHasErrors('student_number');
+        }
+
+        $this->actingAs($owner)
+            ->post($path, ['student_number' => 'UNKNOWN-21'])
+            ->assertTooManyRequests();
+
+        $this->assertDatabaseCount('quiz_student_assignments', 0);
     }
 
     public function test_foreign_instructor_and_non_instructors_cannot_mutate_assignments(): void

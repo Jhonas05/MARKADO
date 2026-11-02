@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Assessment\Support\AssessmentAuditRecorder;
 use App\Identity\Contracts\StudentIdentitySource;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
@@ -15,7 +16,16 @@ use Illuminate\Validation\ValidationException;
 
 final class QuizStudentAssignmentService
 {
-    public function __construct(private readonly StudentIdentitySource $identitySource) {}
+    private const EVENT_ASSIGNED = 'quiz_assignment_assigned';
+
+    private const EVENT_REACTIVATED = 'quiz_assignment_reactivated';
+
+    private const EVENT_REMOVED = 'quiz_assignment_removed';
+
+    public function __construct(
+        private readonly StudentIdentitySource $identitySource,
+        private readonly AssessmentAuditRecorder $auditRecorder,
+    ) {}
 
     /**
      * @return array{assignment: QuizStudentAssignment, outcome: 'assigned'|'already_assigned'|'reactivated'}
@@ -58,6 +68,8 @@ final class QuizStudentAssignmentService
                 ->firstOrFail();
 
             if ($inserted === 1) {
+                $this->recordAuditEvent($actor, $quiz, $assignment, self::EVENT_ASSIGNED);
+
                 return ['assignment' => $assignment, 'outcome' => 'assigned'];
             }
 
@@ -71,6 +83,7 @@ final class QuizStudentAssignmentService
                 'deactivated_by' => null,
                 'deactivated_at' => null,
             ])->save();
+            $this->recordAuditEvent($actor, $quiz, $assignment, self::EVENT_REACTIVATED);
 
             return ['assignment' => $assignment->fresh(), 'outcome' => 'reactivated'];
         }, 3);
@@ -112,9 +125,21 @@ final class QuizStudentAssignmentService
                 'deactivated_by' => $actor->getKey(),
                 'deactivated_at' => now(),
             ])->save();
+            $this->recordAuditEvent($actor, $quiz, $assignment, self::EVENT_REMOVED);
 
             return 'removed';
         }, 3);
+    }
+
+    private function recordAuditEvent(
+        User $actor,
+        Quiz $quiz,
+        QuizStudentAssignment $assignment,
+        string $eventType,
+    ): void {
+        $this->auditRecorder->recordQuizEvent($quiz, $eventType, $actor, [
+            'assignment_id' => $assignment->getKey(),
+        ]);
     }
 
     private function authorize(User $actor, Quiz $quiz): void

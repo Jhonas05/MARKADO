@@ -110,6 +110,7 @@ Route::middleware(['auth', 'active-account', 'account-role:instructor'])
         Route::delete('quizzes/{quiz}/revisions/{revision}/questions/{revisionQuestion}', [ProfessorQuizRevisionQuestionController::class, 'destroy'])
             ->name('quizzes.revisions.questions.destroy');
         Route::post('quizzes/{quiz}/student-assignments', [ProfessorQuizStudentAssignmentController::class, 'store'])
+            ->middleware('throttle:quiz-assignment')
             ->name('quizzes.student-assignments.store');
         Route::delete('quizzes/{quiz}/student-assignments/{assignment}', [ProfessorQuizStudentAssignmentController::class, 'destroy'])
             ->name('quizzes.student-assignments.destroy');

@@ -5,10 +5,12 @@ namespace Tests\Feature;
 use App\Enums\AccountRole;
 use App\Enums\QuizStatus;
 use App\Enums\StudentVerificationStatus;
+use App\Models\AssessmentAuditEvent;
 use App\Models\Quiz;
 use App\Models\QuizStudentAssignment;
 use App\Models\SchoolStudentRecord;
 use App\Models\User;
+use App\Services\QuizStudentAssignmentService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Group;
@@ -65,11 +67,15 @@ class PostgreSqlQuizAssignmentConcurrencyTest extends TestCase
             $this->assertSame(1, QuizStudentAssignment::query()->count());
 
             $assignment = QuizStudentAssignment::query()->sole();
-            $assignment->forceFill([
-                'is_active' => false,
-                'deactivated_by' => $owner->id,
-                'deactivated_at' => now(),
-            ])->save();
+            $this->assertSame(1, AssessmentAuditEvent::query()
+                ->where('quiz_id', $quiz->id)
+                ->where('event_type', 'quiz_assignment_assigned')
+                ->count());
+
+            $this->assertSame(
+                'removed',
+                app(QuizStudentAssignmentService::class)->remove($owner, $quiz, $assignment->id),
+            );
 
             $reactivation = $this->runConcurrently([
                 ['assign_student', (string) $owner->id, $payload],
@@ -81,6 +87,18 @@ class PostgreSqlQuizAssignmentConcurrencyTest extends TestCase
             $this->assertSame($assignment->id, $reactivation[1]['assignment_id']);
             $this->assertSame(1, QuizStudentAssignment::query()->count());
             $this->assertTrue($assignment->fresh()->is_active);
+            $this->assertEqualsCanonicalizing([
+                'quiz_assignment_assigned',
+                'quiz_assignment_removed',
+                'quiz_assignment_reactivated',
+            ], AssessmentAuditEvent::query()
+                ->where('quiz_id', $quiz->id)
+                ->pluck('event_type')
+                ->all());
+            $this->assertSame(3, AssessmentAuditEvent::query()
+                ->where('quiz_id', $quiz->id)
+                ->where('context->assignment_id', $assignment->id)
+                ->count());
         } finally {
             DB::transaction(function () use ($quiz, $record, $student, $owner): void {
                 QuizStudentAssignment::query()->where('quiz_id', $quiz->id)->delete();
