@@ -154,6 +154,18 @@ describe('Laravel/Inertia production UI delivery', () => {
     expect(styles).toContain("content: attr(data-label);")
   })
 
+  it('keeps Professor tablet actions and locked fields readable across themes', () => {
+    const styles = read('server/resources/css/foundation.css')
+
+    expect(styles).toContain('@media (max-width: 900px)')
+    expect(styles).toContain('.prof-page-heading__actions {\n    flex-wrap: wrap;')
+    expect(styles).toContain('.prof-field input:disabled,')
+    expect(styles).toContain('.prof-choice-editor label > input:last-child:disabled,')
+    expect(styles).toContain('background: var(--surface-sunken);')
+    expect(styles).toContain('-webkit-text-fill-color: var(--ink-mid);')
+    expect(styles).toContain('.prof-policy-locks > p {\n  color: var(--ink-mid);')
+  })
+
   it('keeps MARKADO branding and theme controls across role entry points', () => {
     for (const journey of [studentJourney, professorJourney, authJourney]) {
       expect(journey).toContain('MarkadoLogo')
