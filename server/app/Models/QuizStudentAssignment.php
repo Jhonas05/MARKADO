@@ -14,7 +14,10 @@ class QuizStudentAssignment extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return [
+            'is_active' => 'boolean',
+            'deactivated_at' => 'immutable_datetime',
+        ];
     }
 
     public function quiz(): BelongsTo
@@ -30,5 +33,10 @@ class QuizStudentAssignment extends Model
     public function assignedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_by');
+    }
+
+    public function deactivatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deactivated_by');
     }
 }

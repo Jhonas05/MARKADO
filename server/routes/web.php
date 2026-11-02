@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfessorQuizQuestionController;
 use App\Http\Controllers\ProfessorQuizResultController;
 use App\Http\Controllers\ProfessorQuizRevisionController;
 use App\Http\Controllers\ProfessorQuizRevisionQuestionController;
+use App\Http\Controllers\ProfessorQuizStudentAssignmentController;
 use App\Http\Controllers\StudentAssessmentController;
 use App\Http\Controllers\StudentCharacterController;
 use App\Http\Controllers\StudentQuizJoinController;
@@ -108,6 +109,10 @@ Route::middleware(['auth', 'active-account', 'account-role:instructor'])
             ->name('quizzes.revisions.questions.update');
         Route::delete('quizzes/{quiz}/revisions/{revision}/questions/{revisionQuestion}', [ProfessorQuizRevisionQuestionController::class, 'destroy'])
             ->name('quizzes.revisions.questions.destroy');
+        Route::post('quizzes/{quiz}/student-assignments', [ProfessorQuizStudentAssignmentController::class, 'store'])
+            ->name('quizzes.student-assignments.store');
+        Route::delete('quizzes/{quiz}/student-assignments/{assignment}', [ProfessorQuizStudentAssignmentController::class, 'destroy'])
+            ->name('quizzes.student-assignments.destroy');
         Route::get('quizzes/{quiz}/results', [ProfessorQuizResultController::class, 'index'])
             ->middleware('assessment-enabled')
             ->name('quizzes.results.index');

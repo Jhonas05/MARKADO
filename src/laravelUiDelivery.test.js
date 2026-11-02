@@ -127,6 +127,22 @@ describe('Laravel/Inertia production UI delivery', () => {
     expect(professorJourney).not.toContain('Student area')
   })
 
+  it('ships real Professor-managed direct assignments without roster browsing', () => {
+    const quizEditor = read('server/resources/js/pages/Professor/Quizzes/Edit.jsx')
+    const routes = read('server/routes/web.php')
+    const styles = read('server/resources/css/foundation.css')
+
+    expect(quizEditor).toContain('Manage student access')
+    expect(quizEditor).toContain('assignmentForm.post(quiz.assignments.storePath')
+    expect(quizEditor).toContain('router.delete(assignment.removePath')
+    expect(quizEditor).toContain('Exact lookup only. This screen does not browse or expose the school roster.')
+    expect(quizEditor).toContain('Assignment cannot be removed after an attempt exists.')
+    expect(routes).toContain("name('quizzes.student-assignments.store')")
+    expect(routes).toContain("name('quizzes.student-assignments.destroy')")
+    expect(styles).toContain('.prof-assignment-form')
+    expect(styles).toContain('.prof-assignment-row')
+  })
+
   it('keeps Professor results readable without page-level mobile overflow', () => {
     const results = read('server/resources/js/pages/Professor/Quizzes/Results.jsx')
     const styles = read('server/resources/css/foundation.css')

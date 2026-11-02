@@ -173,7 +173,7 @@ class SchoolEligibilityTest extends TestCase
             ->assertInertia(fn ($page) => $page->where('preflight.state', 'unavailable'));
     }
 
-    public function test_assignment_records_include_actor_and_timestamp_audit_metadata_without_mutation_routes(): void
+    public function test_assignment_records_include_actor_and_timestamp_audit_metadata(): void
     {
         [$owner, $quiz] = $this->publishedQuiz('AUDT2222');
         $record = $this->verifiedRecord($this->student(), $owner);
@@ -183,7 +183,6 @@ class SchoolEligibilityTest extends TestCase
         $this->assertNotNull($assignment->created_at);
         $this->assertNotNull($record->verified_at);
         $this->assertSame($owner->id, $record->verified_by);
-        $this->post("/professor/quizzes/{$quiz->id}/assignments")->assertStatus(405);
     }
 
     private function publishedQuiz(string $code): array

@@ -135,7 +135,7 @@ class QuizPublicationTest extends TestCase
                 ->where('quiz.publication.currentRevisionNumber', 1)
                 ->where('quiz.publication.hasUnpublishedChanges', true)
                 ->where('quiz.access.enabled', true)
-                ->where('quiz.assignments.managementEnabled', false)
+                ->where('quiz.assignments.managementEnabled', true)
                 ->has('quiz.questions.0.choices.0.isCorrect'));
 
         $payload = $this->questionPayload();

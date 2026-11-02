@@ -18,6 +18,7 @@ use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\SchoolStudentRecord;
 use App\Models\User;
+use App\Services\QuizStudentAssignmentService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Database\QueryException;
 
@@ -41,6 +42,21 @@ if (! file_exists($barrier)) {
 }
 
 try {
+    if ($action === 'assign_student') {
+        $payload = json_decode($relatedId, true, flags: JSON_THROW_ON_ERROR);
+        config()->set('identity.institutional_email_domains', ['students.example.edu']);
+        $result = $app->make(QuizStudentAssignmentService::class)->assign(
+            User::query()->findOrFail($subjectId),
+            Quiz::query()->findOrFail($payload['quiz_id']),
+            $payload['student_number'],
+        );
+        echo json_encode([
+            'assignment_id' => $result['assignment']->id,
+            'outcome' => $result['outcome'],
+        ], JSON_THROW_ON_ERROR);
+        exit(0);
+    }
+
     if ($action === 'reward_attempt') {
         config()->set('gamification.enabled', true);
         $reward = $app->make(AttemptRewarder::class)->reward(QuizAttempt::query()->findOrFail($subjectId));
