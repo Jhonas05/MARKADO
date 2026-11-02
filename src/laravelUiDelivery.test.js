@@ -10,6 +10,8 @@ const studentJourney = [
   'server/resources/js/pages/Student/Quizzes/Join.jsx',
   'server/resources/js/pages/Student/Quizzes/Preflight.jsx',
   'server/resources/js/pages/Student/Quizzes/Assessment.jsx',
+  'server/resources/js/pages/Student/Gamification/Collection.jsx',
+  'server/resources/js/pages/Student/Gamification/Shop.jsx',
   'server/resources/js/Layouts/StudentShell.jsx',
 ].map(read).join('\n')
 
@@ -27,6 +29,10 @@ const authJourney = [
   'server/resources/js/pages/Auth/Login.jsx',
   'server/resources/js/pages/Auth/Register.jsx',
   'server/resources/js/pages/Auth/PolicyGate.jsx',
+].map(read).join('\n')
+
+const adminJourney = [
+  'server/resources/js/pages/Administrator/Dashboard.jsx',
 ].map(read).join('\n')
 
 describe('Laravel/Inertia production UI delivery', () => {
@@ -82,10 +88,21 @@ describe('Laravel/Inertia production UI delivery', () => {
   })
 
   it('uses user-facing copy instead of phase and implementation language', () => {
-    const routedCopy = [studentJourney, professorJourney, authJourney].join('\n')
+    const routedCopy = [studentJourney, professorJourney, authJourney, adminJourney].join('\n')
 
-    expect(routedCopy).not.toMatch(/Phase 5C|database-backed|D16 approved|D22 school-managed|PostgreSQL|development workflow|server-controlled activation gate/i)
+    expect(routedCopy).not.toMatch(/Phase 5C|database-backed|isolated demo|demo coins|\bD\d{2}\b|PostgreSQL|development workflow|server-controlled activation gate/i)
     expect(routedCopy).not.toMatch(/Student UI prototype|Professor UI prototype|Administrator UI prototype/i)
+  })
+
+  it('ships the approved pastel palette with a calm dark theme', () => {
+    const styles = read('src/design-system.css')
+
+    for (const color of ['#d9c7ff', '#bbdfff', '#bff3dc', '#ffd6c6', '#f9c9e8', '#f8f6ff']) {
+      expect(styles.toLowerCase()).toContain(color)
+    }
+    for (const color of ['#15172c', '#23213f', '#242b47']) {
+      expect(styles.toLowerCase()).toContain(color)
+    }
   })
 
   it('does not embed fabricated student records or academic metrics in live journeys', () => {
@@ -95,11 +112,26 @@ describe('Laravel/Inertia production UI delivery', () => {
   })
 
   it('preserves real quiz actions without exposing cross-role shortcuts', () => {
+    const quizEditor = read('server/resources/js/pages/Professor/Quizzes/Edit.jsx')
+
     expect(professorJourney).toContain("form.post('/professor/quizzes')")
     expect(professorJourney).toContain("router.post(`/professor/quizzes/${quiz.id}/publish`")
     expect(professorJourney).toContain('questionForm.post(quiz.authoring.questionsPath')
+    expect(quizEditor).toContain("details.put(quiz.authoring.detailsPath")
+    expect(quizEditor).not.toContain('})).put(quiz.authoring.detailsPath')
     expect(professorJourney).toContain('quiz.resultsPath ?')
     expect(professorJourney).not.toContain('Student area')
+  })
+
+  it('keeps Professor results readable without page-level mobile overflow', () => {
+    const results = read('server/resources/js/pages/Professor/Quizzes/Results.jsx')
+    const styles = read('server/resources/css/foundation.css')
+
+    expect(results).toContain('data-label="Student"')
+    expect(results).toContain('data-label="Action"')
+    expect(results).toContain('<th scope="col">')
+    expect(styles).toContain('.professor-results__table-wrap {\n    overflow: visible;')
+    expect(styles).toContain("content: attr(data-label);")
   })
 
   it('keeps MARKADO branding and theme controls across role entry points', () => {

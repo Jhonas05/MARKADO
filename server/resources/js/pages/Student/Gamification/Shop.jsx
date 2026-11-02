@@ -23,7 +23,7 @@ export default function Shop({ economy }) {
             <li><span><Icon name="spark" size={19} /></span><div><strong>Collect</strong><small>Unlock a cosmetic companion</small></div></li>
           </ol>
         </section>
-        <div className="character-shop-note" role="note"><Icon name="shield" size={19} /><p>Server-checked demo coins only—no real money, trading, rankings, or quiz advantage.</p><Link href="/student/characters/collection">View collection <Icon name="arrowRight" size={15} /></Link></div>
+        <div className="character-shop-note" role="note"><Icon name="shield" size={19} /><p>MARKADO Coins are cosmetic only—no real money, trading, rankings, or quiz advantage.</p><Link href="/student/characters/collection">View collection <Icon name="arrowRight" size={15} /></Link></div>
         <section className="character-section" aria-labelledby="shop-title">
           <div className="character-section__heading"><div><p className="section-kicker">Series one</p><h2 id="shop-title">MARKADO originals</h2></div><span>{ownedCount} of {economy.characters.length} collected</span></div>
           <div className="character-grid">{economy.characters.map((character) => <CharacterCard balance={economy.balance} canAfford={economy.balance >= character.price} character={character} key={character.id} mode="shop" />)}</div>

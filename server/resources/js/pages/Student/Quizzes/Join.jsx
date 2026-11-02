@@ -52,7 +52,7 @@ export default function Join({ policyNotice }) {
             <ul>
               <li>You will see the schedule before starting.</li>
               <li>Your professor's instructions appear on the next screen.</li>
-              <li>Unavailable codes use the same private response.</li>
+              <li>Quiz details stay private until access is confirmed.</li>
             </ul>
           </aside>
         </div>

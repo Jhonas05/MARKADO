@@ -32,7 +32,7 @@ export default function Dashboard({ boundaries }) {
           ))}
         </div>
         <section className="admin-policy-note" role="note">
-          Privileged mutations are intentionally unavailable until D15 and D23 define the exact authority and audit requirements.
+          Privileged account and assessment changes remain unavailable until the school defines the required authority and audit controls.
         </section>
       </main>
     </div>

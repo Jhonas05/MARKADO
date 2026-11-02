@@ -37,7 +37,7 @@ class AccountAccessController extends Controller
     {
         return $this->policyGate(
             'Password recovery',
-            'Recovery is not available yet',
+            'Recovery is currently unavailable',
             'Password recovery has not been enabled. Return to sign in or contact your school through its usual support channel.',
             'password-recovery',
         );

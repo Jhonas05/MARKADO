@@ -262,7 +262,8 @@ export default function EditQuiz({ quiz, questionTypes }) {
               per_question_duration_seconds: data.per_question_duration_seconds
                 ? Number(data.per_question_duration_seconds)
                 : null,
-            })).put(quiz.authoring.detailsPath, { preserveScroll: true })
+            }))
+            details.put(quiz.authoring.detailsPath, { preserveScroll: true })
           }
         }}>
           <div className="prof-field-grid">
@@ -332,9 +333,9 @@ export default function EditQuiz({ quiz, questionTypes }) {
       </div>
 
       <section className="prof-panel prof-policy-locks" aria-labelledby="policy-locks-title">
-        <div><Icon name="lock" size={20} /><div><p className="section-kicker">Availability</p><h2 id="policy-locks-title">Some school-managed actions are not available yet</h2></div></div>
+        <div><Icon name="lock" size={20} /><div><p className="section-kicker">Availability</p><h2 id="policy-locks-title">School-managed actions currently unavailable</h2></div></div>
         <p>{quiz.delivery.enabled
-          ? 'Guarded assessment delivery is enabled for this isolated demo. Only verified, explicitly assigned Students can start. Roster changes, regrading, overrides, rankings, and exports remain unavailable from this workspace.'
+          ? 'Assessment delivery is available only to verified, explicitly assigned students. Roster changes, regrading, overrides, rankings, and exports remain unavailable from this workspace.'
           : 'Quiz delivery is currently unavailable. Roster changes, regrading, overrides, rankings, and exports are also not available from this workspace.'}</p>
       </section>
     </ProfessorLayout>

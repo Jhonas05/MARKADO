@@ -101,7 +101,7 @@ export default function Login({ registration }) {
           </form>
 
           <div className="auth-registration-note" role="note">
-            <strong>Student registration is not available yet.</strong>
+            <strong>Student registration is currently unavailable.</strong>
             <span>{registration.message}</span>
             <Link href="/register">Review student registration requirements</Link>
           </div>
