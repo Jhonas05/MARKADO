@@ -401,6 +401,35 @@ class PostgreSqlAssessmentConcurrencyTest extends TestCase
         }
     }
 
+    public function test_parallel_fifth_and_sixth_issue_cannot_exceed_approved_hourly_ceiling(): void
+    {
+        $this->assertSafePostgreSqlIsolation();
+        $student = User::factory()->create(['email' => 'five-issue-race@students.example.edu',
+            'role' => AccountRole::Student, 'account_status' => AccountStatus::Pending, 'email_verified_at' => null]);
+        try {
+            for ($i = 0; $i < 4; $i++) {
+                $issuedAt = now()->subMinutes(10 - $i);
+                InstitutionalEmailVerificationChallenge::query()->create([
+                    'user_id' => $student->id, 'purpose' => 'institutional_mailbox',
+                    'token_hash' => hash('sha256', 'synthetic-five-issue-'.$i),
+                    'email_fingerprint' => hash_hmac('sha256', 'institutional-email:'.$student->email, (string) config('app.key')),
+                    'issued_at' => $issuedAt, 'expires_at' => $issuedAt->copy()->addMinutes(30), 'revoked_at' => now(),
+                ]);
+            }
+            $results = $this->runConcurrently([
+                ['issue_mailbox', (string) $student->id, '-'], ['issue_mailbox', (string) $student->id, '-'],
+            ]);
+            $this->assertEqualsCanonicalizing([true, false], array_column($results, 'successful'));
+            $this->assertSame(5, InstitutionalEmailVerificationChallenge::query()->where('user_id', $student->id)->count());
+            $this->assertSame(1, InstitutionalEmailVerificationChallenge::query()->where('user_id', $student->id)
+                ->whereNull('revoked_at')->whereNull('consumed_at')->count());
+        } finally {
+            InstitutionalEmailVerificationChallenge::query()->where('user_id', $student->id)->delete();
+            DB::table('student_identity_events')->where('user_id', $student->id)->delete();
+            $student->delete();
+        }
+    }
+
     /**
      * @param  list<array{string, string, string}>  $jobs
      * @return list<array<string, mixed>>

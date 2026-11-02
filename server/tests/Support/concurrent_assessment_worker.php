@@ -13,6 +13,7 @@ use App\Identity\Contracts\StudentActivationSecurityGate;
 use App\Identity\Contracts\StudentActivationService;
 use App\Identity\Data\InstitutionalEmailVerificationMessage;
 use App\Identity\Data\StudentIdentityDecision;
+use App\Identity\Support\StudentRegistrationService;
 use App\Models\Character;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
@@ -42,6 +43,20 @@ if (! file_exists($barrier)) {
 }
 
 try {
+    if ($action === 'register_student') {
+        config()->set('identity.presentation_registration_enabled', true);
+        config()->set('identity.student_self_registration_enabled', true);
+        config()->set('identity.automatic_student_activation_enabled', true);
+        config()->set('identity.institutional_email_verification_enabled', true);
+        config()->set('identity.institutional_email_verification_delivery_enabled', true);
+        config()->set('identity.institutional_email_domains', ['students.example.edu']);
+        $payload = json_decode($relatedId, true, flags: JSON_THROW_ON_ERROR);
+        $student = $app->make(StudentRegistrationService::class)->register(
+            $payload['student_number'], $payload['email'], 'Synthetic-Password-9400',
+        );
+        echo json_encode(['created' => $student !== null, 'user_id' => $student?->id], JSON_THROW_ON_ERROR);
+        exit(0);
+    }
     if ($action === 'assign_student') {
         $payload = json_decode($relatedId, true, flags: JSON_THROW_ON_ERROR);
         config()->set('identity.institutional_email_domains', ['students.example.edu']);

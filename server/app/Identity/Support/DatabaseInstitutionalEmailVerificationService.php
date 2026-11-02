@@ -37,7 +37,7 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
         }
 
         $hourlyLimit = config('identity.institutional_email_verification_hourly_limit');
-        if (! is_int($hourlyLimit) || $hourlyLimit < 1) {
+        if (! is_int($hourlyLimit) || $hourlyLimit < 1 || $hourlyLimit > 5) {
             return InstitutionalEmailVerificationResult::denied('verification_hourly_policy_unavailable');
         }
 
@@ -60,9 +60,15 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
                 return InstitutionalEmailVerificationResult::denied('institutional_verification_unavailable');
             }
 
+            $emailFingerprint = $this->fingerprint($email);
+            if (DB::getDriverName() === 'pgsql') {
+                DB::select('select pg_advisory_xact_lock(hashtextextended(?, 0))', [$emailFingerprint]);
+            }
+            $now = $this->clock->now();
+
             $latest = InstitutionalEmailVerificationChallenge::query()
-                ->where('user_id', $lockedStudent->id)
                 ->where('purpose', self::PURPOSE)
+                ->where(fn ($query) => $query->where('user_id', $lockedStudent->id)->orWhere('email_fingerprint', $emailFingerprint))
                 ->latest('issued_at')
                 ->lockForUpdate()
                 ->first();
@@ -73,8 +79,8 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
             }
 
             $rollingHourCount = InstitutionalEmailVerificationChallenge::query()
-                ->where('user_id', $lockedStudent->id)
                 ->where('purpose', self::PURPOSE)
+                ->where(fn ($query) => $query->where('user_id', $lockedStudent->id)->orWhere('email_fingerprint', $emailFingerprint))
                 ->where('issued_at', '>', $now->subHour())
                 ->count();
 
@@ -83,8 +89,8 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
             }
 
             InstitutionalEmailVerificationChallenge::query()
-                ->where('user_id', $lockedStudent->id)
                 ->where('purpose', self::PURPOSE)
+                ->where(fn ($query) => $query->where('user_id', $lockedStudent->id)->orWhere('email_fingerprint', $emailFingerprint))
                 ->whereNull('consumed_at')
                 ->whereNull('revoked_at')
                 ->update(['revoked_at' => $now]);
@@ -95,7 +101,7 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
                 'user_id' => $lockedStudent->id,
                 'purpose' => self::PURPOSE,
                 'token_hash' => $this->hashToken($token),
-                'email_fingerprint' => $this->fingerprint($email),
+                'email_fingerprint' => $emailFingerprint,
                 'issued_at' => $now,
                 'expires_at' => $expiresAt,
             ]);
@@ -120,6 +126,7 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
             $delivered = false;
         }
 
+        $now = $this->clock->now();
         if (! $delivered) {
             $this->revokeUndelivered($challengeId, $now);
 
@@ -135,7 +142,10 @@ final class DatabaseInstitutionalEmailVerificationService implements Institution
 
             if ($challenge === null
                 || $lockedStudent === null
+                || $lockedStudent->role !== AccountRole::Student
+                || $lockedStudent->account_status === AccountStatus::Disabled
                 || $challenge->revoked_at !== null
+                || ! $now->lt($challenge->expires_at)
                 || $currentEmail === null
                 || ! hash_equals($challenge->email_fingerprint, $this->fingerprint($currentEmail))) {
                 if ($challenge !== null && $challenge->revoked_at === null) {

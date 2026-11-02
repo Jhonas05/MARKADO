@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureAccountRole;
 use App\Http\Middleware\EnsureActiveAccount;
 use App\Http\Middleware\EnsureAssessmentEngineEnabled;
 use App\Http\Middleware\EnsureGamificationEnabled;
+use App\Http\Middleware\EnsureLocalRegistrationEnabled;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,11 +20,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trimStrings(except: ['student_number']);
         $middleware->alias([
             'account-role' => EnsureAccountRole::class,
             'active-account' => EnsureActiveAccount::class,
             'assessment-enabled' => EnsureAssessmentEngineEnabled::class,
             'gamification-enabled' => EnsureGamificationEnabled::class,
+            'local-registration' => EnsureLocalRegistrationEnabled::class,
         ]);
 
         $middleware->web(append: [
@@ -31,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->dontFlash(['verification_token']);
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
             $status = $response->getStatusCode();
 

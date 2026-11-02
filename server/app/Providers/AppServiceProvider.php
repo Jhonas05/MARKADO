@@ -36,8 +36,10 @@ use App\Identity\Support\DatabaseInstitutionalMailboxProof;
 use App\Identity\Support\DatabaseRegistrationClaimVerifier;
 use App\Identity\Support\DatabaseStudentActivationService;
 use App\Identity\Support\DatabaseStudentIdentitySource;
-use App\Identity\Support\DefaultDenyInstitutionalVerificationAbuseGate;
-use App\Identity\Support\DefaultDenyStudentActivationSecurityGate;
+use App\Identity\Support\LaravelMailInstitutionalEmailVerificationDelivery;
+use App\Identity\Support\LocalInstitutionalVerificationAbuseGate;
+use App\Identity\Support\LocalRegistrationEnvironment;
+use App\Identity\Support\LocalStudentActivationSecurityGate;
 use App\Identity\Support\SystemInstitutionalVerificationClock;
 use App\Identity\Support\UnavailableInstitutionalEmailVerificationDelivery;
 use App\Models\Quiz;
@@ -63,12 +65,14 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(InstitutionalEmailPolicy::class, ConfiguredInstitutionalEmailPolicy::class);
         $this->app->bind(InstitutionalEmailVerificationService::class, DatabaseInstitutionalEmailVerificationService::class);
-        $this->app->bind(InstitutionalEmailVerificationDelivery::class, UnavailableInstitutionalEmailVerificationDelivery::class);
-        $this->app->bind(InstitutionalVerificationAbuseGate::class, DefaultDenyInstitutionalVerificationAbuseGate::class);
+        $this->app->bind(InstitutionalEmailVerificationDelivery::class, fn () => LocalRegistrationEnvironment::enabled()
+            ? new LaravelMailInstitutionalEmailVerificationDelivery
+            : new UnavailableInstitutionalEmailVerificationDelivery);
+        $this->app->bind(InstitutionalVerificationAbuseGate::class, LocalInstitutionalVerificationAbuseGate::class);
         $this->app->bind(InstitutionalVerificationClock::class, SystemInstitutionalVerificationClock::class);
         $this->app->bind(InstitutionalMailboxProof::class, DatabaseInstitutionalMailboxProof::class);
         $this->app->bind(RegistrationClaimVerifier::class, DatabaseRegistrationClaimVerifier::class);
-        $this->app->bind(StudentActivationSecurityGate::class, DefaultDenyStudentActivationSecurityGate::class);
+        $this->app->bind(StudentActivationSecurityGate::class, LocalStudentActivationSecurityGate::class);
         $this->app->bind(StudentActivationService::class, DatabaseStudentActivationService::class);
         $this->app->bind(StudentIdentitySource::class, DatabaseStudentIdentitySource::class);
         $this->app->bind(SchoolEligibilitySource::class, DatabaseSchoolEligibilitySource::class);
@@ -96,5 +100,13 @@ class AppServiceProvider extends ServiceProvider
             ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
         RateLimiter::for('quiz-assignment', fn (Request $request): Limit => Limit::perMinute(20)
             ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
+        RateLimiter::for('student-registration', fn (Request $request): array => [
+            Limit::perMinute(10)->by('registration-network:'.$request->ip()),
+            Limit::perMinute(5)->by('registration-claim:'.hash_hmac('sha256',
+                (is_string($request->input('student_number')) ? $request->input('student_number') : '').'|'.strtolower(is_string($request->input('email')) ? $request->input('email') : ''),
+                (string) config('app.key'))),
+        ]);
+        RateLimiter::for('student-verification', fn (Request $request): Limit => Limit::perMinute(10)
+            ->by('verification:'.($request->session()->get('registration_user_id') ?? $request->ip())));
     }
 }
