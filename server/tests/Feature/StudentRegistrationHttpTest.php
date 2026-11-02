@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
 use App\Enums\StudentVerificationStatus;
+use App\Gamification\Support\CharacterCatalogSynchronizer;
 use App\Http\Controllers\Auth\StudentRegistrationController;
 use App\Identity\Contracts\InstitutionalEmailVerificationDelivery;
 use App\Identity\Contracts\InstitutionalVerificationClock;
@@ -13,7 +14,9 @@ use App\Identity\Support\LocalRegistrationEnvironment;
 use App\Models\InstitutionalEmailVerificationChallenge;
 use App\Models\QuizStudentAssignment;
 use App\Models\SchoolStudentRecord;
+use App\Models\StudentCharacter;
 use App\Models\StudentIdentityEvent;
+use App\Models\StudentWallet;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -83,6 +86,33 @@ class StudentRegistrationHttpTest extends TestCase
         $this->post('/login', ['email' => $student->email, 'password' => $this->payload()['password']])->assertRedirect('/student/dashboard');
         $this->get('/student/dashboard')->assertOk()->assertDontSee($student->email)
             ->assertInertia(fn (Assert $page) => $page->missing('auth.user.email')->missing('auth.user.student_number'));
+    }
+
+    public function test_guarded_demo_activation_grants_the_free_starter_once(): void
+    {
+        config(['gamification.enabled' => true]);
+        app(CharacterCatalogSynchronizer::class)->sync();
+        $this->roster();
+
+        $this->post('/register', $this->payload())->assertRedirect('/register/verification');
+        $student = User::query()->sole();
+        $this->assertDatabaseCount('student_characters', 0);
+        $this->post('/register/verification', ['verification_token' => $this->mail->messages[0]->token])
+            ->assertRedirect('/login');
+
+        $this->assertDatabaseHas('student_characters', [
+            'student_id' => $student->id,
+            'acquisition_type' => 'starter_grant',
+            'price_paid' => 0,
+        ]);
+        $this->assertSame(1, StudentCharacter::query()->where('student_id', $student->id)->count());
+        $wallet = StudentWallet::query()->with('equippedCharacter')->findOrFail($student->id);
+        $this->assertSame(0, $wallet->balance);
+        $this->assertSame('byte', $wallet->equippedCharacter->slug);
+
+        $this->post('/register/verification', ['verification_token' => $this->mail->messages[0]->token])
+            ->assertSessionHasErrors('verification_token');
+        $this->assertSame(1, StudentCharacter::query()->where('student_id', $student->id)->count());
     }
 
     public function test_duplicates_never_reassign_identity_reset_password_or_create_pending_retries(): void

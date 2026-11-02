@@ -930,9 +930,20 @@
   .student-shell .student-preflight-shell {
     width: min(100% - 2rem, 76rem);
   }
+}
 
+@media (max-width: 900px) {
   .auth-shell {
-    grid-template-columns: 1fr;
+    width: min(680px, calc(100% - 32px));
+    min-height: auto;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+    padding: 24px 0 40px;
+  }
+
+  .auth-story {
+    gap: 24px;
   }
 }
 

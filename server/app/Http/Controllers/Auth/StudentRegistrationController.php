@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
+use App\Gamification\Support\CharacterEconomyService;
+use App\Gamification\Support\GamificationEnvironment;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterStudentRequest;
 use App\Identity\Contracts\InstitutionalEmailVerificationService;
@@ -64,6 +66,10 @@ class StudentRegistrationController extends Controller
             $result = $record === null ? null : $activation->activate($student->fresh(), $record->student_number, $student->email);
             if (! $result?->successful) {
                 throw ValidationException::withMessages(['verification_token' => 'Verification cannot complete. Check your details with your school.']);
+            }
+
+            if (GamificationEnvironment::enabled()) {
+                app(CharacterEconomyService::class)->provisionStarterCharacter($student->fresh());
             }
 
             return true;
