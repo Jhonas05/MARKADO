@@ -89,9 +89,13 @@ describe('Laravel/Inertia production UI delivery', () => {
 
   it('uses user-facing copy instead of phase and implementation language', () => {
     const routedCopy = [studentJourney, professorJourney, authJourney, adminJourney].join('\n')
+    const login = read('server/resources/js/pages/Auth/Login.jsx')
 
     expect(routedCopy).not.toMatch(/Phase 5C|database-backed|isolated demo|demo coins|\bD\d{2}\b|PostgreSQL|development workflow|server-controlled activation gate/i)
     expect(routedCopy).not.toMatch(/Student UI prototype|Professor UI prototype|Administrator UI prototype/i)
+    expect(login).toContain('Recovery availability')
+    expect(login).toContain('Student access is school-managed.')
+    expect(login).not.toContain('Forgot password?')
   })
 
   it('ships the approved pastel palette with a calm dark theme', () => {

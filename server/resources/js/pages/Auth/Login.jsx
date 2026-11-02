@@ -2,7 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react'
 import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
-export default function Login({ registration }) {
+export default function Login() {
   const form = useForm({
     email: '',
     password: '',
@@ -76,7 +76,7 @@ export default function Login({ registration }) {
             <div className="auth-field">
               <div className="auth-field__label-row">
                 <label htmlFor="password">Password</label>
-                <Link href="/forgot-password">Forgot password?</Link>
+                <Link href="/forgot-password">Recovery availability</Link>
               </div>
               <input
                 id="password"
@@ -100,10 +100,9 @@ export default function Login({ registration }) {
             </button>
           </form>
 
-          <div className="auth-registration-note" role="note">
-            <strong>Student registration is currently unavailable.</strong>
-            <span>{registration.message}</span>
-            <Link href="/register">Review student registration requirements</Link>
+          <div className="auth-registration-note auth-registration-note--compact" role="note">
+            <span>Student access is school-managed.</span>
+            <Link href="/register">Review access requirements</Link>
           </div>
 
           <Link className="auth-back-link" href="/">
