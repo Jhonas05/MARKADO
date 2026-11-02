@@ -3,7 +3,10 @@
 namespace App\Services;
 
 use App\Assessment\Support\AssessmentAuditRecorder;
+use App\Enums\StudentVerificationStatus;
+use App\Identity\Contracts\InstitutionalEmailPolicy;
 use App\Identity\Contracts\StudentIdentitySource;
+use App\Identity\Support\LocalRegistrationEnvironment;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizStudentAssignment;
@@ -42,7 +45,14 @@ final class QuizStudentAssignmentService
                 ->first();
 
             $student = $record?->user;
-            if ($record === null || $student === null || ! $this->identitySource->evaluate($student)->matched) {
+            $unclaimedTrustedRecord = $record !== null && $student === null && $record->user_id === null
+                && $record->linked_at === null && $record->is_active
+                && $record->verification_status === StudentVerificationStatus::Verified
+                && $record->verified_at !== null
+                && LocalRegistrationEnvironment::enabled()
+                && app(InstitutionalEmailPolicy::class)
+                    ->normalizeAllowedAddress((string) $record->institutional_email) !== null;
+            if ($record === null || (! $unclaimedTrustedRecord && ($student === null || ! $this->identitySource->evaluate($student)->matched))) {
                 throw ValidationException::withMessages([
                     'student_number' => 'Student unavailable. No eligible active Student matched that institutional student number.',
                 ]);

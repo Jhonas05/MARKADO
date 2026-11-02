@@ -22,11 +22,12 @@ assignment, and authorization must still be evaluated.
 7. Atomically link and activate only a pending Student; record a privacy-safe event.
 8. Apply quiz eligibility independently. Activation alone grants no quiz access.
 
-The exact rolling-hour maximum, network monitoring policy, mail provider/origin,
-pending-claim creation point, recovery, and school roster operations remain
-OPEN. Five issues per rolling hour is only a PROPOSED test configuration, not a
-production default. Public mutation routes stay disabled until those operations
-are separately approved and configured.
+ADR-013 reconciles the approved PR #24 ceiling of five initial issues/resends per
+rolling hour (lower valid limits permitted) and authorizes pending claim creation,
+loopback mailbox delivery, verification, and automatic activation only in the
+guarded v9.4 synthetic presentation environment. Network monitoring, real mail
+provider/origin, recovery, and school roster operations remain OPEN. Public
+production mutations remain disabled.
 
 Mailbox proof is not enrollment proof. A consumed challenge may establish
 `email_verified_at`, but it does not activate the Student, edit the roster, or

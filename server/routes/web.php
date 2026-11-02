@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdministratorDashboardController;
 use App\Http\Controllers\Auth\AccountAccessController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\StudentRegistrationController;
 use App\Http\Controllers\AuthenticatedWorkspaceController;
 use App\Http\Controllers\ProfessorQuizController;
 use App\Http\Controllers\ProfessorQuizPublicationController;
@@ -28,6 +29,18 @@ Route::get('/account/disabled', [AccountAccessController::class, 'disabled'])->n
 Route::get('/session-expired', [AccountAccessController::class, 'sessionExpired'])->name('session.expired');
 
 Route::middleware('guest')->group(function () {
+    if (config('identity.presentation_registration_enabled')) {
+        Route::middleware('local-registration')->group(function () {
+            Route::post('/register', [StudentRegistrationController::class, 'store'])
+                ->middleware('throttle:student-registration')->name('registration.store');
+            Route::get('/register/verification', [StudentRegistrationController::class, 'show'])
+                ->name('registration.verification');
+            Route::post('/register/verification', [StudentRegistrationController::class, 'verify'])
+                ->middleware('throttle:student-verification')->name('registration.verify');
+            Route::post('/register/resend', [StudentRegistrationController::class, 'resend'])
+                ->middleware('throttle:student-verification')->name('registration.resend');
+        });
+    }
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
         ->middleware(ValidateCsrfToken::class)

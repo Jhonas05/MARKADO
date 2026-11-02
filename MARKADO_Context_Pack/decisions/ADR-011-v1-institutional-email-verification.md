@@ -7,6 +7,8 @@
 
 ## Decision
 
+Subsequent narrow update: ADR-013 (2 November 2026) reconciles the approved five-per-rolling-hour ceiling from PR #24 and authorizes the guarded local synthetic v9.4 lifecycle. The original open-hourly statements below are retained as historical context; real delivery and production operations remain gated.
+
 1. MARKADO uses a cryptographically random, high-entropy, single-use challenge to prove control of the Student account's institutional mailbox.
 2. PostgreSQL stores only a keyed cryptographic hash of the secret. Plaintext secrets must not be persisted, logged, audited, placed in exceptions, or sent through Inertia props.
 3. A challenge is valid for exactly 30 minutes from its persisted `issued_at`: it is accepted only while authoritative `server_now < expires_at`. The exact boundary and every later instant are invalid.

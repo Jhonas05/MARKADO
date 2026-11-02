@@ -1,8 +1,9 @@
-import { Head, Link, useForm } from '@inertiajs/react'
+import { Head, Link, useForm, usePage } from '@inertiajs/react'
 import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
-export default function Login() {
+export default function Login({ registration }) {
+  const { flash } = usePage().props
   const form = useForm({
     email: '',
     password: '',
@@ -53,6 +54,7 @@ export default function Login() {
             <p>Use your school-managed MARKADO account.</p>
           </div>
 
+          {flash?.success && <p className="auth-registration-note" role="status">{flash.success}</p>}
           <form id="login-form" onSubmit={submit} noValidate>
             <div className="auth-field">
               <label htmlFor="email">Email address</label>
@@ -102,7 +104,7 @@ export default function Login() {
 
           <div className="auth-registration-note auth-registration-note--compact" role="note">
             <span>Student access is school-managed.</span>
-            <Link href="/register">Review access requirements</Link>
+            <Link href="/register">{registration?.available ? 'Create a Student account' : 'Review access requirements'}</Link>
           </div>
 
           <Link className="auth-back-link" href="/">

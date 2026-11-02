@@ -5,12 +5,15 @@ $configuredDomains = array_values(array_filter(array_map(
     explode(',', (string) env('MARKADO_INSTITUTIONAL_EMAIL_DOMAINS', '')),
 )));
 
-$configuredHourlyLimit = env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_HOURLY_LIMIT');
-$hourlyLimit = is_numeric($configuredHourlyLimit) && (int) $configuredHourlyLimit > 0
-    ? (int) $configuredHourlyLimit
-    : null;
+$configuredHourlyLimit = env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_HOURLY_LIMIT', 5);
+$configuredHourlyLimit = $configuredHourlyLimit === '' ? 5 : $configuredHourlyLimit;
+$validatedLimit = is_int($configuredHourlyLimit) || is_string($configuredHourlyLimit)
+    ? filter_var($configuredHourlyLimit, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 5]])
+    : false;
+$hourlyLimit = $validatedLimit === false ? null : $validatedLimit;
 
 return [
+    'presentation_registration_enabled' => (bool) env('MARKADO_PRESENTATION_REGISTRATION_ENABLED', false),
     /*
     | Student onboarding is default-deny. Production domains must come from
     | trusted server configuration and are never accepted from request input.
@@ -26,8 +29,9 @@ return [
 
     /*
     | ADR-011 approves the 30-minute lifetime and 60-second resend cooldown.
-    | The hourly maximum and live delivery operation remain unapproved, so an
-    | unset hourly limit and both false switches intentionally fail closed.
+    | The approved issue/resend ceiling is five per rolling hour (PR #24 policy,
+    | reconciled in ADR-013). Invalid or higher limits fail closed. All live
+    | operations remain gated; v9.4 enables only a guarded local presentation.
     */
     'institutional_email_verification_enabled' => (bool) env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_ENABLED', false),
     'institutional_email_verification_delivery_enabled' => (bool) env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_DELIVERY_ENABLED', false),

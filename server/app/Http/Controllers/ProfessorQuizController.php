@@ -165,12 +165,12 @@ class ProfessorQuizController extends Controller
                     'directStudentCount' => $quiz->studentAssignments->count(),
                     'storePath' => "/professor/quizzes/{$quiz->id}/student-assignments",
                     'directStudents' => $quiz->studentAssignments
-                        ->filter(fn ($assignment) => $assignment->studentRecord?->user !== null)
+                        ->filter(fn ($assignment) => $assignment->studentRecord !== null)
                         ->sortBy(fn ($assignment) => $assignment->studentRecord->student_number)
                         ->map(fn ($assignment): array => [
                             'assignmentId' => $assignment->id,
                             'studentNumber' => $assignment->studentRecord->student_number,
-                            'studentName' => $assignment->studentRecord->user->name,
+                            'studentName' => $assignment->studentRecord->user?->name ?? 'Student (registration pending)',
                             'state' => 'assigned',
                             'canRemove' => ! $attemptedStudentIds->has((string) $assignment->studentRecord->user_id),
                             'removePath' => "/professor/quizzes/{$quiz->id}/student-assignments/{$assignment->id}",
