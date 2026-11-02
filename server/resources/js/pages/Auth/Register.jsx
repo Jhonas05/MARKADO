@@ -64,7 +64,7 @@ export default function Register({ registration }) {
           </section>
 
           <div className="auth-registration-note" id="registration-policy" role="note">
-            <strong>Registration is not available yet</strong>
+            <strong>Registration is currently unavailable</strong>
             <span>{registration.message}</span>
           </div>
           <p className="auth-privacy-note" id="registration-privacy">

@@ -28,22 +28,22 @@ export default function QuizResults({ attempts, quiz }) {
         </div>
         <div className="professor-results__table-wrap">
           <table>
-            <thead><tr><th>Student</th><th>Status</th><th>Score</th><th>Release</th><th><span className="sr-only">Action</span></th></tr></thead>
+            <thead><tr><th scope="col">Student</th><th scope="col">Status</th><th scope="col">Score</th><th scope="col">Release</th><th scope="col"><span className="sr-only">Action</span></th></tr></thead>
             <tbody>
               {attempts.map((attempt) => (
                 <tr key={attempt.id}>
-                  <td><strong>{attempt.studentName}</strong><small>{attempt.studentNumber || 'School record unavailable'}</small></td>
-                  <td>{attempt.status}</td>
-                  <td>{attempt.scoringStatus === 'scored' ? `${attempt.earnedPoints} / ${attempt.maximumPoints}` : attempt.scoringStatus}</td>
-                  <td>{attempt.releasedAt ? <StatusBadge tone="success">Released</StatusBadge> : <StatusBadge tone="warning">Withheld</StatusBadge>}</td>
-                  <td><button className="button button--secondary button--compact" type="button" disabled={!attempt.canRelease} onClick={() => release(attempt)}>{attempt.releasedAt ? 'Released' : 'Release'}</button></td>
+                  <td data-label="Student"><strong>{attempt.studentName}</strong><small>{attempt.studentNumber || 'School record unavailable'}</small></td>
+                  <td data-label="Status">{attempt.status}</td>
+                  <td data-label="Score">{attempt.scoringStatus === 'scored' ? `${attempt.earnedPoints} / ${attempt.maximumPoints}` : attempt.scoringStatus}</td>
+                  <td data-label="Release">{attempt.releasedAt ? <StatusBadge tone="success">Released</StatusBadge> : <StatusBadge tone="warning">Withheld</StatusBadge>}</td>
+                  <td data-label="Action"><button className="button button--secondary button--compact" type="button" disabled={!attempt.canRelease} onClick={() => release(attempt)}>{attempt.releasedAt ? 'Released' : 'Release'}</button></td>
                 </tr>
               ))}
-              {!attempts.length ? <tr><td colSpan="5">No assessment attempts have been recorded.</td></tr> : null}
+              {!attempts.length ? <tr><td colSpan="5" data-empty="true">No assessment attempts have been recorded.</td></tr> : null}
             </tbody>
           </table>
         </div>
-        <p className="assessment-policy-note">Additional reporting tools, including rankings, bulk release, regrading, and exports, are not available yet.</p>
+        <p className="assessment-policy-note">Additional reporting tools, including rankings, bulk release, regrading, and exports, are currently unavailable.</p>
       </section>
     </ProfessorLayout>
   )

@@ -14,7 +14,7 @@ class EnsureGamificationEnabled
         abort_unless(
             GamificationEnvironment::enabled(),
             503,
-            'Character rewards are available only in a verified isolated demo environment.',
+            'Character rewards are not available for this account.',
         );
 
         return $next($request);

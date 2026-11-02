@@ -38,7 +38,7 @@ export default function Welcome({ accountPolicies }) {
                 <Icon name="arrowRight" size={17} />
               </Link>
               <Link className="button button--secondary" href="/register">
-                Student registration status
+                Student access requirements
               </Link>
             </div>
           </div>

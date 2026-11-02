@@ -11,8 +11,8 @@ class AdministratorDashboardController extends Controller
     {
         return Inertia::render('Administrator/Dashboard', [
             'boundaries' => [
-                'accountProvisioning' => 'Disabled pending D15 authorization details',
-                'assessmentOverrides' => 'Disabled pending D23 authorization details',
+                'accountProvisioning' => 'Account provisioning is unavailable in this workspace',
+                'assessmentOverrides' => 'Assessment overrides are unavailable in this workspace',
                 'resultAccess' => 'Permission and resource scoped only',
             ],
         ]);

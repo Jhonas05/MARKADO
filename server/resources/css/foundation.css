@@ -2013,6 +2013,10 @@
   white-space: nowrap;
 }
 
+.professor-results th:last-child {
+  position: relative;
+}
+
 @media (max-width: 720px) {
   .assessment-heading,
   .assessment-actions {
@@ -2042,6 +2046,77 @@
   .assessment-receipt dl > div {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+}
+
+@media (max-width: 620px) {
+  .professor-results__table-wrap {
+    overflow: visible;
+  }
+
+  .professor-results table,
+  .professor-results tbody,
+  .professor-results tr,
+  .professor-results td {
+    width: 100%;
+    display: block;
+  }
+
+  .professor-results thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .professor-results tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .professor-results tbody tr {
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface-sunken);
+  }
+
+  .professor-results td,
+  .professor-results td:first-child {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 0.55fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--line);
+    white-space: normal;
+  }
+
+  .professor-results td::before {
+    color: var(--ink-muted);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    content: attr(data-label);
+  }
+
+  .professor-results td:last-child {
+    border-bottom: 0;
+  }
+
+  .professor-results td:last-child .button {
+    width: 100%;
+  }
+
+  .professor-results td[data-empty='true'] {
+    display: block;
+    border-bottom: 0;
+  }
+
+  .professor-results td[data-empty='true']::before {
+    content: none;
   }
 }
 
@@ -2293,4 +2368,296 @@
   .equipped-card { padding: 18px; }
   .character-card__art { aspect-ratio: 5 / 4; }
   .character-card__body { padding: 16px; }
+}
+
+/* v9.2 pastel gaming product layer. Academic actions remain visually restrained. */
+.welcome-page,
+.admin-workspace,
+.auth-page,
+.student-shell,
+.prof-app {
+  background:
+    radial-gradient(circle at 8% 8%, color-mix(in srgb, var(--pastel-lavender), transparent 72%) 0 8rem, transparent 18rem),
+    radial-gradient(circle at 92% 24%, color-mix(in srgb, var(--pastel-sky), transparent 78%) 0 7rem, transparent 17rem),
+    var(--canvas);
+}
+
+.welcome-header,
+.auth-topbar,
+.student-sidebar,
+.student-mobile-header,
+.student-bottom-nav,
+.prof-header,
+.prof-sidebar {
+  border-color: color-mix(in srgb, var(--pastel-lavender), var(--line) 58%);
+  background: color-mix(in srgb, var(--canvas-raised), var(--pastel-lavender) 5%);
+}
+
+.welcome-hero h1,
+.auth-story h1,
+.student-account-hero h1,
+.gamification-hero h1,
+.prof-page-heading h1 {
+  color: var(--ink-strong);
+}
+
+.welcome-security-card,
+.auth-card {
+  border-color: color-mix(in srgb, var(--pastel-lavender), var(--line) 62%);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--pastel-lavender), var(--surface) 18%), var(--surface) 48%);
+  box-shadow: var(--shadow-lg);
+}
+
+.welcome-boundaries__grid article:nth-child(1) {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pastel-mint), var(--surface) 22%), var(--surface) 58%);
+}
+
+.welcome-boundaries__grid article:nth-child(2) {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pastel-sky), var(--surface) 23%), var(--surface) 58%);
+}
+
+.welcome-boundaries__grid article:nth-child(3) {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pastel-pink), var(--surface) 20%), var(--surface) 58%);
+}
+
+.auth-boundary,
+.auth-registration-note {
+  border-color: color-mix(in srgb, var(--pastel-peach), var(--line-strong) 58%);
+  background: color-mix(in srgb, var(--pastel-peach), var(--surface) 28%);
+}
+
+.auth-registration-note--compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-style: solid;
+  color: var(--ink-muted);
+  background: var(--surface-sunken);
+}
+
+.auth-registration-note--compact a {
+  color: var(--ink);
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.auth-state-card__icon,
+.student-sidebar__link--active,
+.student-bottom-nav__item--active,
+.prof-nav-link--active,
+.prof-nav-link--active:hover {
+  background: color-mix(in srgb, var(--pastel-lavender), var(--surface) 60%);
+}
+
+.student-account-hero,
+.gamification-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(24px, 4vw, 42px);
+  border: 1px solid color-mix(in srgb, var(--pastel-lavender), var(--line) 60%);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--pastel-pink), transparent 36%) 0 3.75rem, transparent 3.9rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--pastel-lavender), var(--surface) 48%), color-mix(in srgb, var(--pastel-sky), var(--surface) 36%));
+  box-shadow: var(--shadow-md);
+}
+
+.student-account-hero::after,
+.gamification-hero::after {
+  position: absolute;
+  right: clamp(1rem, 6vw, 5rem);
+  bottom: -3rem;
+  width: 8rem;
+  height: 8rem;
+  border: 1.25rem solid color-mix(in srgb, var(--pastel-mint), transparent 45%);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.student-account-hero > *,
+.gamification-hero > * {
+  z-index: 1;
+  position: relative;
+}
+
+.student-account-card {
+  min-width: 0;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.student-account-grid > .student-account-card:nth-child(2) {
+  border-color: color-mix(in srgb, var(--pastel-sky), var(--line) 62%);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pastel-sky), var(--surface) 18%), var(--surface) 58%);
+}
+
+.student-account-grid > .student-account-card:nth-child(3),
+.student-account-grid > .student-account-card:last-child {
+  border-color: color-mix(in srgb, var(--pastel-peach), var(--line) 62%);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pastel-peach), var(--surface) 18%), var(--surface) 58%);
+}
+
+.gamification-page {
+  --game-mint: var(--pastel-mint);
+  --game-lavender: var(--pastel-lavender);
+  --game-indigo: var(--pastel-sky);
+  --game-coral: var(--pastel-peach);
+}
+
+.gamification-hero--collection {
+  background:
+    radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--pastel-mint), transparent 38%) 0 3.75rem, transparent 3.9rem),
+    linear-gradient(135deg, color-mix(in srgb, var(--pastel-sky), var(--surface) 46%), color-mix(in srgb, var(--pastel-mint), var(--surface) 34%));
+}
+
+.wallet-card {
+  border-color: color-mix(in srgb, var(--pastel-mint), var(--line-strong) 52%);
+  background: color-mix(in srgb, var(--pastel-mint), var(--surface) 46%);
+  box-shadow: var(--shadow-md);
+}
+
+.reward-loop,
+.equipped-card,
+.collection-progress,
+.character-card,
+.assessment-reward {
+  box-shadow: var(--shadow-sm);
+}
+
+.reward-loop {
+  border-color: color-mix(in srgb, var(--pastel-lavender), var(--line) 65%);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--pastel-lavender), var(--surface) 12%), var(--surface));
+}
+
+.character-shop-note {
+  border-color: color-mix(in srgb, var(--pastel-sky), var(--line) 62%);
+  background: color-mix(in srgb, var(--pastel-sky), var(--surface) 24%);
+}
+
+.character-card--mint {
+  border-color: color-mix(in srgb, var(--pastel-mint), var(--line) 60%);
+}
+
+.character-card--lavender {
+  border-color: color-mix(in srgb, var(--pastel-lavender), var(--line) 60%);
+}
+
+.character-card--indigo {
+  border-color: color-mix(in srgb, var(--pastel-sky), var(--line) 58%);
+}
+
+.dark .character-card__status {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--surface), transparent 8%);
+}
+
+.prof-main {
+  min-width: 0;
+  background:
+    radial-gradient(circle at 96% 4%, color-mix(in srgb, var(--pastel-sky), transparent 84%) 0 7rem, transparent 18rem);
+}
+
+.prof-sidebar__intro,
+.prof-sidebar__policy {
+  border-color: color-mix(in srgb, var(--pastel-lavender), var(--line) 62%);
+  background: color-mix(in srgb, var(--pastel-lavender), var(--surface) 18%);
+}
+
+.prof-page-heading {
+  padding-bottom: 22px;
+  border-bottom: 1px solid color-mix(in srgb, var(--pastel-lavender), var(--line) 68%);
+}
+
+.prof-panel,
+.prof-quiz-card,
+.prof-form-card,
+.prof-side-card {
+  border-color: color-mix(in srgb, var(--pastel-lavender), var(--line) 72%);
+  box-shadow: var(--shadow-sm);
+}
+
+.prof-quiz-card:nth-child(3n + 1) {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pastel-lavender), var(--surface) 13%), var(--surface) 62%);
+}
+
+.prof-quiz-card:nth-child(3n + 2) {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pastel-sky), var(--surface) 13%), var(--surface) 62%);
+}
+
+.prof-quiz-card:nth-child(3n) {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pastel-mint), var(--surface) 13%), var(--surface) 62%);
+}
+
+.prof-builder-step--active > span,
+.prof-course-tile {
+  border-color: color-mix(in srgb, var(--pastel-lavender), var(--line-strong) 52%);
+  color: var(--ink-strong);
+  background: color-mix(in srgb, var(--pastel-lavender), var(--surface) 56%);
+}
+
+.assessment-shell {
+  width: min(1060px, calc(100% - 2rem));
+}
+
+.assessment-heading {
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.assessment-question,
+.assessment-receipt,
+.assessment-result {
+  border-color: var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.assessment-choice:hover,
+.assessment-choice--selected {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary-soft), var(--surface) 52%);
+}
+
+.assessment-receipt__icon {
+  color: var(--success);
+  background: color-mix(in srgb, var(--pastel-mint), var(--surface) 52%);
+}
+
+.assessment-result {
+  border-color: color-mix(in srgb, var(--pastel-sky), var(--line) 62%);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--pastel-sky), var(--surface) 15%), var(--surface));
+}
+
+@media (max-width: 760px) {
+  .student-account-hero,
+  .gamification-hero {
+    padding: 24px;
+  }
+
+  .student-account-hero::after,
+  .gamification-hero::after {
+    right: -2rem;
+    opacity: 0.55;
+  }
+
+  .auth-registration-note--compact {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 390px) {
+  .student-account-hero,
+  .gamification-hero {
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+
+  .assessment-shell {
+    width: min(100% - 20px, 1060px);
+  }
 }
