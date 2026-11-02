@@ -66,6 +66,7 @@ export default function EditQuiz({ quiz, questionTypes }) {
     randomize_questions: quiz.schedule.randomizeQuestions,
     randomize_choices: quiz.schedule.randomizeChoices,
   })
+  const assignmentForm = useForm({ student_number: '' })
   const questionForm = useForm(questionData(selected))
   const choiceErrors = Object.entries(questionForm.errors)
     .filter(([key]) => key === 'choices' || key.startsWith('choices.'))
@@ -158,6 +159,21 @@ export default function EditQuiz({ quiz, questionTypes }) {
     window.setTimeout(() => setCopied(false), 1800)
   }
 
+  function assignStudent(event) {
+    event.preventDefault()
+    assignmentForm.post(quiz.assignments.storePath, {
+      preserveScroll: true,
+      onSuccess: () => assignmentForm.reset(),
+    })
+  }
+
+  function removeStudentAssignment(assignment) {
+    if (!assignment.canRemove) return
+    if (window.confirm(`Remove the direct quiz assignment for ${assignment.studentName}?`)) {
+      router.delete(assignment.removePath, { preserveScroll: true })
+    }
+  }
+
   const revisionLabel = quiz.authoring.revisionNumber
     ? `Revision ${quiz.authoring.revisionNumber}`
     : 'Initial draft'
@@ -179,6 +195,9 @@ export default function EditQuiz({ quiz, questionTypes }) {
                 <Icon name="barChart" size={18} /> Results
               </Link>
             ) : null}
+            <a className="button button--secondary" href="#manage-student-access">
+              <Icon name="user" size={18} /> Student access
+            </a>
           </>
         )}
       />
@@ -228,20 +247,76 @@ export default function EditQuiz({ quiz, questionTypes }) {
         </div>
       </section>
 
-      <section className="prof-panel prof-assignment-preview" aria-labelledby="assignment-title">
-        <div>
-          <p className="section-kicker">Student access</p>
-          <h2 id="assignment-title">Assigned students and sections</h2>
-          <p>Only verified students with an active direct or section assignment can access this quiz. Assignment changes are not available here yet.</p>
+      <section className="prof-panel prof-assignment-manager" id="manage-student-access" aria-labelledby="assignment-title">
+        <div className="prof-panel-heading">
+          <div>
+            <p className="section-kicker">Student access</p>
+            <h2 id="assignment-title">Manage student access</h2>
+            <p>Assign an existing verified Student using their exact institutional student number. Quiz codes do not grant access on their own.</p>
+          </div>
+          <StatusBadge tone="success">{quiz.assignments.directStudentCount} direct</StatusBadge>
         </div>
-        <dl>
-          <div><dt>Direct students</dt><dd>{quiz.assignments.directStudentCount}</dd></div>
-          <div><dt>Active sections</dt><dd>{quiz.assignments.sections.length}</dd></div>
-        </dl>
-        <div className="prof-assignment-sections">
-          {quiz.assignments.sections.length ? quiz.assignments.sections.map((section) => (
-            <span key={section.code}><strong>{section.code}</strong>{section.name}</span>
-          )) : <span>No section assignments recorded.</span>}
+
+        <div className="prof-assignment-overview">
+          <dl>
+            <div><dt>Direct students</dt><dd>{quiz.assignments.directStudentCount}</dd></div>
+            <div><dt>Active sections</dt><dd>{quiz.assignments.sections.length}</dd></div>
+          </dl>
+          <div className="prof-assignment-sections" aria-label="Assigned sections">
+            {quiz.assignments.sections.length ? quiz.assignments.sections.map((section) => (
+              <span key={section.code}><strong>{section.code}</strong>{section.name}</span>
+            )) : <span>No section assignments recorded.</span>}
+          </div>
+        </div>
+
+        <form className="prof-assignment-form" onSubmit={assignStudent} noValidate>
+          <label className="prof-field" htmlFor="assignment-student-number">
+            <span>Institutional student number</span>
+            <input
+              id="assignment-student-number"
+              value={assignmentForm.data.student_number}
+              onChange={(event) => assignmentForm.setData('student_number', event.target.value)}
+              placeholder="Enter the exact student number"
+              autoComplete="off"
+              aria-invalid={Boolean(assignmentForm.errors.student_number)}
+              aria-describedby={assignmentForm.errors.student_number ? 'assignment-student-number-error' : undefined}
+            />
+            <span id="assignment-student-number-error"><FieldError message={assignmentForm.errors.student_number} /></span>
+          </label>
+          <button className="button button--primary" type="submit" disabled={assignmentForm.processing}>
+            <Icon name="plus" size={17} /> {assignmentForm.processing ? 'Assigning…' : 'Assign Student'}
+          </button>
+        </form>
+        <p className="prof-assignment-privacy"><Icon name="shield" size={16} /> Exact lookup only. This screen does not browse or expose the school roster.</p>
+
+        {errors?.assignment ? <p className="prof-validation-summary" role="alert">{errors.assignment}</p> : null}
+        <div className="prof-assignment-list" aria-live="polite">
+          {quiz.assignments.directStudents.length ? quiz.assignments.directStudents.map((assignment) => (
+            <article className="prof-assignment-row" key={assignment.assignmentId}>
+              <span className="prof-assignment-avatar" aria-hidden="true">{assignment.studentName.slice(0, 1).toUpperCase()}</span>
+              <div>
+                <strong>{assignment.studentName}</strong>
+                <span>{assignment.studentNumber}</span>
+              </div>
+              <StatusBadge tone="success">Assigned</StatusBadge>
+              <div className="prof-assignment-row__action">
+                <button
+                  className="button button--danger-soft button--compact"
+                  type="button"
+                  disabled={!assignment.canRemove}
+                  onClick={() => removeStudentAssignment(assignment)}
+                >
+                  Remove
+                </button>
+                {!assignment.canRemove ? <small>Assignment cannot be removed after an attempt exists.</small> : null}
+              </div>
+            </article>
+          )) : (
+            <div className="prof-assignment-empty">
+              <Icon name="user" size={22} />
+              <div><strong>Not assigned</strong><span>No direct Student assignments yet.</span></div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -335,8 +410,8 @@ export default function EditQuiz({ quiz, questionTypes }) {
       <section className="prof-panel prof-policy-locks" aria-labelledby="policy-locks-title">
         <div><Icon name="lock" size={20} /><div><p className="section-kicker">Availability</p><h2 id="policy-locks-title">School-managed actions currently unavailable</h2></div></div>
         <p>{quiz.delivery.enabled
-          ? 'Assessment delivery is available only to verified, explicitly assigned students. Roster changes, regrading, overrides, rankings, and exports remain unavailable from this workspace.'
-          : 'Quiz delivery is currently unavailable. Roster changes, regrading, overrides, rankings, and exports are also not available from this workspace.'}</p>
+          ? 'Assessment delivery is available only to verified, explicitly assigned students. School roster administration, regrading, overrides, rankings, and exports remain unavailable from this workspace.'
+          : 'Quiz delivery is currently unavailable. Direct assignments can be prepared, but school roster administration, regrading, overrides, rankings, and exports remain unavailable.'}</p>
       </section>
     </ProfessorLayout>
   )

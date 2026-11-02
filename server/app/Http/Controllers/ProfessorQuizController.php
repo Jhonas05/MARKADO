@@ -86,8 +86,10 @@ class ProfessorQuizController extends Controller
             'currentPublishedRevision.questions.choices',
             'activeDraftRevision.questions.choices',
             'sectionAssignments.section',
-        ])->loadCount([
-            'studentAssignments as active_student_assignments_count' => fn ($query) => $query->where('is_active', true),
+            'studentAssignments' => fn ($query) => $query
+                ->where('is_active', true)
+                ->with('studentRecord.user')
+                ->latest('created_at'),
         ]);
 
         $activeRevision = $quiz->activeDraftRevision;
@@ -101,6 +103,13 @@ class ProfessorQuizController extends Controller
         $questionBase = $revisionId
             ? "/professor/quizzes/{$quiz->id}/revisions/{$revisionId}/questions"
             : "/professor/quizzes/{$quiz->id}/questions";
+        $attemptedStudentIds = $quiz->attempts()
+            ->whereIn('student_id', $quiz->studentAssignments
+                ->pluck('studentRecord.user_id')
+                ->filter()
+                ->values())
+            ->pluck('student_id')
+            ->mapWithKeys(fn ($id): array => [(string) $id => true]);
 
         return Inertia::render('Professor/Quizzes/Edit', [
             'quiz' => [
@@ -153,7 +162,19 @@ class ProfessorQuizController extends Controller
                     ])->values(),
                 ],
                 'assignments' => [
-                    'directStudentCount' => $quiz->active_student_assignments_count,
+                    'directStudentCount' => $quiz->studentAssignments->count(),
+                    'storePath' => "/professor/quizzes/{$quiz->id}/student-assignments",
+                    'directStudents' => $quiz->studentAssignments
+                        ->filter(fn ($assignment) => $assignment->studentRecord?->user !== null)
+                        ->sortBy(fn ($assignment) => $assignment->studentRecord->student_number)
+                        ->map(fn ($assignment): array => [
+                            'assignmentId' => $assignment->id,
+                            'studentNumber' => $assignment->studentRecord->student_number,
+                            'studentName' => $assignment->studentRecord->user->name,
+                            'state' => 'assigned',
+                            'canRemove' => ! $attemptedStudentIds->has((string) $assignment->studentRecord->user_id),
+                            'removePath' => "/professor/quizzes/{$quiz->id}/student-assignments/{$assignment->id}",
+                        ])->values(),
                     'sections' => $quiz->sectionAssignments
                         ->where('is_active', true)
                         ->filter(fn ($assignment) => $assignment->section?->is_active)
@@ -161,7 +182,7 @@ class ProfessorQuizController extends Controller
                             'code' => $assignment->section->code,
                             'name' => $assignment->section->name,
                         ])->values(),
-                    'managementEnabled' => false,
+                    'managementEnabled' => true,
                 ],
                 'delivery' => [
                     'enabled' => (bool) config('assessment.routes_enabled'),

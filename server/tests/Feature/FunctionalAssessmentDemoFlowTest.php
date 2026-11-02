@@ -13,7 +13,6 @@ use App\Models\AttemptResult;
 use App\Models\Character;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
-use App\Models\QuizStudentAssignment;
 use App\Models\SchoolStudentRecord;
 use App\Models\StudentWallet;
 use App\Models\User;
@@ -136,12 +135,6 @@ class FunctionalAssessmentDemoFlowTest extends TestCase
             ],
         ])->assertRedirect()->assertSessionHasNoErrors();
 
-        $assignment = new QuizStudentAssignment(['is_active' => true]);
-        $assignment->quiz()->associate($quiz);
-        $assignment->studentRecord()->associate($record);
-        $assignment->assignedBy()->associate($professor);
-        $assignment->save();
-
         $this->post("/professor/quizzes/{$quiz->id}/publish")
             ->assertRedirect()
             ->assertSessionHasNoErrors()
@@ -152,6 +145,15 @@ class FunctionalAssessmentDemoFlowTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->where('quiz.delivery.enabled', true)
                 ->where('quiz.delivery.scope', 'isolated_demo')
+                ->where('quiz.assignments.managementEnabled', true)
+                ->where('quiz.assignments.directStudentCount', 0));
+        $this->post("/professor/quizzes/{$quiz->id}/student-assignments", [
+            'student_number' => $record->student_number,
+        ])->assertRedirect()
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('success', 'Student assigned to this quiz.');
+        $this->get("/professor/quizzes/{$quiz->id}/edit")
+            ->assertInertia(fn (Assert $page) => $page
                 ->where('quiz.assignments.directStudentCount', 1));
 
         $this->delete('/logout')->assertRedirect('/login');

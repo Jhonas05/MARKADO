@@ -71,6 +71,11 @@ class QuizPolicy
             && $quiz->current_published_revision_id !== null;
     }
 
+    public function manageStudentAssignments(User $user, Quiz $quiz): bool
+    {
+        return $this->owns($user, $quiz);
+    }
+
     private function owns(User $user, Quiz $quiz): bool
     {
         return $this->isActive($user)
