@@ -46,9 +46,8 @@ feature is enabled in production.
   real once-per-minute logs and expired-attempt evidence remain missing.
 - Actual rendered browser, mobile, light/dark, keyboard, and accessibility QA is
   not verified because no safe browser session is currently available.
-- PR #36 exists and remains the only feature PR. Updating it requires an
-  explicitly selected connected GitHub account with repository write access;
-  neither current Railway connection exposes the MARKADO project.
+- PR #36 exists and remains the only feature PR. Updating its body through the
+  connected GitHub app requires an explicitly selected write account.
 
 ## Release boundary
 
@@ -69,3 +68,9 @@ without delivered-email and browser evidence.
   components to 7.4.23.
 - No `.env`, credential JSON, database dump, SQL dump, or private QA artifact is
   tracked. The ignored environment files were not changed.
+- Candidate `c67c772` deployed successfully to isolated Railway staging as
+  deployment `810d7197-ee9c-4f83-be54-c1dcc791f198`; production was unchanged.
+- Real authenticated staging HTTPS smoke passed role login/logout, quiz
+  publish and direct assignment, Student preflight/save/advance/submit,
+  repeated-submit idempotence, withheld/released score flow, and PDF/DOCX
+  exports. This is backend HTTP evidence, not rendered browser QA.

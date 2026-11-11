@@ -68,34 +68,43 @@ See `DATABASE_BACKUP_AND_RECOVERY.md`.
 ## Staging and production
 
 - Staging URL: `https://markado-app-staging.up.railway.app`
-- Last independently verified staging deployment before this candidate:
-  `602ea106-4082-44b6-bb0b-214fe74f78ea`, source `221a4af`.
+- Verified candidate deployment: `810d7197-ee9c-4f83-be54-c1dcc791f198`,
+  uploaded from the clean detached `c67c772` tree under the recorded Railway
+  message `Deploy PR #36 candidate c67c772 from server root`; image digest
+  `sha256:c3b3500b5e12af4ebfd97717fa2e1682407df3cf133ab0898bb1d700b9745064`.
 - Production URL: `https://markado-app-production.up.railway.app`
 - Production remains unchanged at the previously observed deployment
   `d349762c-5421-4589-9fe1-36a3e99eaf52`.
 - On 12 November, staging `/`, `/register`, and `/up` returned 200; production
   `/up` returned 200. Staging returned 404 for `/.env` and `/backup.sql` and 403
-  for the probed private credential-storage path.
+  for the probed private credential-storage path. Remote environment checks
+  confirmed `APP_DEBUG=false`, PostgreSQL, no maintenance mode, one app
+  replica, and the once-per-minute Laravel event definition.
 
-The latest candidate is not yet deployed. The connected Railway accounts do
-not expose project `be241212-40d8-43f4-abf2-04efb84d094f`, so staging deploy,
-variable changes, live logs, scheduler service creation, and managed backup
-configuration could not be performed through the current connection.
+The first upload from the repository root failed closed because Railway
+detected a Node runtime without PHP. Redeploying from the actual Laravel
+`server` root succeeded and replaced the failed candidate without modifying
+production or the staging PostgreSQL volume.
 
 ## Presentation environment
 
-The isolated staging database already has the guarded synthetic Professor,
-Student, Administrator, and roster dataset. The private presentation credential
-artifact contains the approved account identifiers and passwords; passwords
-must not be copied into Git, this handoff, chat, or screenshots. The previously
-verified real HTTP assessment path covers quiz creation, questions, schedule,
-publish, assignment, Student attempt/save/submit, 2/2 scoring, withholding,
-Professor release, Student disclosure, and PDF/DOCX exports.
+The isolated staging database has the guarded synthetic Professor, Student,
+Administrator, and roster dataset. The private presentation credential artifact
+contains the approved account identifiers and passwords; passwords must not be
+copied into Git, this handoff, chat, or screenshots. Against deployment
+`810d7197-ee9c-4f83-be54-c1dcc791f198`, a real authenticated HTTPS smoke run
+passed Professor and Student login, publish/direct assignment, Student
+preflight, authoritative save/advance/submit, repeated-submit idempotence,
+withheld scoring, Professor results, 940-byte PDF and 2,673-byte DOCX exports,
+explicit release, score/total-only Student disclosure, and both logout routes.
+The run used only uniquely named synthetic staging data. Gamification remained
+disabled by staging policy.
 
 Registration cannot be presented as complete: no authorized Resend API key,
 provider-verified sender, or controlled live delivery evidence is available.
 Background expiration also remains off because no authorized one-replica
-`schedule:work` service and multi-run logs exist.
+`schedule:work` service and multi-run logs exist. The deployed app has one web
+replica, but no separate scheduler runner or native cron schedule is configured.
 
 ## Browser QA
 
@@ -108,8 +117,8 @@ light/dark, keyboard, accessibility, and end-to-end matrix.
 
 1. A Resend API key stored as a Railway secret, a provider-verified sender, and
    an authorized controlled recipient mailbox.
-2. The correct Railway account connection for the MARKADO project and explicit
-   approval for any additional billed scheduler service.
+2. Explicit approval for any additional billed scheduler service, followed by
+   multiple observed runs and an expired-attempt staging test.
 3. An encrypted live backup destination, named recovery owner, retention/RPO/
    RTO approval, and isolated live backup restore evidence.
 4. An available approved browser runtime for real responsive and E2E QA.
@@ -123,5 +132,5 @@ light/dark, keyboard, accessibility, and end-to-end matrix.
   browser QA. The pre-provisioned fallback Student can demonstrate the academic
   flow only if the presenter explicitly states registration is unverified.
 - Production release readiness: **BLOCKED** by institutional identity inputs,
-  live recovery protection, scheduler evidence, browser QA, review, deployment,
-  and final promotion authorization.
+  live recovery protection, scheduler evidence, browser QA, review, merge, and
+  final promotion authorization. Production was deliberately not deployed.

@@ -53,6 +53,12 @@ The command is idempotent and writes generated passwords only to private
 application storage. It refuses production, mismatched Railway identity/URL,
 an unguarded database, and non-PostgreSQL runtimes.
 
+The 12 November 2026 candidate deployment
+`810d7197-ee9c-4f83-be54-c1dcc791f198` passed a real authenticated staging HTTP
+assessment smoke run, including result withholding/release and PDF/DOCX
+exports. This proves the guarded backend workflow but does not satisfy the
+email-delivery, scheduler, backup, or rendered-browser gates below.
+
 Staging must prove that no route points to the production database and that one
 one-replica service runs `php artisan schedule:work` against the shared database
 cache before assessment expiration is enabled. Railway native cron cannot meet

@@ -10,6 +10,13 @@ scenario is reported as passed. API/HTTP flow evidence is useful but is not a
 substitute for rendered interaction, responsive, keyboard, contrast, console,
 or asset verification.
 
+Separately, an authenticated HTTPS smoke run against staging deployment
+`810d7197-ee9c-4f83-be54-c1dcc791f198` passed Professor/Student login and
+logout, quiz publish/assignment, Student save/advance/submit, repeat-submit
+idempotence, withheld/released results, and PDF/DOCX exports. It verified
+server behavior only; it did not verify Sign Out visibility, visual layout,
+theme contrast, responsive navigation, save/timer visibility, or accessibility.
+
 ## Required execution matrix
 
 Run every row at 1440 px, 768 px, and 390 px in both light and dark themes:
