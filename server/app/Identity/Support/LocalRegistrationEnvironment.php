@@ -29,6 +29,7 @@ final class LocalRegistrationEnvironment
         }
 
         if (! app()->environment('local') || config('database.default') !== 'pgsql'
+            || config('identity.institutional_email_verification_delivery_driver') !== 'laravel-mail'
             || config('mail.default') !== 'smtp'
             || ! in_array(config('mail.mailers.smtp.host'), ['127.0.0.1', 'localhost', '::1'], true)
             || ! in_array(config('database.connections.pgsql.host'), ['127.0.0.1', 'localhost', '::1'], true)

@@ -9,5 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('assessment:reconcile-expired')
+    ->name('assessment-expiration-reconciliation')
     ->everyMinute()
-    ->withoutOverlapping();
+    ->onOneServer()
+    ->withoutOverlapping(2);

@@ -14,11 +14,14 @@ use Illuminate\Support\Facades\Hash;
 
 final class StudentRegistrationService
 {
-    public function __construct(private readonly InstitutionalEmailPolicy $emails) {}
+    public function __construct(
+        private readonly InstitutionalEmailPolicy $emails,
+        private readonly TrustedRosterRecordPolicy $roster,
+    ) {}
 
     public function register(string $studentNumber, string $email, #[\SensitiveParameter] string $password): ?User
     {
-        if (! LocalRegistrationEnvironment::enabled()) {
+        if (! RegistrationEnvironment::enabled()) {
             return null;
         }
 
@@ -35,6 +38,7 @@ final class StudentRegistrationService
                 if ($record === null || $record->user_id !== null || $record->linked_at !== null
                     || ! $record->is_active || $record->verification_status !== StudentVerificationStatus::Verified
                     || $record->verified_at === null
+                    || ! $this->roster->accepts($record)
                     || $this->emails->normalizeAllowedAddress((string) $record->institutional_email) !== $normalized) {
                     return null;
                 }

@@ -11,10 +11,13 @@ final class AssessmentAuditRecorder
 {
     private const ALLOWED_CONTEXT_KEYS = [
         'assignment_id',
+        'format',
         'outcome',
         'reason',
         'receipt_id',
+        'record_count',
         'scoring_version',
+        'sort',
         'status',
     ];
 

@@ -15,6 +15,8 @@ class SchoolStudentRecord extends Model
     protected $fillable = [
         'student_number',
         'institutional_email',
+        'roster_source',
+        'roster_synced_at',
         'verification_status',
         'is_active',
         'verified_at',
@@ -30,6 +32,7 @@ class SchoolStudentRecord extends Model
             'is_active' => 'boolean',
             'verified_at' => 'immutable_datetime',
             'linked_at' => 'immutable_datetime',
+            'roster_synced_at' => 'immutable_datetime',
         ];
     }
 

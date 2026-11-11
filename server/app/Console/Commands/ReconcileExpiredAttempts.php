@@ -6,6 +6,7 @@ use App\Assessment\Contracts\AuthoritativeClock;
 use App\Assessment\Support\QuestionDeadlineAdvancer;
 use App\Models\QuizAttempt;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ReconcileExpiredAttempts extends Command
 {
@@ -25,6 +26,7 @@ class ReconcileExpiredAttempts extends Command
 
         $batchSize = (int) ($this->option('batch') ?: config('assessment.expiration_batch_size'));
         $batchSize = max(1, min($batchSize, 500));
+        $startedAt = hrtime(true);
         $now = $clock->now();
         $attemptIds = QuizAttempt::query()
             ->where('status', 'in_progress')
@@ -51,6 +53,13 @@ class ReconcileExpiredAttempts extends Command
         }
 
         $this->components->info("Reconciled {$processed} assessment attempt(s).");
+        Log::info('Assessment expiration reconciliation completed.', [
+            'event' => 'assessment_expiration_reconciliation',
+            'candidates' => $attemptIds->count(),
+            'processed' => $processed,
+            'batch_size' => $batchSize,
+            'duration_ms' => (int) round((hrtime(true) - $startedAt) / 1_000_000),
+        ]);
 
         return self::SUCCESS;
     }
