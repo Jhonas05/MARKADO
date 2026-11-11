@@ -1,6 +1,6 @@
 # MARKADO full MVP implementation checklist
 
-Status is evidence-based as of 11 November 2026. `IMPLEMENTED` does not mean a
+Status is evidence-based as of 12 November 2026. `IMPLEMENTED` does not mean a
 feature is enabled in production.
 
 ## Implemented and tested in code
@@ -19,13 +19,19 @@ feature is enabled in production.
 - Read-only Administrator operational summary and authenticated role-aware Help.
 - Guarded local demo provisioning plus guarded hosted-presentation provisioning
   for a separate staging environment and database.
+- Resend HTTPS institutional-verification adapter with bearer authentication,
+  idempotency, bounded timeouts/retry, privacy-safe failures, and fail-closed
+  hosted readiness checks.
+- Once-per-minute expiration schedule with shared leader/overlap locks and
+  aggregate privacy-safe run logging; database finalization remains repeat-safe.
 
 ## Operationally ready but default-gated
 
 - Production registration code requires a real institutional domain, named
-  authoritative roster feed, freshness policy, remote SMTP, and verified sender.
+  authoritative roster feed, freshness policy, approved provider key, and
+  verified sender.
 - Hosted presentation registration requires controlled synthetic inboxes,
-  remote SMTP credentials, an exact Railway staging identity, and a database
+  Resend HTTPS credentials, an exact Railway staging identity, and a database
   guard marker.
 - Assessment routes require explicit staging/production activation. Background
   expiration additionally requires one observed once-per-minute scheduler.
@@ -33,13 +39,16 @@ feature is enabled in production.
 ## External or evidence blockers
 
 - No institution-approved school domain, roster authority, privacy/retention/
-  recovery ownership, or transactional-mail credentials have been supplied.
-- No named scheduler owner or backup/restore drill evidence is available.
+  recovery ownership, Resend key, or verified sender has been supplied.
+- A synthetic local dump/restore rehearsal passed, but there is no encrypted
+  live staging/production backup, isolated live-data restore, or named owner.
+- No paid/authorized one-replica Railway scheduler service is available, so
+  real once-per-minute logs and expired-attempt evidence remain missing.
 - Actual rendered browser, mobile, light/dark, keyboard, and accessibility QA is
   not verified because no safe browser session is currently available.
-- GitHub PR creation/merge remains blocked until an authorized `Jhonas05`
-  GitHub connector/session or an explicitly selected connected account with
-  repository write permission is available.
+- PR #36 exists and remains the only feature PR. Updating it requires an
+  explicitly selected connected GitHub account with repository write access;
+  neither current Railway connection exposes the MARKADO project.
 
 ## Release boundary
 
@@ -47,3 +56,16 @@ Keep production registration, assessments, expiration, and gamification off
 until their corresponding gates pass. Never migrate/reset `markado.public`,
 merge PR #24, use real students as demo data, or claim presentation readiness
 without delivered-email and browser evidence.
+
+## Latest local verification
+
+- Laravel/SQLite: 212 tests, 1,866 assertions passed.
+- Laravel/PostgreSQL 17: 212 tests, 2,038 assertions passed, including the
+  concurrency groups.
+- React/Vitest: 47/47 tests passed; ESLint and both Vite production builds
+  passed; Laravel Pint passed.
+- Root and server production npm audits: zero vulnerabilities.
+- Composer audit: zero advisories after upgrading the affected Symfony HTTP
+  components to 7.4.23.
+- No `.env`, credential JSON, database dump, SQL dump, or private QA artifact is
+  tracked. The ignored environment files were not changed.

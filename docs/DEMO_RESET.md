@@ -6,6 +6,11 @@ freshness without deleting quiz, attempt, result, audit, or credential history.
 
 ## Routine restore
 
+Before any rehearsal that could add or change meaningful staging records,
+confirm the backup/recovery gate in `DATABASE_BACKUP_AND_RECOVERY.md`. The
+routine command below is idempotent, but it is not a database backup and cannot
+replace an isolated restore rehearsal.
+
 On the isolated staging environment, verify its Railway ID and database first,
 then run through a private operator channel:
 

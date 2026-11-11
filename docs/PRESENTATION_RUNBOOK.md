@@ -7,12 +7,13 @@ checks below pass.
 
 ## Current readiness boundary
 
-The staging application and separate PostgreSQL service exist. The hosted
-presentation provisioning command is fail-closed until the staging Railway
-identity, synthetic account identifiers, controlled demo mailbox, remote SMTP
-transport, and trusted synthetic roster settings are supplied. Account
-passwords are generated at runtime and stored only in the private application
-storage path reported by the command; they are never committed or printed.
+The staging application and separate PostgreSQL service exist. The guarded
+dataset has been provisioned with three synthetic role accounts and two
+synthetic roster rows. Login and the real Professor-to-Student HTTP assessment
+flow have been verified. Registration remains fail-closed because no authorized
+Resend API key and verified sender are configured. Account passwords are stored
+only in the private application storage path reported by the command; they are
+never committed or printed.
 
 The presentation environment ID is
 `82eb52bf-06e4-4d19-b212-19d2bb652c09`. Confirm the live Railway environment
@@ -42,6 +43,11 @@ MARKADO_PRESENTATION_FALLBACK_STUDENT_EMAIL=<synthetic-active-student-email>
 MARKADO_PRESENTATION_FALLBACK_STUDENT_NUMBER=<synthetic-active-student-number>
 MARKADO_PRESENTATION_REGISTRATION_EMAIL=<controlled-registration-inbox>
 MARKADO_PRESENTATION_REGISTRATION_STUDENT_NUMBER=<synthetic-registration-number>
+
+MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_DELIVERY_DRIVER=resend-http
+RESEND_KEY=<deployment-secret-from-approved-provider>
+MAIL_FROM_ADDRESS=<provider-verified-sender>
+MAIL_FROM_NAME=MARKADO
 ```
 
 The two Student emails must use the configured demo institutional domain. All
@@ -64,7 +70,7 @@ only the configured email identifiers in presenter notes.
 
 Registration remains unavailable until all of the following are verified:
 
-- remote SMTP credentials and a verified sender are configured;
+- the Resend HTTPS API key and a provider-verified sender are configured;
 - the presenter can access the controlled registration inbox;
 - the provisioned synthetic roster record is fresh and unclaimed;
 - `/up` is healthy over HTTPS;
@@ -79,14 +85,17 @@ MARKADO_STUDENT_SELF_REGISTRATION_ENABLED=true
 MARKADO_STUDENT_AUTO_ACTIVATION_ENABLED=true
 MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_ENABLED=true
 MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_DELIVERY_ENABLED=true
+MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_DELIVERY_DRIVER=resend-http
 MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_HOURLY_LIMIT=5
 MARKADO_ASSESSMENT_ROUTES_ENABLED=true
 ```
 
-Keep `MARKADO_ASSESSMENT_EXPIRATION_ENABLED=false` until one named scheduler
-runner is operating once per minute and its logs are observed. Request-time
-deadline enforcement remains authoritative, but a presentation must not claim
-background expiration coverage while this switch is off.
+Keep `MARKADO_ASSESSMENT_EXPIRATION_ENABLED=false` until one named, one-replica
+`php artisan schedule:work` runner is operating once per minute against the
+shared database cache and its aggregate logs are observed across several runs.
+Railway native cron is unsuitable because its minimum interval is five minutes.
+Request-time deadline enforcement remains authoritative, but a presentation
+must not claim background expiration coverage while this switch is off.
 
 ## Required pre-demo checks
 
@@ -94,6 +103,8 @@ background expiration coverage while this switch is off.
    service, and volume all belong to staging.
 2. Run `markado:presentation status`; expect a verified guard, three synthetic
    role accounts, two synthetic roster records, and the intended route gates.
+   Presenter account identifiers come from the private credential artifact;
+   never copy its passwords into this runbook or screenshots.
 3. Confirm the credential file survives an application restart without
    revealing its contents in logs.
 4. Send and consume one fresh verification message through the controlled
@@ -168,7 +179,7 @@ background expiration coverage while this switch is off.
 ## Common recovery steps
 
 - Registration page informational only: re-run the status command and inspect
-  the hosted guard, SMTP, roster, and five registration switches.
+  the hosted guard, Resend key/sender, roster, and five registration switches.
 - Verification not delivered: leave the Student pending, inspect provider
   delivery logs privately, and do not bypass the code.
 - Quiz unavailable: verify publish state, current Asia/Manila window, and the

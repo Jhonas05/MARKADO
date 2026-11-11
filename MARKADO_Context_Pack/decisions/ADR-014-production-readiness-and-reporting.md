@@ -12,7 +12,7 @@ The product owner authorizes the production-capable Student onboarding path and 
 Public Student registration may become available only when its dedicated public-registration switch and all existing identity flags are explicitly enabled and the runtime verifies every condition below:
 
 1. Laravel is running in `production` with PostgreSQL and a non-loopback HTTPS public origin.
-2. A non-loopback SMTP transport and verified sender are configured. Log, array, loopback, or otherwise non-delivering transports are rejected.
+2. An approved HTTPS transactional-email adapter (or a verified non-loopback SMTP transport) and verified sender are configured. Log, array, loopback, missing-secret, or otherwise non-delivering transports are rejected.
 3. The institution supplies at least one exact institutional email domain.
 4. The institution names its real authoritative roster source and approves a maximum roster age from 1 through 168 hours.
 5. Each matching roster row carries that exact source identifier and a fresh synchronization timestamp. Missing, mismatched, or stale provenance fails closed.

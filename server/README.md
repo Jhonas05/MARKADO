@@ -113,7 +113,7 @@ administrators to `/admin/dashboard`; changing a client URL or form label cannot
 change that role. Public Student registration has a real roster-backed mutation
 flow but remains default-gated. It is available only in the guarded local
 presentation, the separately guarded hosted presentation, or production after
-every domain, roster-provenance, HTTPS, PostgreSQL, SMTP, and activation control
+every domain, roster-provenance, HTTPS, PostgreSQL, transactional-delivery, and activation control
 passes. Recovery, staff registration, and privileged administrator mutations
 remain disabled.
 
@@ -164,8 +164,9 @@ the local development schema.
 To activate a reviewed environment, set
 `MARKADO_ASSESSMENT_ROUTES_ENABLED=true`. Automatic expiration additionally
 requires `MARKADO_ASSESSMENT_EXPIRATION_ENABLED=true` and one supported Laravel
-scheduler runner (for example, `php artisan schedule:work` locally or a single
-once-per-minute `php artisan schedule:run` production trigger). Request-time
+scheduler runner (one one-replica `php artisan schedule:work` service backed by
+the shared database cache). Railway native cron cannot meet the required
+one-minute interval. Request-time
 deadline reconciliation stays authoritative if a worker is delayed; do not
 enable these flags before migrations, provisioned identities, monitoring, and
 the applicable policy approvals are verified.

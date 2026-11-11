@@ -14,7 +14,7 @@ The institution must provide and approve all of the following before Student reg
 - the identifier of the real authoritative roster feed;
 - an approved roster freshness limit from 1 through 168 hours;
 - imported roster rows carrying the exact source identifier and a fresh `roster_synced_at` timestamp;
-- non-loopback SMTP delivery and a verified sender address;
+- approved HTTPS transactional delivery and a verified sender address;
 - privacy, retention, dispute, recovery, and support ownership.
 
 The relevant server settings are:
@@ -29,8 +29,8 @@ MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_HOURLY_LIMIT=5
 MARKADO_INSTITUTIONAL_EMAIL_DOMAINS=<approved exact domains>
 MARKADO_TRUSTED_ROSTER_SOURCE=<approved real source identifier>
 MARKADO_TRUSTED_ROSTER_MAX_AGE_HOURS=<approved 1-168 value>
-MAIL_MAILER=smtp
-MAIL_HOST=<non-loopback SMTP host>
+MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_DELIVERY_DRIVER=resend-http
+RESEND_KEY=<deployment secret>
 MAIL_FROM_ADDRESS=<verified sender>
 ```
 
@@ -53,13 +53,18 @@ The command is idempotent and writes generated passwords only to private
 application storage. It refuses production, mismatched Railway identity/URL,
 an unguarded database, and non-PostgreSQL runtimes.
 
-Staging must prove that no route points to the production database and that the scheduler runs `php artisan schedule:run` once per minute before assessment expiration is enabled.
+Staging must prove that no route points to the production database and that one
+one-replica service runs `php artisan schedule:work` against the shared database
+cache before assessment expiration is enabled. Railway native cron cannot meet
+the one-minute requirement. Observe aggregate reconciliation logs across
+multiple minutes and one real expired synthetic attempt before activation.
 
 ## Production gate
 
 Before enabling production registration or assessment delivery:
 
-1. Record a successful database backup and restore test.
+1. Record an encrypted live database backup and isolated restore test. The
+   12 November loopback synthetic rehearsal proves mechanics only.
 2. Verify roster source ownership, freshness, and reconciliation behavior.
 3. Verify transactional mail delivery, bounce/failure monitoring, and the public origin.
 4. Verify scheduler ownership and timer reconciliation monitoring.
