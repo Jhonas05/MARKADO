@@ -16,14 +16,9 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@prototype': path.resolve(directory, '../src'),
+            '@prototype': path.resolve(directory, 'resources/js/prototype'),
             react: path.resolve(directory, 'node_modules/react'),
             'react-dom': path.resolve(directory, 'node_modules/react-dom'),
-        },
-    },
-    server: {
-        fs: {
-            allow: [path.resolve(directory, '..')],
         },
     },
 });
