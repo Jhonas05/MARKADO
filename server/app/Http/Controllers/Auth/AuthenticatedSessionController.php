@@ -6,7 +6,7 @@ use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Identity\Support\LocalRegistrationEnvironment;
+use App\Identity\Support\RegistrationEnvironment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +19,7 @@ class AuthenticatedSessionController extends Controller
     {
         return Inertia::render('Auth/Login', [
             'registration' => [
-                'available' => LocalRegistrationEnvironment::enabled(),
+                'available' => RegistrationEnvironment::enabled(),
                 'message' => 'Student onboarding requires a verified institutional mailbox and matching trusted roster identity. Public account creation and activation remain unavailable.',
             ],
         ]);
@@ -32,7 +32,7 @@ class AuthenticatedSessionController extends Controller
         $user = $request->user();
 
         if ($user->role === AccountRole::Student && $user->account_status === AccountStatus::Pending
-            && LocalRegistrationEnvironment::enabled()) {
+            && RegistrationEnvironment::enabled()) {
             Auth::guard('web')->logout();
             $request->session()->regenerate();
             $request->session()->put('registration_user_id', $user->id);

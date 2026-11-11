@@ -10,6 +10,7 @@ const navigation = [
     items: [
       { href: '/professor/quizzes', label: 'My quizzes', icon: 'book' },
       { href: '/professor/quizzes/create', label: 'Create quiz', icon: 'plus' },
+      { href: '/help', label: 'Help and guide', icon: 'help' },
     ],
   },
 ]

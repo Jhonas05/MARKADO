@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Identity\Support\LocalRegistrationEnvironment;
+use App\Identity\Support\RegistrationEnvironment;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,7 +13,7 @@ class AccountAccessController extends Controller
     {
         return Inertia::render('Auth/Register', [
             'registration' => [
-                'available' => LocalRegistrationEnvironment::enabled(),
+                'available' => RegistrationEnvironment::enabled(),
                 'selfRegistrationApproved' => true,
                 'automaticStudentActivationApproved' => true,
                 'message' => 'Your school must finish email delivery, roster setup, and security controls before registration can open.',

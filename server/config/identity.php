@@ -12,8 +12,15 @@ $validatedLimit = is_int($configuredHourlyLimit) || is_string($configuredHourlyL
     : false;
 $hourlyLimit = $validatedLimit === false ? null : $validatedLimit;
 
+$configuredRosterMaxAge = env('MARKADO_TRUSTED_ROSTER_MAX_AGE_HOURS');
+$validatedRosterMaxAge = is_int($configuredRosterMaxAge) || is_string($configuredRosterMaxAge)
+    ? filter_var($configuredRosterMaxAge, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 168]])
+    : false;
+$rosterMaxAgeHours = $validatedRosterMaxAge === false ? null : $validatedRosterMaxAge;
+
 return [
     'presentation_registration_enabled' => (bool) env('MARKADO_PRESENTATION_REGISTRATION_ENABLED', false),
+    'public_student_registration_enabled' => (bool) env('MARKADO_PUBLIC_STUDENT_REGISTRATION_ENABLED', false),
     /*
     | Student onboarding is default-deny. Production domains must come from
     | trusted server configuration and are never accepted from request input.
@@ -38,4 +45,12 @@ return [
     'institutional_email_verification_lifetime_minutes' => 30,
     'institutional_email_verification_resend_cooldown_seconds' => 60,
     'institutional_email_verification_hourly_limit' => $hourlyLimit,
+
+    /*
+    | Production registration additionally requires source-tagged roster rows.
+    | Neither value has a product default: the institution must name its real
+    | authoritative feed and approve how stale a row may be before access fails.
+    */
+    'trusted_roster_source' => trim((string) env('MARKADO_TRUSTED_ROSTER_SOURCE', '')),
+    'trusted_roster_max_age_hours' => $rosterMaxAgeHours,
 ];
