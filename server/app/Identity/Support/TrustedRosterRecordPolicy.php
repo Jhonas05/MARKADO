@@ -12,7 +12,8 @@ final class TrustedRosterRecordPolicy
             return true;
         }
 
-        if (! ProductionRegistrationEnvironment::enabled()) {
+        if (! ProductionRegistrationEnvironment::enabled()
+            && ! HostedPresentationRegistrationEnvironment::enabled()) {
             return false;
         }
 

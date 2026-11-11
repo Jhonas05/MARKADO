@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Identity\Support\HostedPresentationRegistrationEnvironment;
 use App\Identity\Support\LocalRegistrationEnvironment;
 use App\Identity\Support\ProductionRegistrationEnvironment;
 use App\Identity\Support\RegistrationEnvironment;
@@ -22,6 +23,14 @@ class EnsureRegistrationEnabled
 
         if (ProductionRegistrationEnvironment::enabled()) {
             abort_unless($request->isSecure(), 404);
+        }
+
+        if (HostedPresentationRegistrationEnvironment::enabled()) {
+            abort_unless($request->isSecure()
+                && hash_equals(
+                    (string) parse_url((string) config('app.url'), PHP_URL_HOST),
+                    $request->getHost(),
+                ), 404);
         }
 
         return $next($request);

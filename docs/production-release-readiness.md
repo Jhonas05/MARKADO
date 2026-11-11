@@ -40,6 +40,19 @@ Do not enable a flag until its value and external dependency have been verified.
 
 Use a separate Railway environment and PostgreSQL service. Populate it only with synthetic roster records whose `roster_source` matches the staging source identifier. Verify registration, delivered email, single-use/expiry/resend behavior, Student and Professor flows, exports, timer reconciliation, dark/light themes, and 1440 px, 768 px, and 390 px layouts.
 
+For the hosted presentation environment, configure the exact Railway identity,
+URL, controlled demo mailboxes, and synthetic roster source described in
+`PRESENTATION_RUNBOOK.md`, then run:
+
+```text
+php artisan markado:presentation provision --confirm=<exact-environment-id>
+php artisan markado:presentation status
+```
+
+The command is idempotent and writes generated passwords only to private
+application storage. It refuses production, mismatched Railway identity/URL,
+an unguarded database, and non-PostgreSQL runtimes.
+
 Staging must prove that no route points to the production database and that the scheduler runs `php artisan schedule:run` once per minute before assessment expiration is enabled.
 
 ## Production gate
