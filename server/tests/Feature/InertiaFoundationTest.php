@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -18,6 +19,21 @@ class InertiaFoundationTest extends TestCase
                 ->where('accountPolicies.passwordRecovery', false)
                 ->where('auth.user', null)
             );
+    }
+
+    public function test_forwarded_https_scheme_is_trusted_for_generated_asset_urls(): void
+    {
+        Route::get('/_testing/asset-url', fn (): string => url('/build/assets/app.js'));
+
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.10'])
+            ->withHeaders([
+                'Host' => 'markado.internal',
+                'X-Forwarded-Host' => 'markado.example',
+                'X-Forwarded-Proto' => 'https',
+            ])
+            ->get('/_testing/asset-url')
+            ->assertOk()
+            ->assertContent('https://markado.example/build/assets/app.js');
     }
 
     public function test_public_foundation_demo_is_not_routed(): void
