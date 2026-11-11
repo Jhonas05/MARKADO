@@ -40,6 +40,7 @@ use App\Identity\Support\LaravelMailInstitutionalEmailVerificationDelivery;
 use App\Identity\Support\RegistrationEnvironment;
 use App\Identity\Support\RegistrationInstitutionalVerificationAbuseGate;
 use App\Identity\Support\RegistrationStudentActivationSecurityGate;
+use App\Identity\Support\ResendHttpInstitutionalEmailVerificationDelivery;
 use App\Identity\Support\SystemInstitutionalVerificationClock;
 use App\Identity\Support\UnavailableInstitutionalEmailVerificationDelivery;
 use App\Models\Quiz;
@@ -65,9 +66,17 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(InstitutionalEmailPolicy::class, ConfiguredInstitutionalEmailPolicy::class);
         $this->app->bind(InstitutionalEmailVerificationService::class, DatabaseInstitutionalEmailVerificationService::class);
-        $this->app->bind(InstitutionalEmailVerificationDelivery::class, fn () => RegistrationEnvironment::enabled()
-            ? new LaravelMailInstitutionalEmailVerificationDelivery
-            : new UnavailableInstitutionalEmailVerificationDelivery);
+        $this->app->bind(InstitutionalEmailVerificationDelivery::class, function () {
+            if (! RegistrationEnvironment::enabled()) {
+                return new UnavailableInstitutionalEmailVerificationDelivery;
+            }
+
+            return match (config('identity.institutional_email_verification_delivery_driver')) {
+                'laravel-mail' => new LaravelMailInstitutionalEmailVerificationDelivery,
+                'resend-http' => new ResendHttpInstitutionalEmailVerificationDelivery,
+                default => new UnavailableInstitutionalEmailVerificationDelivery,
+            };
+        });
         $this->app->bind(InstitutionalVerificationAbuseGate::class, RegistrationInstitutionalVerificationAbuseGate::class);
         $this->app->bind(InstitutionalVerificationClock::class, SystemInstitutionalVerificationClock::class);
         $this->app->bind(InstitutionalMailboxProof::class, DatabaseInstitutionalMailboxProof::class);

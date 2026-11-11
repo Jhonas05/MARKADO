@@ -51,7 +51,25 @@ final class HostedRegistrationControls
 
     public static function hasTransactionalMailTransport(): bool
     {
-        if (! filled(config('mail.from.address')) || config('mail.default') !== 'smtp') {
+        $from = config('mail.from.address');
+        $fromName = config('mail.from.name');
+        if (! is_string($from) || filter_var($from, FILTER_VALIDATE_EMAIL) === false
+            || preg_match('/[\r\n]/', $from) === 1
+            || ! is_string($fromName) || preg_match('/[\r\n]/', $fromName) === 1
+            || ! filled(config('app.key'))) {
+            return false;
+        }
+
+        return match (config('identity.institutional_email_verification_delivery_driver')) {
+            'laravel-mail' => self::hasRemoteSmtpTransport(),
+            'resend-http' => self::hasResendHttpTransport(),
+            default => false,
+        };
+    }
+
+    private static function hasRemoteSmtpTransport(): bool
+    {
+        if (config('mail.default') !== 'smtp') {
             return false;
         }
 
@@ -60,5 +78,14 @@ final class HostedRegistrationControls
         return is_string($host)
             && $host !== ''
             && ! in_array($host, ['127.0.0.1', 'localhost', '::1'], true);
+    }
+
+    private static function hasResendHttpTransport(): bool
+    {
+        $key = config('services.resend.key');
+
+        return is_string($key)
+            && trim($key) !== ''
+            && preg_match('/[\r\n]/', $key) !== 1;
     }
 }

@@ -42,6 +42,10 @@ return [
     */
     'institutional_email_verification_enabled' => (bool) env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_ENABLED', false),
     'institutional_email_verification_delivery_enabled' => (bool) env('MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_DELIVERY_ENABLED', false),
+    'institutional_email_verification_delivery_driver' => trim((string) env(
+        'MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_DELIVERY_DRIVER',
+        'laravel-mail',
+    )),
     'institutional_email_verification_lifetime_minutes' => 30,
     'institutional_email_verification_resend_cooldown_seconds' => 60,
     'institutional_email_verification_hourly_limit' => $hourlyLimit,

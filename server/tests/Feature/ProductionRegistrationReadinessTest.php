@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Identity\Contracts\InstitutionalEmailVerificationDelivery;
 use App\Identity\Support\ProductionRegistrationEnvironment;
 use App\Identity\Support\RegistrationEnvironment;
+use App\Identity\Support\ResendHttpInstitutionalEmailVerificationDelivery;
 use App\Identity\Support\TrustedRosterRecordPolicy;
 use App\Models\SchoolStudentRecord;
 use Tests\TestCase;
@@ -40,6 +42,29 @@ class ProductionRegistrationReadinessTest extends TestCase
 
         $record->roster_synced_at = now()->subHours(25);
         $this->assertFalse(app(TrustedRosterRecordPolicy::class)->accepts($record));
+    }
+
+    public function test_production_readiness_accepts_the_configured_resend_https_delivery_adapter(): void
+    {
+        $this->configureBaseProductionControls();
+        config()->set('identity.institutional_email_verification_delivery_driver', 'resend-http');
+        config()->set('services.resend.key', 're_synthetic_test_key');
+        config()->set('mail.from.address', 'verification@institution.invalid');
+        config()->set('identity.trusted_roster_source', 'institution-approved-sis-feed');
+        config()->set('identity.trusted_roster_max_age_hours', 24);
+
+        $this->assertTrue(ProductionRegistrationEnvironment::enabled());
+        $this->assertInstanceOf(
+            ResendHttpInstitutionalEmailVerificationDelivery::class,
+            app(InstitutionalEmailVerificationDelivery::class),
+        );
+
+        config()->set('services.resend.key', '');
+        $this->assertFalse(ProductionRegistrationEnvironment::enabled());
+
+        config()->set('services.resend.key', 're_synthetic_test_key');
+        config()->set('identity.institutional_email_verification_delivery_driver', 'unapproved-driver');
+        $this->assertFalse(ProductionRegistrationEnvironment::enabled());
     }
 
     private function configureBaseProductionControls(): void
