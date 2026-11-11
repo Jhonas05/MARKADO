@@ -59,7 +59,7 @@ without delivered-email and browser evidence.
 
 ## Latest local verification
 
-- Laravel/SQLite: 212 tests, 1,866 assertions passed.
+- Laravel/SQLite: 212 tests, 1,867 assertions passed.
 - Laravel/PostgreSQL 17: 212 tests, 2,038 assertions passed, including the
   concurrency groups.
 - React/Vitest: 47/47 tests passed; ESLint and both Vite production builds

@@ -37,7 +37,7 @@ open.
 
 ## Verification results
 
-- Laravel/SQLite: 212 tests, 1,866 assertions passed.
+- Laravel/SQLite: 212 tests, 1,867 assertions passed.
 - Laravel/PostgreSQL 17: 212 tests, 2,038 assertions passed, including real
   concurrency processes.
 - Resend/readiness/scheduler focused regression: 8 tests, 32 assertions passed.
