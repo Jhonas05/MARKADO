@@ -1,5 +1,24 @@
 # MARKADO final release handoff
 
+## Current local-only continuation
+
+Staging web and the scheduler are stopped for cost control; the staging
+PostgreSQL service and volume remain in place. The scheduler's replacement
+image has a different digest from the previously verified worker and must be
+verified before any separately approved restart. See
+`STAGING_REACTIVATION_CHECKLIST.md`; older staging observations below describe
+the earlier running state.
+
+The existing local synthetic demo remains available without re-provisioning.
+Its operator startup script now uses the read-only demo status action rather
+than provisioning on every launch. Focused PostgreSQL registration, identity,
+email-delivery, readiness, and concurrency tests passed against the isolated
+test database (57 tests, 375 assertions); the corresponding SQLite checks
+passed (56 tests, 365 assertions). Resend HTTP tests use mocked provider
+responses. Mailpit is a local demonstration transport, not proof of live Resend
+delivery. Hosted registration and a verified staging backup/restore remain
+blocked. No account or quiz data was reset.
+
 ## 15 November staging update
 
 - PR #36 candidate `cc040be` was deployed to the explicitly identified

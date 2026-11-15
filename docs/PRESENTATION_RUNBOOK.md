@@ -7,6 +7,12 @@ checks below pass.
 
 ## Current readiness boundary
 
+Staging web and scheduler are stopped at the owner's request. Do not restart
+or deploy them without explicit approval for the activity and its possible
+cost. Follow `STAGING_REACTIVATION_CHECKLIST.md`, including the scheduler image
+verification gate. Existing synthetic accounts and quiz records must be
+preserved; do not rerun presentation provisioning or reset their credentials.
+
 On 15 November, a separate synthetic Professor, Student, and Administrator were
 created in staging without overwriting existing accounts. Their generated
 credentials are held privately on the operator workstation. The old staging
@@ -63,8 +69,12 @@ The two Student emails must use the configured demo institutional domain. All
 four emails and both Student numbers must be distinct. Do not use a real
 student identity.
 
-After a verified staging deployment has applied migrations, run from a private
-Railway shell or equivalent operator channel:
+The commands below are for a separately authorized, newly created isolated
+presentation dataset only. Do **not** run provisioning against the existing
+staging dataset: it can update synthetic accounts and their credentials. After
+a verified staging deployment has applied migrations, an authorized operator
+may use an approved authenticated operator channel. Do not bypass SSH host
+verification:
 
 ```text
 php artisan markado:presentation provision --confirm=82eb52bf-06e4-4d19-b212-19d2bb652c09
