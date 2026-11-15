@@ -380,7 +380,7 @@
 
 .prof-builder-step--locked {
   cursor: not-allowed;
-  opacity: 0.62;
+  opacity: 1;
 }
 
 .prof-details-card {
@@ -619,7 +619,7 @@
 .prof-sidebar__appearance > p {
   margin: 0 0 6px;
   padding: 0 10px;
-  color: var(--ink-subtle);
+  color: var(--ink-muted);
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1178,7 +1178,7 @@
   gap: 8px;
   margin: 0;
   padding-left: 20px;
-  color: var(--ink-muted);
+  color: var(--ink-mid);
   font-size: 0.875rem;
 }
 
@@ -2634,7 +2634,7 @@
 .auth-boundary,
 .auth-registration-note {
   border-color: color-mix(in srgb, var(--pastel-peach), var(--line-strong) 58%);
-  background: color-mix(in srgb, var(--pastel-peach), var(--surface) 28%);
+  background: color-mix(in srgb, var(--pastel-peach), var(--surface) 80%);
 }
 
 .auth-registration-note--compact {
@@ -2771,10 +2771,28 @@
     radial-gradient(circle at 96% 4%, color-mix(in srgb, var(--pastel-sky), transparent 84%) 0 7rem, transparent 18rem);
 }
 
+.prof-app {
+  --ink-subtle: var(--ink-muted);
+  --ink-faint: var(--ink-muted);
+}
+
 .prof-sidebar__intro,
 .prof-sidebar__policy {
   border-color: color-mix(in srgb, var(--pastel-lavender), var(--line) 62%);
-  background: color-mix(in srgb, var(--pastel-lavender), var(--surface) 18%);
+  background: color-mix(in srgb, var(--pastel-lavender), var(--surface) 80%);
+}
+
+.prof-sidebar__policy strong {
+  color: var(--ink);
+}
+
+.prof-question-item--active small,
+.prof-publication-actions .button--danger-soft {
+  color: var(--ink-mid);
+}
+
+html.dark .prof-profile > span {
+  color: #171329;
 }
 
 .prof-page-heading {

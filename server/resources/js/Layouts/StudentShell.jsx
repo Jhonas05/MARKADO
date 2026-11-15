@@ -43,7 +43,7 @@ export default function StudentShell({
       <a className="skip-link" href="#main-content">Skip to content</a>
 
       <aside className="student-sidebar" aria-label="Student navigation">
-        <Link className="student-sidebar__brand" href={homeHref} aria-label="MARKADO student home">
+        <Link className="student-sidebar__brand" href={homeHref} aria-label="Assessment workspace, MARKADO student home">
           <span className="student-sidebar__brand-lockup">
             <MarkadoLogo decorative size={22} />
             <small>Assessment workspace</small>

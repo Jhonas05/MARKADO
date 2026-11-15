@@ -1,5 +1,24 @@
 # MARKADO browser QA report
 
+## 15 November 2026: local presentation and accessibility rehearsal
+
+Using existing synthetic accounts, real Chrome exercised a separate local quiz:
+Professor creation, two questions, publication and Student assignment;
+Student start, save, reload and submission; Professor scoring and release;
+and Student visibility of the released 2/2 result. The local application was
+restarted without re-provisioning; the quiz and released result remained
+available. The separately reserved presentation attempt was not started.
+
+An automated axe-core 4.14.0 pass used WCAG 2.0/2.1 A and AA tags at 1440,
+768, and 390 px in light and dark themes. After correcting contrast and the
+Student home link's accessible name, no violations or horizontal overflow were
+reported in the selected Professor quiz list/editor/results, Student
+dashboard/preflight/result, Administrator dashboard, and login/registration
+screens. The Professor mobile drawer remained out of the Tab order while
+closed. A 390 px dark registration screenshot was also visually inspected.
+Automated scans do not replace a full assistive-technology or manual
+accessibility audit; hosted email and staging remain unverified/stopped.
+
 ## 15 November 2026: local Professor navigation recheck
 
 Real Chrome checked the isolated loopback Laravel/Inertia demo with existing

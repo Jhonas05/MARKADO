@@ -19,6 +19,13 @@ responses. Mailpit is a local demonstration transport, not proof of live Resend
 delivery. Hosted registration and a verified staging backup/restore remain
 blocked. No account or quiz data was reset.
 
+A separate local synthetic quiz was created, published and assigned to the
+existing Student. Both questions were answered, the attempt was submitted and
+scored 2/2, and the Professor released the result. After a local web restart,
+the quiz and released result were still available. The reserved presentation
+attempt remained unused. Local WCAG-tagged automated scans and the limitations
+of that evidence are recorded in `BROWSER_QA_REPORT.md`.
+
 ## 15 November staging update
 
 - PR #36 candidate `cc040be` was deployed to the explicitly identified
