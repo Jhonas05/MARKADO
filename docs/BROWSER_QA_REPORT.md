@@ -1,5 +1,22 @@
 # MARKADO browser QA report
 
+## 15 November 2026: local Professor navigation recheck
+
+Real Chrome checked the isolated loopback Laravel/Inertia demo with existing
+synthetic Student, Professor, and Administrator accounts. Their dashboards
+rendered without horizontal overflow at 1440, 768, and 390 px. Student and
+Administrator light/dark controls were exercised at those sizes. Professor
+light/dark controls were exercised at desktop and, through the navigation
+drawer, at tablet and mobile widths.
+
+Keyboard testing found that the closed Professor mobile drawer still exposed
+off-screen focus targets. After the CSS fix, a mobile Tab traversal encountered
+no drawer targets while it was closed; the open drawer and theme control stayed
+usable, and the desktop drawer remained visible. A 390 px dark Student
+screenshot was inspected. These are selected local checks, not a full
+accessibility audit or new hosted QA. Staging web and scheduler were stopped
+for cost control at the owner's request.
+
 ## 15 November 2026: partial local and public staging checks
 
 Real Chrome controlled by Playwright was used with synthetic data against a

@@ -2509,11 +2509,13 @@
     z-index: 95;
     width: min(18rem, 88vw);
     height: 100vh;
+    visibility: hidden;
     transform: translateX(-105%);
     transition: transform 170ms ease;
   }
 
   .prof-sidebar--open {
+    visibility: visible;
     transform: translateX(0);
   }
 
