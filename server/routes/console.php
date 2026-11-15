@@ -1,8 +1,10 @@
 <?php
 
+use App\Assessment\Support\ReconciliationRunObserver;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Stringable;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -13,4 +15,5 @@ Schedule::command('assessment:reconcile-expired')
     ->everyMinute()
     ->onOneServer()
     ->withoutOverlapping(2)
-    ->sendOutputTo(DIRECTORY_SEPARATOR === '\\' ? 'NUL' : '/dev/stdout');
+    ->onSuccess(fn (Stringable $output) => app(ReconciliationRunObserver::class)->recordSuccess($output))
+    ->onFailure(fn () => app(ReconciliationRunObserver::class)->recordFailure());

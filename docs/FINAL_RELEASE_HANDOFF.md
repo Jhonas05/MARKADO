@@ -22,12 +22,13 @@
 - Resend HTTPS is selected on staging, but no authorized `RESEND_KEY` was
   configured at the time of this check. Hosted Student self-registration and
   real mailbox delivery remain unverified and gated. Staging PITR was disabled
-  and no on-demand backups were listed; a live staging backup and isolated
-  restore have not been verified. Institution approval, recovery ownership,
-  complete hosted accessibility QA, review, and production authorization
-  remain release blockers.
-- The candidate includes scheduler output forwarding and sanitized failure
-  logging so that aggregate reconciliation results can be observed without
+  and no on-demand backups were listed. An authorized manual staging backup
+  was rejected by Railway because manual backups require a Pro workspace; a
+  live staging backup and isolated restore have not been verified. Institution
+  approval, recovery ownership, complete hosted accessibility QA, review, and
+  production authorization remain release blockers.
+- The candidate captures scheduled command output privately and emits only a
+  sanitized aggregate result or failure event from the scheduler, without
   printing exception details. Verify those logs on the next scheduler deploy.
 
 Evidence date: 12 November 2026, Asia/Manila.

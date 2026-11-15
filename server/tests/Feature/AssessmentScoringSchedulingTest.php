@@ -8,6 +8,7 @@ use App\Assessment\Contracts\AuthoritativeClock;
 use App\Assessment\Contracts\ResultReleaseManager;
 use App\Assessment\Contracts\ScoreCalculator;
 use App\Assessment\Data\ScoreSummary;
+use App\Assessment\Support\ReconciliationRunObserver;
 use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
 use App\Enums\QuestionType;
@@ -26,6 +27,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Support\BuildsAssessmentFixtures;
 use Tests\Support\MutableAuthoritativeClock;
@@ -293,7 +295,21 @@ class AssessmentScoringSchedulingTest extends TestCase
         $this->assertTrue($event->onOneServer);
         $this->assertTrue($event->withoutOverlapping);
         $this->assertSame(2, $event->expiresAt);
-        $this->assertSame(DIRECTORY_SEPARATOR === '\\' ? 'NUL' : '/dev/stdout', $event->output);
+        $this->assertNotSame($event->getDefaultOutput(), $event->output);
+    }
+
+    public function test_expiration_observer_logs_only_aggregate_processed_count(): void
+    {
+        Log::spy();
+
+        app(ReconciliationRunObserver::class)->recordSuccess(
+            new Stringable('Reconciled 3 assessment attempt(s). Synthetic private detail.'),
+        );
+
+        Log::shouldHaveReceived('info')->once()->with(
+            'Assessment expiration worker completed.',
+            ['event' => 'assessment_expiration_worker_completed', 'processed' => 3],
+        );
     }
 
     public function test_expiration_failure_is_reported_without_exposing_exception_details(): void
