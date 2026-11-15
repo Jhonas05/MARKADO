@@ -1,6 +1,29 @@
 # MARKADO browser QA report
 
-Status: **BROWSER QA NOT VERIFIED** as of 12 November 2026.
+## 15 November 2026: partial local and public staging checks
+
+Real Chrome controlled by Playwright was used with synthetic data against a
+guarded loopback PostgreSQL demo. It exercised Student signup, local mail
+capture and verification, automatic eligible activation, login, unassigned
+quiz denial, Professor quiz creation and assignment, Student answer save and
+submission, score withholding, Professor release, and released Student score.
+Professor PDF and DOCX exports were downloaded; the PDF parsed and the DOCX
+archive and document XML validated. A synthetic Administrator could open the
+read-only database-backed dashboard, while the Professor route returned 403.
+Student and Professor layouts were checked at 1440, 768, and 390 px. The
+Administrator layout was checked at those widths and 320 px; a compressed
+mobile logo and wrapped sign-out control were corrected. These are selected
+checks, not completion of the full accessibility and workflow matrix below.
+
+The public staging health endpoint and login returned HTTP 200. The staging
+login was rendered at 1440, 768, and 390 px without horizontal overflow, and
+the registration page showed the gated onboarding state. No authenticated
+staging browser flow, real provider delivery, or staging database inspection
+was completed in this session because access to the Railway project was absent.
+
+## Earlier status: 12 November 2026
+
+Status at that time: **BROWSER QA NOT VERIFIED**.
 
 The approved in-app browser runtime was initialized against
 `https://markado-app-staging.up.railway.app`, but returned

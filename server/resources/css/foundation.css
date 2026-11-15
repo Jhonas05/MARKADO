@@ -2554,6 +2554,32 @@
   }
 }
 
+@media (max-width: 600px) {
+  .admin-workspace .auth-topbar {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    padding-block: 12px;
+  }
+
+  .admin-workspace .auth-brand {
+    flex: 0 0 auto;
+  }
+
+  .admin-workspace .auth-topbar__actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .admin-workspace .auth-topbar__actions .button {
+    white-space: nowrap;
+  }
+
+  .admin-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* v9.2 pastel gaming product layer. Academic actions remain visually restrained. */
 .welcome-page,
 .admin-workspace,
