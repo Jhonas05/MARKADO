@@ -1,5 +1,35 @@
 # MARKADO final release handoff
 
+## 15 November staging update
+
+- PR #36 candidate `cc040be` was deployed to the explicitly identified
+  staging app. Its migration hook reported no pending migrations, `/up` and
+  `/login` returned 200, and PostgreSQL 18.6 read-only checks verified the
+  staging database guard and all 19 expected migrations. Existing aggregate
+  counts were unchanged across the deployment.
+- Fresh, distinct synthetic staging role accounts were created without
+  changing existing accounts. The temporary provisioning secret was removed
+  from Railway; the generated credentials are retained privately on the
+  operator workstation. The app has no persistent private-storage volume, and
+  the previous container's presenter credential file was absent; do not
+  assume that file survives a deployment or reset existing accounts.
+- Chrome verified the synthetic Professor-to-Student workflow, cross-role
+  denial, result withholding/release, repeat submission retries, PDF/DOCX
+  exports, and persistence after a staging app restart. An approved, separate
+  one-replica staging scheduler was observed across consecutive minutes and
+  finalized an unattended synthetic attempt. Expiration is enabled only on
+  that staging worker; production was not changed.
+- Resend HTTPS is selected on staging, but no authorized `RESEND_KEY` was
+  configured at the time of this check. Hosted Student self-registration and
+  real mailbox delivery remain unverified and gated. Staging PITR was disabled
+  and no on-demand backups were listed; a live staging backup and isolated
+  restore have not been verified. Institution approval, recovery ownership,
+  complete hosted accessibility QA, review, and production authorization
+  remain release blockers.
+- The candidate includes scheduler output forwarding and sanitized failure
+  logging so that aggregate reconciliation results can be observed without
+  printing exception details. Verify those logs on the next scheduler deploy.
+
 Evidence date: 12 November 2026, Asia/Manila.
 
 ## Candidate and GitHub

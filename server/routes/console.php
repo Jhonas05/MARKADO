@@ -12,4 +12,5 @@ Schedule::command('assessment:reconcile-expired')
     ->name('assessment-expiration-reconciliation')
     ->everyMinute()
     ->onOneServer()
-    ->withoutOverlapping(2);
+    ->withoutOverlapping(2)
+    ->sendOutputTo(DIRECTORY_SEPARATOR === '\\' ? 'NUL' : '/dev/stdout');

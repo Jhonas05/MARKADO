@@ -7,7 +7,16 @@ checks below pass.
 
 ## Current readiness boundary
 
-The staging application and separate PostgreSQL service exist. The guarded
+On 15 November, a separate synthetic Professor, Student, and Administrator were
+created in staging without overwriting existing accounts. Their generated
+credentials are held privately on the operator workstation. The old staging
+container's credential file was absent, and app private storage is not backed
+by a persistent volume. Do not reset existing accounts or assume credentials
+survive a deploy. The assessment flow and staging worker were exercised using
+synthetic data; real verification email and hosted self-registration remain
+unverified and gated because an authorized Resend key is missing.
+
+As of the 12 November rehearsal, the staging application and separate PostgreSQL service existed. The guarded
 dataset has been provisioned with three synthetic role accounts and two
 synthetic roster rows. Login and the real Professor-to-Student HTTP assessment
 flow have been verified. Registration remains fail-closed because no authorized
@@ -90,7 +99,7 @@ MARKADO_INSTITUTIONAL_EMAIL_VERIFICATION_HOURLY_LIMIT=5
 MARKADO_ASSESSMENT_ROUTES_ENABLED=true
 ```
 
-Keep `MARKADO_ASSESSMENT_EXPIRATION_ENABLED=false` until one named, one-replica
+Before enabling `MARKADO_ASSESSMENT_EXPIRATION_ENABLED`, verify that one named, one-replica
 `php artisan schedule:work` runner is operating once per minute against the
 shared database cache and its aggregate logs are observed across several runs.
 Railway native cron is unsuitable because its minimum interval is five minutes.

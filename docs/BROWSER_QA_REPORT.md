@@ -17,9 +17,18 @@ checks, not completion of the full accessibility and workflow matrix below.
 
 The public staging health endpoint and login returned HTTP 200. The staging
 login was rendered at 1440, 768, and 390 px without horizontal overflow, and
-the registration page showed the gated onboarding state. No authenticated
-staging browser flow, real provider delivery, or staging database inspection
-was completed in this session because access to the Railway project was absent.
+the registration page showed the gated onboarding state. After the Railway CLI
+was connected, real Chrome exercised synthetic Professor, Student, and
+Administrator login; MCQ/True-False creation; unassigned denial; publication
+and assignment; answer-save/refresh; submission; withheld and released scores;
+concurrent submission retries; role denial; and PDF/DOCX downloads. Both export
+formats parsed successfully. The released result survived a staging app
+restart. Selected authenticated pages at 1440, 768, and 390 px showed no
+horizontal overflow. A staging-only worker finalized a separate unattended
+synthetic attempt, confirmed on the read-only Professor results screen before
+the Student reopened it. The synthetic Student was pre-provisioned; real email
+delivery and hosted Student self-registration were not verified. The complete
+accessibility, theme, and failure-state matrix below remains incomplete.
 
 ## Earlier status: 12 November 2026
 

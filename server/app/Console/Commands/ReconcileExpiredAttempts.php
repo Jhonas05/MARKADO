@@ -7,6 +7,7 @@ use App\Assessment\Support\QuestionDeadlineAdvancer;
 use App\Models\QuizAttempt;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ReconcileExpiredAttempts extends Command
 {
@@ -18,6 +19,21 @@ class ReconcileExpiredAttempts extends Command
         AuthoritativeClock $clock,
         QuestionDeadlineAdvancer $questionAdvancer,
     ): int {
+        try {
+            return $this->reconcile($clock, $questionAdvancer);
+        } catch (Throwable $exception) {
+            Log::error('Assessment expiration reconciliation failed.', [
+                'event' => 'assessment_expiration_reconciliation_failed',
+                'error_type' => $exception::class,
+            ]);
+            $this->components->error('Assessment expiration reconciliation failed.');
+
+            return self::FAILURE;
+        }
+    }
+
+    private function reconcile(AuthoritativeClock $clock, QuestionDeadlineAdvancer $questionAdvancer): int
+    {
         if (! config('assessment.expiration_enabled')) {
             $this->components->info('Assessment expiration processing is disabled by server configuration.');
 

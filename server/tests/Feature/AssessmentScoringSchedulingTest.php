@@ -293,5 +293,27 @@ class AssessmentScoringSchedulingTest extends TestCase
         $this->assertTrue($event->onOneServer);
         $this->assertTrue($event->withoutOverlapping);
         $this->assertSame(2, $event->expiresAt);
+        $this->assertSame(DIRECTORY_SEPARATOR === '\\' ? 'NUL' : '/dev/stdout', $event->output);
+    }
+
+    public function test_expiration_failure_is_reported_without_exposing_exception_details(): void
+    {
+        $this->app->instance(AuthoritativeClock::class, new class implements AuthoritativeClock
+        {
+            public function now(): DateTimeImmutable
+            {
+                throw new \RuntimeException('synthetic private exception detail');
+            }
+        });
+        Log::spy();
+
+        $this->artisan('assessment:reconcile-expired')
+            ->expectsOutputToContain('Assessment expiration reconciliation failed.')
+            ->assertFailed();
+
+        Log::shouldHaveReceived('error')->once()->with(
+            'Assessment expiration reconciliation failed.',
+            ['event' => 'assessment_expiration_reconciliation_failed', 'error_type' => \RuntimeException::class],
+        );
     }
 }
