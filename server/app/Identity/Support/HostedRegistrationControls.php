@@ -43,7 +43,8 @@ final class HostedRegistrationControls
         $url = (string) config('app.url');
         $host = parse_url($url, PHP_URL_HOST);
 
-        return parse_url($url, PHP_URL_SCHEME) === 'https'
+        return config('app.debug') === false
+            && parse_url($url, PHP_URL_SCHEME) === 'https'
             && is_string($host)
             && $host !== ''
             && ! in_array($host, ['127.0.0.1', 'localhost', '::1'], true);
@@ -74,10 +75,19 @@ final class HostedRegistrationControls
         }
 
         $host = config('mail.mailers.smtp.host');
+        $scheme = config('mail.mailers.smtp.scheme');
+        $username = config('mail.mailers.smtp.username');
+        $password = config('mail.mailers.smtp.password');
 
         return is_string($host)
             && $host !== ''
-            && ! in_array($host, ['127.0.0.1', 'localhost', '::1'], true);
+            && filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false
+            && filter_var($host, FILTER_VALIDATE_IP) === false
+            && strtolower($host) !== 'localhost'
+            && $scheme === 'smtps'
+            && blank(config('mail.mailers.smtp.url'))
+            && is_string($username) && trim($username) !== ''
+            && is_string($password) && trim($password) !== '';
     }
 
     private static function hasResendHttpTransport(): bool

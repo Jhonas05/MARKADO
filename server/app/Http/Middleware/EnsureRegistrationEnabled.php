@@ -22,7 +22,9 @@ class EnsureRegistrationEnabled
         }
 
         if (ProductionRegistrationEnvironment::enabled()) {
-            abort_unless($request->isSecure(), 404);
+            $expectedHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+            abort_unless($request->isSecure() && is_string($expectedHost)
+                && hash_equals(strtolower($expectedHost), strtolower($request->getHost())), 404);
         }
 
         if (HostedPresentationRegistrationEnvironment::enabled()) {

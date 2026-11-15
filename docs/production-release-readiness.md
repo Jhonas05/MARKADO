@@ -13,7 +13,7 @@ The institution must provide and approve all of the following before Student reg
 - exact institutional email domain or domains;
 - the identifier of the real authoritative roster feed;
 - an approved roster freshness limit from 1 through 168 hours;
-- imported roster rows carrying the exact source identifier and a fresh `roster_synced_at` timestamp;
+- imported roster rows carrying the exact source identifier and a `roster_synced_at` timestamp within the approved freshness window and no later than the current server time;
 - approved HTTPS transactional delivery and a verified sender address;
 - privacy, retention, dispute, recovery, and support ownership.
 
@@ -34,7 +34,7 @@ RESEND_KEY=<deployment secret>
 MAIL_FROM_ADDRESS=<verified sender>
 ```
 
-Do not enable a flag until its value and external dependency have been verified. Registration readiness also requires `APP_ENV=production`, PostgreSQL, and an HTTPS non-loopback `APP_URL`.
+Do not enable a flag until its value and external dependency have been verified. Registration readiness also requires `APP_ENV=production`, `APP_DEBUG=false`, PostgreSQL, an HTTPS non-loopback `APP_URL`, and requests to its exact host. The Resend HTTPS adapter is the recommended transport. If the Laravel SMTP transport is used instead, its explicit remote hostname, `smtps` scheme, username, and password must be configured; an overriding `MAIL_URL` is rejected. Configuration readiness does not prove that the provider has delivered a message.
 
 ## Staging gate
 

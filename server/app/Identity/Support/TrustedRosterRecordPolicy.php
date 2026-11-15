@@ -19,11 +19,13 @@ final class TrustedRosterRecordPolicy
 
         $source = config('identity.trusted_roster_source');
         $maxAge = config('identity.trusted_roster_max_age_hours');
+        $now = now();
 
         return is_string($source)
             && hash_equals($source, (string) $record->roster_source)
             && is_int($maxAge)
             && $record->roster_synced_at !== null
-            && $record->roster_synced_at->gte(now()->subHours($maxAge));
+            && $record->roster_synced_at->lte($now)
+            && $record->roster_synced_at->gte($now->copy()->subHours($maxAge));
     }
 }
