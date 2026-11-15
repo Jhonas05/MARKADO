@@ -19,6 +19,14 @@ responses. Mailpit is a local demonstration transport, not proof of live Resend
 delivery. Hosted registration and a verified staging backup/restore remain
 blocked. No account or quiz data was reset.
 
+A later local browser rehearsal registered a separate synthetic roster
+identity, received its verification email in loopback Mailpit, activated the
+Student without Professor approval, and completed quiz assignment, saving,
+submission, scoring, and manual result release. After a local web restart,
+the new account could sign in and see the released result. PostgreSQL records
+were independently verified with a read-only query; the reserved presentation
+attempt stayed unused. This is not hosted email or production verification.
+
 A separate local synthetic quiz was created, published and assigned to the
 existing Student. Both questions were answered, the attempt was submitted and
 scored 2/2, and the Professor released the result. After a local web restart,

@@ -1,5 +1,23 @@
 # MARKADO browser QA report
 
+## 15 November 2026: complete local registration-to-results rehearsal
+
+In real Chrome, a separate synthetic roster identity registered through the
+local Laravel application, received its code through loopback Mailpit,
+verified and activated, and signed in without Professor approval. The owning
+Professor created and published a separate two-question quiz and assigned that
+Student. The Student saved answers, reloaded, submitted, and initially saw a
+withheld result; the Professor released a 2/2 score, which the Student saw.
+
+After the local web process restarted, the new account could sign in and the
+released score remained available. A guarded read-only PostgreSQL query
+confirmed the active verified account, published quiz, two saved answers,
+submitted attempt, and scored/released result. The existing presentation quiz
+remained available and unstarted. The new Student's result screen passed
+axe-core WCAG 2.0/2.1 A/AA tagged checks with no horizontal overflow at 1440,
+768, and 390 px in both themes. Automated scans do not replace manual
+assistive-technology testing. Mailpit is not live hosted email delivery.
+
 ## 15 November 2026: local presentation and accessibility rehearsal
 
 Using existing synthetic accounts, real Chrome exercised a separate local quiz:
