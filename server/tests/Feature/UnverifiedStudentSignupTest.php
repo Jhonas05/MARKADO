@@ -4,8 +4,11 @@ namespace Tests\Feature;
 
 use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
+use App\Enums\StudentVerificationStatus;
 use App\Http\Controllers\Auth\UnverifiedStudentRegistrationController;
+use App\Identity\Contracts\StudentIdentitySource;
 use App\Identity\Support\UnverifiedStudentSignupEnvironment;
+use App\Models\SchoolStudentRecord;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
@@ -125,10 +128,10 @@ class UnverifiedStudentSignupTest extends TestCase
 
     public function test_claiming_an_existing_roster_student_number_never_grants_school_identity(): void
     {
-        \App\Models\SchoolStudentRecord::query()->create([
+        SchoolStudentRecord::query()->create([
             'student_number' => '00009401',
             'institutional_email' => 'verified@students.example.edu',
-            'verification_status' => \App\Enums\StudentVerificationStatus::Verified,
+            'verification_status' => StudentVerificationStatus::Verified,
             'verified_at' => now(),
             'is_active' => true,
         ]);
@@ -136,7 +139,7 @@ class UnverifiedStudentSignupTest extends TestCase
         $this->post('/register', $this->payload())->assertRedirect('/student/dashboard');
         $student = User::query()->sole();
 
-        $this->assertFalse(app(\App\Identity\Contracts\StudentIdentitySource::class)->evaluate($student)->matched);
+        $this->assertFalse(app(StudentIdentitySource::class)->evaluate($student)->matched);
         $this->assertNull($student->schoolStudentRecord);
         $this->assertDatabaseHas('student_self_reported_claims', [
             'user_id' => $student->id,
