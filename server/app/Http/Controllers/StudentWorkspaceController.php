@@ -11,8 +11,7 @@ use Inertia\Response;
 class StudentWorkspaceController extends Controller
 {
     public function __construct(private readonly StudentIdentitySource $identitySource)
-    {
-    }
+    {}
 
     public function __invoke(Request $request): Response
     {
