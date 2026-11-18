@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureAssessmentEngineEnabled;
 use App\Http\Middleware\EnsureGamificationEnabled;
 use App\Http\Middleware\EnsureLocalRegistrationEnabled;
 use App\Http\Middleware\EnsureRegistrationEnabled;
+use App\Http\Middleware\EnsureUnverifiedStudentSignupEnabled;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'gamification-enabled' => EnsureGamificationEnabled::class,
             'local-registration' => EnsureLocalRegistrationEnabled::class,
             'registration-enabled' => EnsureRegistrationEnabled::class,
+            'unverified-student-signup' => EnsureUnverifiedStudentSignupEnabled::class,
         ]);
 
         $middleware->web(append: [
