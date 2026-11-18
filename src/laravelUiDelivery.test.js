@@ -93,8 +93,9 @@ describe('Laravel/Inertia production UI delivery', () => {
 
     expect(routedCopy).not.toMatch(/Phase 5C|database-backed|isolated demo|demo coins|\bD\d{2}\b|PostgreSQL|development workflow|server-controlled activation gate/i)
     expect(routedCopy).not.toMatch(/Student UI prototype|Professor UI prototype|Administrator UI prototype/i)
-    expect(login).toContain('Recovery availability')
-    expect(login).toContain('Student access is school-managed.')
+    expect(login).toContain('SECURE SIGN-IN')
+    expect(login).toContain('Create Student Account')
+    expect(login).toContain('auth-shell--showcase')
     expect(login).not.toContain('Forgot password?')
   })
 
