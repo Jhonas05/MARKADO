@@ -100,7 +100,7 @@ export default function StudentShell({
       </div>
 
       <nav className="student-bottom-nav" aria-label="Student mobile navigation">
-        {navigation.slice(0, 4).map((item) => (
+        {navigation.map((item) => (
           <NavigationItem active={item.key === active} item={item} key={item.key} mobile />
         ))}
       </nav>
