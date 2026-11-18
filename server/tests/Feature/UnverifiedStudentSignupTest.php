@@ -123,6 +123,31 @@ class UnverifiedStudentSignupTest extends TestCase
             ->where('student_number', '00009401')->count());
     }
 
+    public function test_claiming_an_existing_roster_student_number_never_grants_school_identity(): void
+    {
+        \App\Models\SchoolStudentRecord::query()->create([
+            'student_number' => '00009401',
+            'institutional_email' => 'verified@students.example.edu',
+            'verification_status' => \App\Enums\StudentVerificationStatus::Verified,
+            'verified_at' => now(),
+            'is_active' => true,
+        ]);
+
+        $this->post('/register', $this->payload())->assertRedirect('/student/dashboard');
+        $student = User::query()->sole();
+
+        $this->assertFalse(app(\App\Identity\Contracts\StudentIdentitySource::class)->evaluate($student)->matched);
+        $this->assertNull($student->schoolStudentRecord);
+        $this->assertDatabaseHas('student_self_reported_claims', [
+            'user_id' => $student->id,
+            'student_number' => '00009401',
+        ]);
+        $this->assertDatabaseHas('school_student_records', [
+            'student_number' => '00009401',
+            'user_id' => null,
+        ]);
+    }
+
     public function test_mode_is_default_deny_and_cannot_override_institutional_signup(): void
     {
         config()->set('identity.unverified_student_signup_enabled', false);
