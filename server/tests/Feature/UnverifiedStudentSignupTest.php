@@ -37,6 +37,20 @@ class UnverifiedStudentSignupTest extends TestCase
         Route::getRoutes()->refreshNameLookups();
     }
 
+    public function test_help_explains_the_configured_signup_mode_and_separate_quiz_access(): void
+    {
+        $this->post('/register', $this->payload())->assertRedirect('/student/dashboard');
+
+        $this->get('/help')->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->component('Help')
+            ->where('topics.0.steps.0', fn (string $step) => str_contains($step, 'self-reported'))
+            ->where('topics.0.steps.2', fn (string $step) => str_contains($step, 'assignment')));
+
+        config()->set('identity.unverified_student_signup_enabled', false);
+        $this->get('/help')->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->where('topics.0.steps.1', fn (string $step) => str_contains($step, 'verification message')));
+    }
+
     public function test_student_creates_a_local_login_without_mailbox_verification_or_roster_approval(): void
     {
         $this->get('/register')->assertOk()->assertInertia(fn (Assert $page) => $page

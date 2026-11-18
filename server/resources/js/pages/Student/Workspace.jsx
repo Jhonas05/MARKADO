@@ -1,11 +1,28 @@
+import { useEffect, useRef, useSyncExternalStore } from 'react'
 import SchoolVerification from '../../Components/SchoolVerification.jsx'
 import { Link, usePage } from '@inertiajs/react'
 import Icon from '@prototype/components/Icon.jsx'
 import CharacterArtwork from '../../Components/CharacterArtwork.jsx'
 import StudentQuizLayout from '../../Layouts/StudentQuizLayout.jsx'
 
+function subscribeToFragment(callback) {
+  window.addEventListener('hashchange', callback)
+  return () => window.removeEventListener('hashchange', callback)
+}
+
+const accountSelected = () => window.location.hash === '#account'
+
 export default function Workspace({ assessmentStartAvailable, eligibility, quizJoinUrl, schoolVerificationAvailable }) {
   const { gamification } = usePage().props
+  const account = useRef(null)
+  const showAccount = useSyncExternalStore(subscribeToFragment, accountSelected, () => false)
+  useEffect(() => {
+    if (showAccount) {
+      account.current.focus({ preventScroll: true })
+      account.current.scrollIntoView({ block: 'start', behavior: 'instant' })
+    }
+  }, [showAccount])
+
   const verified = eligibility.hasSchoolRecord
     && eligibility.isActive
     && eligibility.verificationStatus === 'verified'
@@ -13,7 +30,7 @@ export default function Workspace({ assessmentStartAvailable, eligibility, quizJ
     && eligibility.identityMatched
 
   return (
-    <StudentQuizLayout active="workspace" title="Student dashboard">
+    <StudentQuizLayout active={showAccount ? 'account' : 'workspace'} title="Student dashboard">
       <main className="student-account-page" id="main-content">
         <section className="student-account-hero">
           <div>
@@ -44,7 +61,7 @@ export default function Workspace({ assessmentStartAvailable, eligibility, quizJ
               </div>
             </section>
           ) : null}
-          <section className="panel student-account-card" id="account" aria-labelledby="identity-heading">
+          <section className="panel student-account-card" id="account" ref={account} tabIndex={-1} aria-labelledby="identity-heading">
             <p className="section-kicker">Account access</p>
             <h2 id="identity-heading">{verified ? 'School identity verified' : 'School verification required'}</h2>
             <dl>

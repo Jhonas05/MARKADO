@@ -47,7 +47,7 @@ export default function Preflight({ preflight }) {
             <span><Icon name="lock" size={26} /></span>
             <div>
               <h2>Access remains closed</h2>
-              <p>For privacy, MARKADO does not confirm whether an unavailable code belongs to a draft, a restricted quiz, or no quiz.</p>
+              <p>Check your code. To open a published quiz, you need a verified school account and a quiz assignment. Check your <a href="/student/dashboard#account">account status</a> or ask your professor to confirm your assignment.</p>
             </div>
           </section>
         )}

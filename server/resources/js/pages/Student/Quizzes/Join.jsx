@@ -31,14 +31,14 @@ export default function Join({ policyNotice }) {
               name="code"
               value={form.data.code}
               onChange={(event) => form.setData('code', event.target.value.toUpperCase())}
-              aria-describedby="quiz-code-help quiz-code-error"
+              aria-describedby={form.errors.code ? 'quiz-code-help quiz-code-error' : 'quiz-code-help'}
               aria-invalid={form.errors.code ? 'true' : undefined}
               autoComplete="off"
               autoCapitalize="characters"
               maxLength={8}
               placeholder="ABCD2345"
             />
-            {form.errors.code ? <span className="auth-error" id="quiz-code-error">{form.errors.code}</span> : null}
+            {form.errors.code ? <span className="auth-error" id="quiz-code-error" role="alert">{form.errors.code}</span> : null}
             <button className="button button--primary" type="submit" disabled={form.processing}>
               {form.processing ? 'Checking securely…' : 'Check quiz access'}
               <Icon name="arrowRight" size={18} />

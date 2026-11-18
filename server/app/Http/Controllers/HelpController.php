@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Identity\Support\UnverifiedStudentSignupEnvironment;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class HelpController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response
     {
         return Inertia::render('Help', [
             'topics' => [
                 [
                     'title' => 'Student registration and sign in',
-                    'steps' => [
+                    'steps' => UnverifiedStudentSignupEnvironment::availableFor($request) ? [
+                        'Create a Student account to enter your workspace. Your student number is self-reported until your school identity is verified.',
+                        'Open Account to check school verification. A restricted quiz requires a matching active school record and a verified institutional mailbox.',
+                        'Ask your professor for an assignment and quiz code. Enter the code in Join quiz to check access.',
+                    ] : [
                         'Enter the exact official student number and institutional email on the registration page.',
                         'Open the verification message within 30 minutes. A new message can be requested after 60 seconds, up to five times per rolling hour.',
                         'Registration activates only when the mailbox and the same active, verified school roster record both match.',

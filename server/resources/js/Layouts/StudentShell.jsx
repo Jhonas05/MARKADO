@@ -17,11 +17,14 @@ function NavigationItem({ active, item, mobile = false }) {
     )
   }
 
+  // Native navigation preserves the dashboard fragment and its back/forward history.
+  const Destination = item.href.split('#')[0] === '/student/dashboard' ? 'a' : Link
+
   return (
-    <Link className={className} href={item.href} aria-current={active ? 'page' : undefined}>
+    <Destination className={className} href={item.href} aria-current={active ? 'page' : undefined}>
       <Icon name={item.icon} size={mobile ? 19 : 18} />
       <span>{item.label}</span>
-    </Link>
+    </Destination>
   )
 }
 
@@ -100,7 +103,7 @@ export default function StudentShell({
       </div>
 
       <nav className="student-bottom-nav" aria-label="Student mobile navigation">
-        {navigation.slice(0, 4).map((item) => (
+        {navigation.map((item) => (
           <NavigationItem active={item.key === active} item={item} key={item.key} mobile />
         ))}
       </nav>
