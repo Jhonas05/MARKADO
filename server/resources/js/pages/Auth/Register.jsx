@@ -56,14 +56,14 @@ export default function Register({ registration }) {
             <p className="auth-validation-status" aria-live="polite">{form.processing ? 'Submitting your details…' : Object.keys(form.errors).length ? 'Check the highlighted fields and try again.' : selfService ? 'Your details will be saved as an unverified Student account.' : 'Your school record and mailbox will be checked securely.'}</p>
           </form>
 
-          <section className="identity-requirements" aria-labelledby="identity-requirements-title">
+          {!selfService && <section className="identity-requirements" aria-labelledby="identity-requirements-title">
             <h2 id="identity-requirements-title">Required checks</h2>
             <ul>
               {registration.requirements.map((requirement) => <li key={requirement}>{requirement}</li>)}
             </ul>
-          </section>
+          </section>}
 
-          {!registration.available && <section className="identity-requirements" aria-labelledby="verification-states-title">
+          {!selfService && !registration.available && <section className="identity-requirements" aria-labelledby="verification-states-title">
             <h2 id="verification-states-title">Verification states</h2>
             <ul>
               {registration.verificationStates.map((state) => <li key={state}>{state}</li>)}
@@ -71,12 +71,12 @@ export default function Register({ registration }) {
             <p className="auth-field__hint">Generic resend acknowledgement: {registration.resendAcknowledgement}</p>
           </section>}
 
-          <div className="auth-registration-note" id="registration-policy" role="note">
+          {!selfService && <div className="auth-registration-note" id="registration-policy" role="note">
             <strong>{selfService && registration.available ? 'Student login ready after signup — school identity unverified' : registration.available ? 'Your school identity stays protected' : 'Registration is currently unavailable'}</strong>
             <span>{selfService && registration.available ? 'You can sign in immediately, but self-reported details do not grant access to school-restricted quizzes or another student’s academic records.' : registration.available ? 'If registration cannot proceed, sign in to an existing account or contact your school. Registration never replaces an existing account.' : registration.message}</span>
-          </div>
+          </div>}
           <p className="auth-privacy-note" id="registration-privacy">
-            {selfService ? 'Your account email and claimed Student number will be stored without ownership verification. Never share your password.' : 'Your information is used to verify your school identity. Never share your password or verification code with staff or other students.'}
+            {selfService ? 'Your Student number is self-reported, and restricted quizzes still require separate school authorization. Never share your password.' : 'Your information is used to verify your school identity. Never share your password or verification code with staff or other students.'}
           </p>
           <p className="auth-card__footer">Already have an account? <Link href="/login">Sign in</Link></p>
         </section>
