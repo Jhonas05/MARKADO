@@ -4,9 +4,10 @@ import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
 
 export default function Register({ registration }) {
   const form = useForm({ student_number: '', email: '', password: '', password_confirmation: '' })
+  const selfService = registration.mode === 'unverified'
   const fields = [
-    { name: 'student_number', label: 'Official student number', type: 'text', autoComplete: 'off', hint: 'Enter your exact school-issued number, including any leading zeros.' },
-    { name: 'email', label: 'Institutional email address', type: 'email', autoComplete: 'email', hint: 'Use the school-issued mailbox that matches your student record.' },
+    { name: 'student_number', label: selfService ? 'Student number' : 'Official student number', type: 'text', autoComplete: 'off', hint: selfService ? 'Self-reported number. This alone does not verify school identity or unlock restricted quizzes.' : 'Enter your exact school-issued number, including any leading zeros.' },
+    { name: 'email', label: selfService ? 'Email address' : 'Institutional email address', type: 'email', autoComplete: 'email', hint: selfService ? 'No verification email is sent in this signup mode. Use an email you control.' : 'Use the school-issued mailbox that matches your student record.' },
     { name: 'password', label: 'Password', type: 'password', autoComplete: 'new-password', hint: 'At least 12 characters, with uppercase and lowercase letters and a number.' },
     { name: 'password_confirmation', label: 'Confirm password', type: 'password', autoComplete: 'new-password' },
   ]
@@ -31,7 +32,7 @@ export default function Register({ registration }) {
           <p className="section-kicker">Student access</p>
           <h1 id="registration-title">{registration.available ? 'Create your Student account' : 'Student onboarding requirements'}</h1>
           <p className="auth-card__intro">
-            Use your official student number and school-issued email. Your account opens after email verification and matching school-record checks.
+            {selfService ? 'Create your own Student account without email verification. School identity and restricted quiz access are not automatically approved.' : 'Use your official student number and school-issued email. Your account opens after email verification and matching school-record checks.'}
           </p>
 
           <form className="auth-form" onSubmit={submit} noValidate aria-describedby="registration-policy registration-privacy">
@@ -52,7 +53,7 @@ export default function Register({ registration }) {
             <button className="button button--primary button--full" type="submit" disabled={!registration.available || form.processing}>
               {form.processing ? 'Creating account…' : registration.available ? 'Create account' : 'Registration unavailable'}
             </button>
-            <p className="auth-validation-status" aria-live="polite">{form.processing ? 'Submitting your details…' : Object.keys(form.errors).length ? 'Check the highlighted fields and try again.' : 'Your school record and mailbox will be checked securely.'}</p>
+            <p className="auth-validation-status" aria-live="polite">{form.processing ? 'Submitting your details…' : Object.keys(form.errors).length ? 'Check the highlighted fields and try again.' : '{selfService ? 'Your details will be saved as an unverified Student account.' : 'Your school record and mailbox will be checked securely.'}'}</p>
           </form>
 
           <section className="identity-requirements" aria-labelledby="identity-requirements-title">
@@ -71,11 +72,11 @@ export default function Register({ registration }) {
           </section>}
 
           <div className="auth-registration-note" id="registration-policy" role="note">
-            <strong>{registration.available ? 'Your school identity stays protected' : 'Registration is currently unavailable'}</strong>
-            <span>{registration.available ? 'If registration cannot proceed, sign in to an existing account or contact your school. Registration never replaces an existing account.' : registration.message}</span>
+            <strong>{selfService && registration.available ? 'Student login ready after signup — school identity unverified' : registration.available ? 'Your school identity stays protected' : 'Registration is currently unavailable'}</strong>
+            <span>{selfService && registration.available ? 'You can sign in immediately, but self-reported details do not grant access to school-restricted quizzes or another student’s academic records.' : registration.available ? 'If registration cannot proceed, sign in to an existing account or contact your school. Registration never replaces an existing account.' : registration.message}</span>
           </div>
           <p className="auth-privacy-note" id="registration-privacy">
-            Your information is used to verify your school identity. Never share your password or verification code with staff or other students.
+            {selfService ? 'Your account email and claimed Student number will be stored without ownership verification. Never share your password.' : 'Your information is used to verify your school identity. Never share your password or verification code with staff or other students.'}
           </p>
           <p className="auth-card__footer">Already have an account? <Link href="/login">Sign in</Link></p>
         </section>
