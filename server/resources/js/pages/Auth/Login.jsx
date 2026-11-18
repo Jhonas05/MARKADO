@@ -1,115 +1,101 @@
+import { useState } from 'react'
 import { Head, Link, useForm, usePage } from '@inertiajs/react'
 import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
+import AuthShowcase from '../../Components/AuthShowcase.jsx'
 
 export default function Login({ registration }) {
   const { flash } = usePage().props
-  const form = useForm({
-    email: '',
-    password: '',
-  })
+  const [showPassword, setShowPassword] = useState(false)
+  const form = useForm({ email: '', password: '' })
 
   function submit(event) {
     event.preventDefault()
-    form.post('/login', {
-      onFinish: () => form.reset('password'),
-    })
+    form.post('/login', { onFinish: () => form.reset('password') })
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-page--showcase">
       <Head title="Sign in" />
-      <a className="skip-link" href="#login-form">
-        Skip to sign in
-      </a>
+      <a className="skip-link" href="#login-form">Skip to sign in</a>
 
-      <main className="auth-shell">
-        <section className="auth-story" aria-labelledby="auth-heading">
-          <div className="auth-brand-row">
-            <Link className="auth-brand" href="/" aria-label="MARKADO home">
-              <MarkadoLogo decorative size={34} />
-            </Link>
-            <ThemeToggle compact />
-          </div>
+      <main className="auth-shell auth-shell--showcase">
+        <AuthShowcase />
 
-          <div>
-            <p className="section-kicker">School-managed access</p>
-            <h1 id="auth-heading">A focused place for every assessment.</h1>
-            <p>
-              Sign in to continue to the Student, Professor, or Administrator workspace
-              assigned to your account.
-            </p>
-          </div>
-
-          <div className="auth-boundary" role="note">
-            <strong>Institution-managed access</strong>
-            <span>Staff accounts are provisioned securely. Public privileged registration is unavailable.</span>
-          </div>
-        </section>
-
-        <section className="auth-card" aria-labelledby="login-title">
-          <div className="auth-card__heading">
-            <p className="section-kicker">Welcome back</p>
-            <h2 id="login-title">Sign in to your workspace</h2>
-            <p>Use your school-managed MARKADO account.</p>
-          </div>
-
-          {flash?.success && <p className="auth-registration-note" role="status">{flash.success}</p>}
-          <form id="login-form" onSubmit={submit} noValidate>
-            <div className="auth-field">
-              <label htmlFor="email">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="username"
-                value={form.data.email}
-                aria-invalid={Boolean(form.errors.email)}
-                aria-describedby={form.errors.email ? 'email-error' : undefined}
-                onChange={(event) => form.setData('email', event.target.value)}
-              />
-              {form.errors.email && (
-                <span className="auth-error" id="email-error" role="alert">
-                  {form.errors.email}
-                </span>
-              )}
+        <section className="auth-workspace" aria-labelledby="login-title">
+          <div className="auth-card auth-card--showcase">
+            <div className="auth-card__topline">
+              <Link className="auth-brand" href="/" aria-label="MARKADO home">
+                <MarkadoLogo decorative size={30} />
+              </Link>
+              <ThemeToggle compact />
             </div>
 
-            <div className="auth-field">
-              <div className="auth-field__label-row">
-                <label htmlFor="password">Password</label>
-                <Link href="/forgot-password">Recovery availability</Link>
+            <div className="auth-card__heading">
+              <p className="auth-card__eyebrow">SECURE SIGN-IN</p>
+              <h2 id="login-title">Welcome back</h2>
+              <p>Sign in to continue to your MARKADO workspace.</p>
+            </div>
+
+            {flash?.success && <p className="auth-registration-note" role="status">{flash.success}</p>}
+            <form id="login-form" className="auth-form" onSubmit={submit} noValidate>
+              <div className="auth-field">
+                <label htmlFor="email">Email address</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="username"
+                  placeholder="you@example.com"
+                  required
+                  value={form.data.email}
+                  aria-invalid={Boolean(form.errors.email)}
+                  aria-describedby={form.errors.email ? 'email-error' : undefined}
+                  onChange={(event) => form.setData('email', event.target.value)}
+                />
+                {form.errors.email && <span className="auth-error" id="email-error" role="alert">{form.errors.email}</span>}
               </div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                value={form.data.password}
-                aria-invalid={Boolean(form.errors.password)}
-                aria-describedby={form.errors.password ? 'password-error' : undefined}
-                onChange={(event) => form.setData('password', event.target.value)}
-              />
-              {form.errors.password && (
-                <span className="auth-error" id="password-error" role="alert">
-                  {form.errors.password}
-                </span>
-              )}
+
+              <div className="auth-field">
+                <label htmlFor="password">Password</label>
+                <div className="auth-password-field">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    required
+                    value={form.data.password}
+                    aria-invalid={Boolean(form.errors.password)}
+                    aria-describedby={form.errors.password ? 'password-error' : undefined}
+                    onChange={(event) => form.setData('password', event.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="auth-password-toggle"
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                {form.errors.password && <span className="auth-error" id="password-error" role="alert">{form.errors.password}</span>}
+              </div>
+
+              <button className="button button--primary auth-submit" type="submit" disabled={form.processing}>
+                {form.processing ? 'Signing in…' : 'Sign in'}
+              </button>
+            </form>
+
+            <div className="auth-signup-row">
+              <span>{registration?.available ? "Don't have an account?" : 'New to MARKADO?'}</span>
+              <Link href="/register">{registration?.available ? 'Create Student Account' : 'Review access requirements'}</Link>
             </div>
-
-            <button className="button button--primary auth-submit" type="submit" disabled={form.processing}>
-              {form.processing ? 'Signing in…' : 'Sign in'}
-            </button>
-          </form>
-
-          <div className="auth-registration-note auth-registration-note--compact" role="note">
-            <span>{registration?.available ? 'Students may create their own account.' : 'Student access is school-managed.'}</span>
-            <Link href="/register">{registration?.available ? 'Create Student Account' : 'Review access requirements'}</Link>
+            <p className="auth-card__security-foot">Your account and quiz records stay protected by MARKADO.</p>
+            <Link className="auth-back-link" href="/">Return to MARKADO home</Link>
           </div>
-
-          <Link className="auth-back-link" href="/">
-            Return to MARKADO home
-          </Link>
         </section>
       </main>
     </div>

@@ -1,6 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react'
 import MarkadoLogo from '@prototype/components/MarkadoLogo.jsx'
 import ThemeToggle from '@prototype/components/ThemeToggle.jsx'
+import AuthShowcase from '../../Components/AuthShowcase.jsx'
 
 export default function Register({ registration }) {
   const form = useForm({ student_number: '', email: '', password: '', password_confirmation: '' })
@@ -19,17 +20,19 @@ export default function Register({ registration }) {
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-page--showcase">
       <Head title="Student registration" />
-      <main className="auth-shell auth-shell--single" id="main-content">
-        <section className="auth-card auth-card--registration" aria-labelledby="registration-title">
+      <main className="auth-shell auth-shell--showcase" id="main-content">
+        <AuthShowcase />
+        <div className="auth-workspace">
+        <section className="auth-card auth-card--registration auth-card--showcase" aria-labelledby="registration-title">
           <div className="auth-card__topline">
             <Link className="auth-brand" href="/" aria-label="MARKADO home">
               <MarkadoLogo decorative size={30} />
             </Link>
             <ThemeToggle compact />
           </div>
-          <p className="section-kicker">Student access</p>
+          <p className="auth-card__eyebrow">STUDENT REGISTRATION</p>
           <h1 id="registration-title">{registration.available ? 'Create your Student account' : 'Student onboarding requirements'}</h1>
           <p className="auth-card__intro">
             {selfService ? 'Create your own Student account without email verification. School identity and restricted quiz access are not automatically approved.' : 'Use your official student number and school-issued email. Your account opens after email verification and matching school-record checks.'}
@@ -80,6 +83,7 @@ export default function Register({ registration }) {
           </p>
           <p className="auth-card__footer">Already have an account? <Link href="/login">Sign in</Link></p>
         </section>
+        </div>
       </main>
     </div>
   )

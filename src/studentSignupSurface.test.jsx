@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@inertiajs/react', () => ({
@@ -35,6 +35,29 @@ describe('student signup and recovery surfaces', () => {
     expect(screen.getByRole('button', { name: 'Create account' })).toBeEnabled()
     expect(screen.queryByRole('heading', { name: 'Required checks' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Verification states' })).not.toBeInTheDocument()
+  })
+
+  it('renders an accessible MARKADO showcase on sign-in and sign-up', () => {
+    const { unmount } = render(<Login registration={{ available: true }} />)
+    expect(screen.getByRole('heading', { name: 'Make every quiz count.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Welcome back' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Make every quiz count.' })).toHaveAttribute('id', 'auth-showcase-title')
+    unmount()
+
+    render(<Register registration={{ available: true, mode: 'unverified', requirements: [], verificationStates: [] }} />)
+    expect(screen.getByRole('heading', { name: 'Make every quiz count.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Create your Student account' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create account' })).toBeEnabled()
+  })
+
+  it('lets a keyboard-accessible control show and hide the sign-in password', () => {
+    render(<Login registration={{ available: true }} />)
+    const password = screen.getByLabelText('Password')
+    expect(password).toHaveAttribute('type', 'password')
+    fireEvent.click(screen.getByRole('button', { name: 'Show password' }))
+    expect(password).toHaveAttribute('type', 'text')
+    fireEvent.click(screen.getByRole('button', { name: 'Hide password' }))
+    expect(password).toHaveAttribute('type', 'password')
   })
 
   it('explains unavailable recovery without disabled input or a misleading reset action', () => {
