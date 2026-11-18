@@ -1,6 +1,8 @@
 # MARKADO self-service Student signup without email verification
 
-**Status:** Optional new mode on a feature branch; not approved for production deployment. No Railway service or production data was changed.
+**Retired by verified self-service signup.** The following is a historical record of PR #38. Its opt-in flag and registration route have been removed. Existing accounts and their unverified claims are preserved. Configure new signup using [production release readiness](production-release-readiness.md). An ownership dispute involving a legacy account needs the school's authorized recovery process.
+
+**Original status:** Optional mode introduced by PR #38.
 
 ## What this mode does
 

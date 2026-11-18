@@ -6,7 +6,6 @@ use App\Http\Middleware\EnsureAssessmentEngineEnabled;
 use App\Http\Middleware\EnsureGamificationEnabled;
 use App\Http\Middleware\EnsureLocalRegistrationEnabled;
 use App\Http\Middleware\EnsureRegistrationEnabled;
-use App\Http\Middleware\EnsureUnverifiedStudentSignupEnabled;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -31,7 +30,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'gamification-enabled' => EnsureGamificationEnabled::class,
             'local-registration' => EnsureLocalRegistrationEnabled::class,
             'registration-enabled' => EnsureRegistrationEnabled::class,
-            'unverified-student-signup' => EnsureUnverifiedStudentSignupEnabled::class,
         ]);
 
         $middleware->web(append: [
@@ -39,7 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->dontFlash(['verification_token']);
+        $exceptions->dontFlash(['verification_token', 'student_number']);
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
             $status = $response->getStatusCode();
 

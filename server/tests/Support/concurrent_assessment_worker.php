@@ -14,6 +14,7 @@ use App\Identity\Contracts\StudentActivationService;
 use App\Identity\Data\InstitutionalEmailVerificationMessage;
 use App\Identity\Data\StudentIdentityDecision;
 use App\Identity\Support\StudentRegistrationService;
+use App\Identity\Support\StudentSignupService;
 use App\Models\Character;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
@@ -43,7 +44,7 @@ if (! file_exists($barrier)) {
 }
 
 try {
-    if ($action === 'register_student') {
+    if (in_array($action, ['register_student', 'signup_student'], true)) {
         config()->set('identity.presentation_registration_enabled', true);
         config()->set('identity.student_self_registration_enabled', true);
         config()->set('identity.automatic_student_activation_enabled', true);
@@ -51,9 +52,13 @@ try {
         config()->set('identity.institutional_email_verification_delivery_enabled', true);
         config()->set('identity.institutional_email_domains', ['students.example.edu']);
         $payload = json_decode($relatedId, true, flags: JSON_THROW_ON_ERROR);
-        $student = $app->make(StudentRegistrationService::class)->register(
-            $payload['student_number'], $payload['email'], 'Synthetic-Password-9400',
-        );
+        $arguments = [$payload['student_number'], $payload['email'], 'Synthetic-Password-9400'];
+        if ($action === 'signup_student') {
+            config()->set('identity.student_claim_signup_enabled', true);
+            $student = $app->make(StudentSignupService::class)->start(...$arguments)['student'] ?? null;
+        } else {
+            $student = $app->make(StudentRegistrationService::class)->register(...$arguments);
+        }
         echo json_encode(['created' => $student !== null, 'user_id' => $student?->id], JSON_THROW_ON_ERROR);
         exit(0);
     }

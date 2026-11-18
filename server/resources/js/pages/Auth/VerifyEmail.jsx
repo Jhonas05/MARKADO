@@ -31,7 +31,7 @@ export default function VerifyEmail() {
           </div>
           <p className="section-kicker">Student access</p>
           <h1 id="verification-title">Check your school email</h1>
-          <p className="auth-card__intro">If your details can be registered, verification instructions will be sent to your institutional mailbox. Existing accounts must sign in.</p>
+          <p className="auth-card__intro">If registration can proceed, we’ll send a verification code to your school email. Enter it in the browser where you submitted your signup. If your signup session expired, start again.</p>
           {flash?.success && <p className="auth-registration-note" role="status">{flash.success}</p>}
           <form className="auth-form" onSubmit={verify} noValidate>
             <div className="auth-field">
@@ -46,7 +46,7 @@ export default function VerifyEmail() {
           </form>
           <button className="button button--secondary auth-submit" type="button" disabled={resending} onClick={resend}>{resending ? 'Requesting…' : 'Resend verification email'}</button>
           <p className="auth-field__hint">Wait at least 60 seconds before requesting another email. Up to five emails can be issued in a rolling hour. A new code replaces the previous one.</p>
-          <p className="auth-card__footer"><Link href="/login">Back to Sign in</Link></p>
+          <p className="auth-card__footer"><Link href="/register">Start signup again</Link> · <Link href="/login">Back to sign in</Link></p>
         </section>
       </main>
     </div>

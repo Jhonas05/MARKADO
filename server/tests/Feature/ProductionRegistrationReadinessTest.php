@@ -11,6 +11,7 @@ use App\Identity\Support\TrustedRosterRecordPolicy;
 use App\Models\SchoolStudentRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Testing\AssertableInertia as Assert;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -131,6 +132,25 @@ class ProductionRegistrationReadinessTest extends TestCase
         } catch (HttpException $exception) {
             $this->assertSame(404, $exception->getStatusCode());
         }
+    }
+
+    public function test_signup_without_a_roster_requires_the_claim_storage_migration(): void
+    {
+        $this->configureResendProductionControls();
+        config([
+            'identity.student_claim_signup_enabled' => true,
+            'identity.trusted_roster_source' => '',
+            'identity.trusted_roster_max_age_hours' => null,
+        ]);
+
+        $this->assertTrue(ProductionRegistrationEnvironment::enabled());
+        Schema::shouldReceive('hasTable')->with('student_signup_claims')->andReturn(false, true);
+        $request = Request::create('https://markado.institution.invalid/register', 'POST');
+        $this->assertFalse(RegistrationEnvironment::availableFor($request));
+        $this->assertTrue(RegistrationEnvironment::availableFor($request));
+
+        config()->set('services.resend.key', '');
+        $this->assertFalse(RegistrationEnvironment::availableFor($request));
     }
 
     public function test_login_and_register_only_advertise_signup_when_the_route_and_origin_are_available(): void

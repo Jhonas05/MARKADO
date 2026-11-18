@@ -3,14 +3,37 @@
 namespace App\Identity\Support;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
+use Throwable;
 
 final class RegistrationEnvironment
 {
     public static function enabled(): bool
     {
-        return LocalRegistrationEnvironment::enabled()
+        $configured = LocalRegistrationEnvironment::enabled()
             || HostedPresentationRegistrationEnvironment::enabled()
             || ProductionRegistrationEnvironment::enabled();
+
+        if (! $configured || ! config('identity.student_claim_signup_enabled')) {
+            return $configured;
+        }
+
+        try {
+            return Schema::hasTable('student_signup_claims');
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    public static function claimSignupEnabled(): bool
+    {
+        return config('identity.student_claim_signup_enabled') && self::enabled();
+    }
+
+    public static function canStart(Request $request): bool
+    {
+        return Route::has('registration.store') && self::availableFor($request);
     }
 
     public static function availableFor(Request $request): bool
