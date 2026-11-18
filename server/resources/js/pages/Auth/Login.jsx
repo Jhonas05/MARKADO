@@ -103,7 +103,7 @@ export default function Login({ registration }) {
           </form>
 
           <div className="auth-registration-note auth-registration-note--compact" role="note">
-            <span>Student access is school-managed.</span>
+            <span>{registration?.available ? 'Students may create their own account.' : 'Student access is school-managed.'}</span>
             <Link href="/register">{registration?.available ? 'Create Student Account' : 'Review access requirements'}</Link>
           </div>
 
