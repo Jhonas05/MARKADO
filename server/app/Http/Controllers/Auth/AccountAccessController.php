@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Identity\Support\RegistrationEnvironment;
+use App\Identity\Support\UnverifiedStudentSignupEnvironment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -13,13 +14,23 @@ class AccountAccessController extends Controller
 {
     public function register(Request $request): Response
     {
+        $unverified = UnverifiedStudentSignupEnvironment::availableFor($request);
+        $available = Route::has('registration.store')
+            && ($unverified || RegistrationEnvironment::availableFor($request));
+
         return Inertia::render('Auth/Register', [
             'registration' => [
-                'available' => Route::has('registration.store') && RegistrationEnvironment::availableFor($request),
+                'available' => $available,
+                'mode' => $unverified ? 'unverified' : 'institutional',
                 'selfRegistrationApproved' => true,
                 'automaticStudentActivationApproved' => true,
                 'message' => 'Your school must finish email delivery, roster setup, and security controls before registration can open.',
-                'requirements' => [
+                'requirements' => $unverified ? [
+                    'Create a Student login with a self-reported student number and email.',
+                    'Your email and school identity will not be verified during signup.',
+                    'Unverified numbers never link automatically to trusted school records.',
+                    'Restricted quizzes, academic results and school eligibility remain separately protected.',
+                ] : [
                     'Use your official student number and school-issued institutional email.',
                     'The number and email must match the same active, verified school roster record.',
                     'You must independently prove control of the institutional mailbox.',
