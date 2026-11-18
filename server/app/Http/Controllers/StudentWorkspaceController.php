@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Identity\Contracts\StudentIdentitySource;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class StudentWorkspaceController extends Controller
 {
-    public function __construct(private readonly StudentIdentitySource $identitySource) {}
+    public function __construct(private readonly StudentIdentitySource $identitySource)
+    {
+    }
 
     public function __invoke(Request $request): Response
     {
