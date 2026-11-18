@@ -53,7 +53,7 @@ export default function Register({ registration }) {
             <button className="button button--primary button--full" type="submit" disabled={!registration.available || form.processing}>
               {form.processing ? 'Creating account…' : registration.available ? 'Create account' : 'Registration unavailable'}
             </button>
-            <p className="auth-validation-status" aria-live="polite">{form.processing ? 'Submitting your details…' : Object.keys(form.errors).length ? 'Check the highlighted fields and try again.' : '{selfService ? 'Your details will be saved as an unverified Student account.' : 'Your school record and mailbox will be checked securely.'}'}</p>
+            <p className="auth-validation-status" aria-live="polite">{form.processing ? 'Submitting your details…' : Object.keys(form.errors).length ? 'Check the highlighted fields and try again.' : selfService ? 'Your details will be saved as an unverified Student account.' : 'Your school record and mailbox will be checked securely.'}</p>
           </form>
 
           <section className="identity-requirements" aria-labelledby="identity-requirements-title">
