@@ -3550,3 +3550,77 @@ html.dark .prof-profile > span {
     margin-bottom: 26px;
   }
 }
+
+/* Final Student/Professor typography and navigation polish.
+   Use scoped overrides: do not scale the entire application or change theme colors. */
+.student-shell .student-account-hero h1,
+.student-shell .student-preflight-hero h1,
+.prof-app .prof-page-heading h1 {
+  font-size: clamp(1.85rem, 3vw, 2.8rem);
+  line-height: 1.13;
+  letter-spacing: -0.03em;
+  overflow-wrap: break-word;
+}
+
+.student-shell .student-account-card h2,
+.student-shell .student-policy-card h2,
+.student-shell .student-join-card h2 {
+  font-size: clamp(1.12rem, 1.6vw, 1.45rem);
+  line-height: 1.32;
+}
+
+.student-shell .student-account-card p,
+.student-shell .student-account-card dt,
+.student-shell .student-account-card dd,
+.student-shell .student-preflight-hero > p:not(.section-kicker),
+.student-shell .student-policy-card p,
+.student-shell .student-policy-card li,
+.student-shell .student-join-card label {
+  font-size: clamp(0.9rem, 1.1vw, 1rem);
+  line-height: 1.55;
+}
+
+.student-shell .student-sidebar__link,
+.student-shell .student-sidebar__utility {
+  font-size: 0.94rem;
+}
+
+.student-shell .student-sidebar__brand small,
+.student-shell .student-sidebar__profile small,
+.student-shell .student-sidebar__nav > p,
+.student-shell .student-sidebar__footer > div > p {
+  font-size: 0.8rem;
+}
+
+/* All Student destinations remain keyboard/touch accessible on small screens. */
+@media (max-width: 767px) {
+  .student-shell {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .student-bottom-nav {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+    padding: 5px 10px calc(7px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .student-bottom-nav__item {
+    flex: 1 0 71px;
+    min-width: 71px;
+    min-height: 56px;
+    scroll-snap-align: start;
+    padding: 5px 3px;
+    font-size: clamp(0.73rem, 2vw, 0.8rem);
+    font-weight: 700;
+    line-height: 1.18;
+    text-align: center;
+    overflow-wrap: normal;
+  }
+}
