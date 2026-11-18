@@ -10,6 +10,7 @@ vi.mock('@inertiajs/react', () => ({
 vi.mock('@prototype/components/ThemeToggle.jsx', () => ({ default: () => null }))
 
 import Login from '../server/resources/js/pages/Auth/Login.jsx'
+import Register from '../server/resources/js/pages/Auth/Register.jsx'
 import PolicyGate from '../server/resources/js/pages/Auth/PolicyGate.jsx'
 
 describe('student signup and recovery surfaces', () => {
@@ -22,6 +23,18 @@ describe('student signup and recovery surfaces', () => {
     render(<Login registration={{ available: false }} />)
     expect(screen.queryByRole('link', { name: 'Create Student Account' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Review access requirements' })).toHaveAttribute('href', '/register')
+  })
+
+  it('shows an enabled, streamlined signup form without email verification requirements', () => {
+    render(<Register registration={{ available: true, mode: 'unverified', requirements: [], verificationStates: [] }} />)
+    expect(screen.getByRole('heading', { name: 'Create your Student account' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Student number')).toBeInTheDocument()
+    expect(screen.getByLabelText('Email address')).toBeInTheDocument()
+    expect(screen.getByLabelText('Password')).toBeInTheDocument()
+    expect(screen.getByLabelText('Confirm password')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create account' })).toBeEnabled()
+    expect(screen.queryByRole('heading', { name: 'Required checks' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Verification states' })).not.toBeInTheDocument()
   })
 
   it('explains unavailable recovery without disabled input or a misleading reset action', () => {
