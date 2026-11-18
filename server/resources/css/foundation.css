@@ -3090,9 +3090,10 @@ html.dark .prof-profile > span {
   padding: clamp(32px, 4.2vw, 72px);
   overflow: hidden;
   background:
-    radial-gradient(circle at 90% 34%, rgba(165, 255, 220, 0.18), transparent 38%),
-    linear-gradient(145deg, #075d55 0%, #00816c 55%, #08ab94 100%);
-  color: #fff;
+    radial-gradient(ellipse at 100% 8%, color-mix(in srgb, var(--pastel-pink) 46%, transparent), transparent 48%),
+    linear-gradient(145deg, color-mix(in srgb, var(--primary-soft) 68%, var(--canvas)),
+      var(--primary-soft) 52%, color-mix(in srgb, var(--primary-soft) 82%, var(--primary)));
+  color: var(--ink);
 }
 
 .auth-showcase::after {
@@ -3103,9 +3104,10 @@ html.dark .prof-profile > span {
   aspect-ratio: 1;
   right: -22%;
   bottom: -15%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent);
   border-radius: 50%;
-  box-shadow: 0 0 0 46px rgba(255, 255, 255, 0.045), 0 0 0 110px rgba(255, 255, 255, 0.035);
+  box-shadow: 0 0 0 46px color-mix(in srgb, var(--primary) 6%, transparent),
+    0 0 0 110px color-mix(in srgb, var(--pastel-pink) 14%, transparent);
   pointer-events: none;
 }
 
@@ -3115,14 +3117,14 @@ html.dark .prof-profile > span {
   gap: 13px;
   width: fit-content;
   max-width: 100%;
-  color: #fff;
+  color: var(--ink-mid);
   font-size: 0.8125rem;
   font-weight: 700;
   text-decoration: none;
 }
 
 .auth-showcase__brand:hover {
-  color: #fff;
+  color: var(--primary-strong);
 }
 
 .auth-showcase__brand-mark {
@@ -3146,7 +3148,7 @@ html.dark .prof-profile > span {
 
 .auth-showcase__eyebrow {
   margin: 0 0 19px;
-  color: #bff9e9;
+  color: var(--primary-strong);
   font-size: 0.73rem;
   font-weight: 800;
   letter-spacing: 0.16em;
@@ -3155,7 +3157,7 @@ html.dark .prof-profile > span {
 .auth-showcase h1 {
   max-width: 11ch;
   margin: 0 0 18px;
-  color: #fff !important;
+  color: var(--ink-strong);
   font-family: var(--font-display);
   font-size: clamp(2.8rem, 5vw, 5.1rem);
   line-height: 1.03;
@@ -3163,14 +3165,14 @@ html.dark .prof-profile > span {
 }
 
 .auth-showcase h1 em {
-  color: #c7ffe6;
+  color: var(--primary-strong);
   font-style: normal;
 }
 
 .auth-showcase__lead {
   max-width: 580px;
   margin: 0;
-  color: #e6fff5;
+  color: var(--ink-mid);
   font-size: clamp(0.98rem, 1.4vw, 1.12rem);
   line-height: 1.65;
 }
@@ -3189,9 +3191,9 @@ html.dark .prof-profile > span {
   align-items: center;
   gap: 16px;
   padding: 15px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
   border-radius: 19px;
-  background: rgba(255, 255, 255, 0.11);
+  background: color-mix(in srgb, var(--surface) 58%, transparent);
   backdrop-filter: blur(8px);
 }
 
@@ -3201,8 +3203,8 @@ html.dark .prof-profile > span {
   width: 44px;
   min-height: 44px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
+  background: var(--primary-soft);
+  color: var(--primary-strong);
   font-size: 0.95rem;
   font-weight: 800;
 }
@@ -3213,12 +3215,12 @@ html.dark .prof-profile > span {
 }
 
 .auth-showcase__feature strong {
-  color: #fff;
+  color: var(--ink-strong);
   font-size: 0.98rem;
 }
 
 .auth-showcase__feature div > span {
-  color: #dcf9f0;
+  color: var(--ink-mid);
   font-size: 0.84rem;
   line-height: 1.48;
 }
@@ -3227,13 +3229,13 @@ html.dark .prof-profile > span {
   display: flex;
   align-items: center;
   gap: 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-top: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
   padding-top: 23px;
 }
 
 .auth-showcase__bottom p {
   margin: 0;
-  color: #e2fff3;
+  color: var(--ink-mid);
   font-size: 0.85rem;
   line-height: 1.6;
 }
@@ -3243,10 +3245,10 @@ html.dark .prof-profile > span {
   flex: 0 0 auto;
   width: 58px;
   height: 58px;
-  border: 5px solid rgba(255, 255, 255, 0.9);
+  border: 5px solid var(--primary);
   border-radius: 50%;
-  background: conic-gradient(#fff 0 30%, rgba(255, 255, 255, 0.14) 30% 100%);
-  box-shadow: inset 0 0 0 7px #047967;
+  background: conic-gradient(var(--pastel-pink) 0 30%, var(--primary-soft) 30% 100%);
+  box-shadow: inset 0 0 0 7px var(--primary-soft);
 }
 
 .auth-showcase__timer-art span {
@@ -3256,7 +3258,7 @@ html.dark .prof-profile > span {
   width: 3px;
   height: 18px;
   border-radius: 2px;
-  background: #fff;
+  background: var(--primary-strong);
   transform-origin: top center;
   transform: rotate(42deg);
 }
@@ -3267,7 +3269,7 @@ html.dark .prof-profile > span {
   place-items: center;
   padding: clamp(24px, 5vw, 74px);
   background:
-    radial-gradient(circle at 85% 13%, rgba(234, 218, 148, 0.23), transparent 34%),
+    radial-gradient(circle at 85% 13%, color-mix(in srgb, var(--pastel-pink) 20%, transparent), transparent 34%),
     var(--canvas);
 }
 
@@ -3278,7 +3280,7 @@ html.dark .prof-profile > span {
   border: 1px solid var(--line);
   border-radius: 32px;
   background: var(--surface);
-  box-shadow: 0 22px 65px rgba(8, 40, 35, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .auth-card--showcase .auth-card__topline {
@@ -3292,19 +3294,13 @@ html.dark .prof-profile > span {
   min-height: 28px;
   margin: 0 0 12px;
   padding: 4px 12px;
-  border: 1px solid color-mix(in srgb, #09967b, transparent 70%);
+  border: 1px solid var(--line);
   border-radius: var(--radius-full);
-  background: color-mix(in srgb, #a1f1d8, var(--surface) 65%);
-  color: #096655;
+  background: var(--surface-sunken);
+  color: var(--primary-strong);
   font-size: 0.73rem;
   font-weight: 800;
   letter-spacing: 0.13em;
-}
-
-html.dark .auth-card--showcase .auth-card__eyebrow,
-html[data-theme='dark'] .auth-card--showcase .auth-card__eyebrow {
-  color: #b5f8df;
-  background: rgba(8, 125, 99, 0.28);
 }
 
 .auth-card--showcase .auth-card__heading {
@@ -3340,10 +3336,14 @@ html[data-theme='dark'] .auth-card--showcase .auth-card__eyebrow {
 .auth-page--showcase .auth-field input {
   min-height: 53px;
   padding: 0 17px;
-  border: 1px solid color-mix(in srgb, var(--line-strong), var(--pastel-sky) 34%);
+  border: 1px solid color-mix(in srgb, var(--primary) 62%, var(--line-strong));
   border-radius: 15px;
   color: var(--ink);
-  background: color-mix(in srgb, var(--pastel-sky), var(--surface) 73%);
+  background: color-mix(in srgb, var(--primary-soft) 26%, var(--surface));
+}
+
+.auth-page--showcase .auth-field input[aria-invalid='true'] {
+  border-color: var(--danger);
 }
 
 .auth-page--showcase .auth-field input:focus-visible {
@@ -3352,7 +3352,7 @@ html[data-theme='dark'] .auth-card--showcase .auth-card__eyebrow {
 }
 
 .auth-page--showcase .auth-field input::placeholder {
-  color: var(--ink-subtle);
+  color: var(--ink-muted);
 }
 
 .auth-page--showcase .auth-password-field {
@@ -3387,16 +3387,16 @@ html[data-theme='dark'] .auth-card--showcase .auth-card__eyebrow {
   min-height: 52px;
   border: 0;
   border-radius: 15px;
-  background: linear-gradient(100deg, #067e66, #0cae96);
-  color: #fff;
+  background: var(--primary);
+  color: var(--on-primary);
   font-weight: 800;
-  box-shadow: 0 12px 28px rgba(4, 136, 109, 0.18);
+  box-shadow: var(--shadow-sm);
 }
 
 .auth-page--showcase .auth-submit:not(:disabled):hover,
 .auth-page--showcase .auth-card--registration .button--primary:not(:disabled):hover {
-  background: linear-gradient(100deg, #056a56, #078e7b);
-  color: #fff;
+  background: var(--primary-strong);
+  color: var(--on-primary);
 }
 
 .auth-page--showcase .auth-card--showcase .auth-registration-note {
