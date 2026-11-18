@@ -22,6 +22,7 @@ final class ResendHttpInstitutionalEmailVerificationDelivery implements Institut
         $applicationKey = config('app.key');
 
         if (! is_string($apiKey) || trim($apiKey) === ''
+            || preg_match('/[\\r\\n]/', $apiKey) === 1
             || ! is_string($applicationKey) || $applicationKey === ''
             || ! is_string($fromAddress) || filter_var($fromAddress, FILTER_VALIDATE_EMAIL) === false
             || ! is_string($fromName) || preg_match('/[\r\n]/', $fromName) === 1
@@ -70,7 +71,8 @@ final class ResendHttpInstitutionalEmailVerificationDelivery implements Institut
             return false;
         }
 
-        if (! $response->successful() || ! is_string($response->json('id')) || $response->json('id') === '') {
+        $providerMessageId = $response->json('id');
+        if (! $response->successful() || ! is_string($providerMessageId) || trim($providerMessageId) === '') {
             $this->reportFailure('http_response', $response->status());
 
             return false;
