@@ -61,6 +61,7 @@ class StudentRegistrationHttpTest extends TestCase
     public function test_registration_mailbox_activation_and_sign_in_use_real_http_routes(): void
     {
         $record = $this->roster();
+        $this->get('/login')->assertInertia(fn (Assert $page) => $page->where('registration.available', true));
         $this->get('/register')->assertInertia(fn (Assert $page) => $page->where('registration.available', true));
         $this->post('/register', $this->payload() + ['role' => 'academic_administrator', 'account_status' => 'active', 'name' => 'Untrusted'])
             ->assertRedirect('/register/verification')->assertSessionHasNoErrors();

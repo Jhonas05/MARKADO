@@ -4,16 +4,18 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Identity\Support\RegistrationEnvironment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AccountAccessController extends Controller
 {
-    public function register(): Response
+    public function register(Request $request): Response
     {
         return Inertia::render('Auth/Register', [
             'registration' => [
-                'available' => RegistrationEnvironment::enabled(),
+                'available' => Route::has('registration.store') && RegistrationEnvironment::availableFor($request),
                 'selfRegistrationApproved' => true,
                 'automaticStudentActivationApproved' => true,
                 'message' => 'Your school must finish email delivery, roster setup, and security controls before registration can open.',
@@ -48,7 +50,7 @@ class AccountAccessController extends Controller
     {
         return $this->policyGate(
             'Password reset',
-            'A verified reset link is required',
+            'Password reset is currently unavailable',
             'MARKADO has not enabled password reset issuance while the institutional recovery policy remains unresolved.',
             'password-reset',
         );

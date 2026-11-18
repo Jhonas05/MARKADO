@@ -10,17 +10,18 @@ use App\Identity\Support\RegistrationEnvironment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('Auth/Login', [
             'registration' => [
-                'available' => RegistrationEnvironment::enabled(),
-                'message' => 'Student onboarding requires a verified institutional mailbox and matching trusted roster identity. Public account creation and activation remain unavailable.',
+                'available' => Route::has('registration.store') && RegistrationEnvironment::availableFor($request),
+                'message' => 'Student onboarding requires a verified institutional mailbox and matching trusted roster identity.',
             ],
         ]);
     }
@@ -32,7 +33,7 @@ class AuthenticatedSessionController extends Controller
         $user = $request->user();
 
         if ($user->role === AccountRole::Student && $user->account_status === AccountStatus::Pending
-            && RegistrationEnvironment::enabled()) {
+            && Route::has('registration.verification') && RegistrationEnvironment::availableFor($request)) {
             Auth::guard('web')->logout();
             $request->session()->regenerate();
             $request->session()->put('registration_user_id', $user->id);
