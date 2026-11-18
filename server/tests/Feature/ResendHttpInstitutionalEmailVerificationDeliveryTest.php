@@ -91,6 +91,60 @@ class ResendHttpInstitutionalEmailVerificationDeliveryTest extends TestCase
         );
     }
 
+    public function test_resend_rejects_a_header_injection_api_key_without_an_http_request(): void
+    {
+        config()->set('services.resend.key', "re_synthetic\r\nInjected-Header: unsafe");
+        Http::fake();
+        Log::spy();
+
+        $this->assertFalse((new ResendHttpInstitutionalEmailVerificationDelivery)->deliver($this->message()));
+
+        Http::assertNothingSent();
+        Log::shouldHaveReceived('warning')->once()->with(
+            'Institutional verification delivery failed.',
+            ['provider' => 'resend', 'failure' => 'configuration'],
+        );
+    }
+
+    public function test_success_without_a_valid_provider_message_id_is_not_accepted(): void
+    {
+        Http::fake([
+            'https://api.resend.com/emails' => Http::response(['id' => '   '], 200),
+        ]);
+        Log::spy();
+
+        $this->assertFalse((new ResendHttpInstitutionalEmailVerificationDelivery)->deliver($this->message()));
+
+        Http::assertSentCount(1);
+        Log::shouldHaveReceived('warning')->once()->with(
+            'Institutional verification delivery failed.',
+            ['provider' => 'resend', 'failure' => 'http_response', 'status' => 200],
+        );
+    }
+
+    public function test_temporary_resend_failure_retries_with_the_same_idempotency_key(): void
+    {
+        Http::fake([
+            'https://api.resend.com/emails' => Http::sequence()
+                ->push(['message' => 'Temporary provider outage'], 503)
+                ->push(['id' => 'email_synthetic_after_retry'], 200),
+        ]);
+
+        $this->assertTrue((new ResendHttpInstitutionalEmailVerificationDelivery)->deliver($this->message()));
+
+        Http::assertSentCount(2);
+        $keys = [];
+        Http::assertSent(function (Request $request) use (&$keys): bool {
+            $keys[] = $request->header('Idempotency-Key')[0] ?? '';
+
+            return true;
+        });
+
+        $this->assertCount(2, $keys);
+        $this->assertNotSame('', $keys[0]);
+        $this->assertSame($keys[0], $keys[1]);
+    }
+
     private function message(): InstitutionalEmailVerificationMessage
     {
         return new InstitutionalEmailVerificationMessage(
