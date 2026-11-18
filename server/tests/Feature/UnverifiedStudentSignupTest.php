@@ -167,6 +167,7 @@ class UnverifiedStudentSignupTest extends TestCase
 
     public function test_public_origin_must_be_approved_and_use_https(): void
     {
+        $originalDatabase = config('database.default');
         $this->app['env'] = 'production';
         config()->set('app.url', 'https://markado.example.test');
         config()->set('app.debug', false);
@@ -181,6 +182,9 @@ class UnverifiedStudentSignupTest extends TestCase
         $this->assertFalse(UnverifiedStudentSignupEnvironment::availableFor(
             Request::create('https://other.example.test/register')
         ));
+
+        config()->set('database.default', $originalDatabase);
+        $this->app['env'] = 'testing';
     }
 
     private function payload(): array
