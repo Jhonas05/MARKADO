@@ -7,6 +7,7 @@ use App\Enums\AccountStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Identity\Support\RegistrationEnvironment;
+use App\Identity\Support\UnverifiedStudentSignupEnvironment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class AuthenticatedSessionController extends Controller
     {
         return Inertia::render('Auth/Login', [
             'registration' => [
-                'available' => Route::has('registration.store') && RegistrationEnvironment::availableFor($request),
+                'available' => Route::has('registration.store') && (RegistrationEnvironment::availableFor($request) || UnverifiedStudentSignupEnvironment::availableFor($request)),
                 'message' => 'Student onboarding requires a verified institutional mailbox and matching trusted roster identity.',
             ],
         ]);
