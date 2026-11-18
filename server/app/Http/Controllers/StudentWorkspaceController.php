@@ -10,17 +10,14 @@ use Inertia\Response;
 
 class StudentWorkspaceController extends Controller
 {
-    public function __construct(private readonly StudentIdentitySource $identitySource)
-    {}
-
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, StudentIdentitySource $identitySource): Response
     {
         $student = $request->user();
         $studentRecord = $student->schoolStudentRecord;
         $selfReportedNumber = $studentRecord === null
             ? DB::table('student_self_reported_claims')->where('user_id', $student->id)->value('student_number')
             : null;
-        $identity = $this->identitySource->evaluate($student);
+        $identity = $identitySource->evaluate($student);
 
         return Inertia::render('Student/Workspace', [
             'eligibility' => [
