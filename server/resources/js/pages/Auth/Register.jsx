@@ -35,7 +35,7 @@ export default function Register({ registration }) {
             {selfService ? 'Create your own Student account without email verification. School identity and restricted quiz access are not automatically approved.' : 'Use your official student number and school-issued email. Your account opens after email verification and matching school-record checks.'}
           </p>
 
-          <form className="auth-form" onSubmit={submit} noValidate aria-describedby="registration-policy registration-privacy">
+          <form className="auth-form" onSubmit={submit} noValidate aria-describedby={selfService ? 'registration-privacy' : 'registration-policy registration-privacy'}>
             <fieldset disabled={!registration.available || form.processing}>
               <legend className="sr-only">Student onboarding fields</legend>
               {fields.map(({ name, label, type, autoComplete, hint }) => (
