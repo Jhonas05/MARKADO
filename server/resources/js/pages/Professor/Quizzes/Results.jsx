@@ -3,7 +3,7 @@ import Icon from '@prototype/components/Icon.jsx'
 import ProfessorLayout from '../../../Layouts/ProfessorLayout.jsx'
 import { ScreenHeader, StatusBadge } from '../../../Components/ProfessorUi.jsx'
 
-export default function QuizResults({ attempts, quiz }) {
+export default function QuizResults({ attempts, quiz, sort, summary }) {
   const { errors } = usePage().props
 
   function release(attempt) {
@@ -17,14 +17,28 @@ export default function QuizResults({ attempts, quiz }) {
         eyebrow={`${quiz.courseCode} · Manual release`}
         title={quiz.title}
         description="Review submitted scores and choose when each student can see earned and maximum points."
-        actions={<Link className="button button--secondary" href={`/professor/quizzes/${quiz.id}/edit`}><Icon name="arrowLeft" size={18} /> Quiz builder</Link>}
+        actions={<>
+          <a className="button button--secondary" href={`/professor/quizzes/${quiz.id}/results/export/pdf?sort=${sort}`}>Export PDF</a>
+          <a className="button button--secondary" href={`/professor/quizzes/${quiz.id}/results/export/docx?sort=${sort}`}>Export DOCX</a>
+          <Link className="button button--secondary" href={`/professor/quizzes/${quiz.id}/edit`}><Icon name="arrowLeft" size={18} /> Quiz builder</Link>
+        </>}
       />
 
       {errors?.release ? <p className="prof-validation-summary" role="alert">{errors.release}</p> : null}
+      <section className="prof-result-summary" aria-label="Result summary">
+        <article><span>Attempts</span><strong>{summary.attemptCount}</strong></article>
+        <article><span>Scored</span><strong>{summary.scoredCount}</strong></article>
+        <article><span>Released</span><strong>{summary.releasedCount}</strong></article>
+        <article><span>Average</span><strong>{summary.averagePercent === null ? '—' : `${summary.averagePercent}%`}</strong></article>
+      </section>
       <section className="prof-panel professor-results" aria-labelledby="results-title">
         <div className="prof-panel-heading">
           <div><p className="section-kicker">Owned submissions</p><h2 id="results-title">Scoring and release status</h2></div>
-          <StatusBadge>{attempts.length} records</StatusBadge>
+          <div className="prof-results-controls" aria-label="Result order">
+            <Link className={sort === 'score' ? 'button button--primary button--compact' : 'button button--secondary button--compact'} href={`/professor/quizzes/${quiz.id}/results?sort=score`}>High to low</Link>
+            <Link className={sort === 'student' ? 'button button--primary button--compact' : 'button button--secondary button--compact'} href={`/professor/quizzes/${quiz.id}/results?sort=student`}>A to Z</Link>
+            <StatusBadge>{attempts.length} records</StatusBadge>
+          </div>
         </div>
         <div className="professor-results__table-wrap">
           <table>
@@ -43,7 +57,7 @@ export default function QuizResults({ attempts, quiz }) {
             </tbody>
           </table>
         </div>
-        <p className="assessment-policy-note">Additional reporting tools, including rankings, bulk release, regrading, and exports, are currently unavailable.</p>
+        <p className="assessment-policy-note">Ordering is a reporting view, not an academic rank. Tied scores use student name as a stable secondary order. Regrading and bulk release remain unavailable.</p>
       </section>
     </ProfessorLayout>
   )

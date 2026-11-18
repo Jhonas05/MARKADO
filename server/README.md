@@ -110,9 +110,12 @@ synthetic Student Dashboard as a migration fixture. `/login` accepts provisioned
 active accounts only. The server-stored role sends students to
 `/student/dashboard`, instructors to `/professor/quizzes`, and academic
 administrators to `/admin/dashboard`; changing a client URL or form label cannot
-change that role. Public student registration and recovery have truthful design
-surfaces but no mutation routes while D13/D14 remain unresolved. Staff
-registration and privileged administrator actions remain disabled.
+change that role. Public Student registration has a real roster-backed mutation
+flow but remains default-gated. It is available only in the guarded local
+presentation, the separately guarded hosted presentation, or production after
+every domain, roster-provenance, HTTPS, PostgreSQL, transactional-delivery, and activation control
+passes. Recovery, staff registration, and privileged administrator mutations
+remain disabled.
 
 Provisioned instructors can use `/professor/quizzes` for PostgreSQL-backed,
 owner-scoped draft authoring with single-answer MCQ and True/False questions.
@@ -122,8 +125,25 @@ When explicitly enabled, eligible students can start or resume one assessment,
 save acknowledged answers, move forward through questions, and finalize at the
 earliest authoritative deadline. Owning instructors can view scored attempts
 and manually release score/total. Audit events contain identifiers and outcomes
-but no code, question, choice, or answer content. AI generation, rankings,
-exports, regrading, and unresolved privileged actions remain unavailable.
+but no code, question, choice, or answer content. Owner-authorized Professor
+results support deterministic score/A-to-Z ordering and private PDF/DOCX
+exports. AI generation, academic rank numbering, regrading, and unresolved
+privileged actions remain unavailable.
+
+## Hosted presentation provisioning
+
+The isolated staging dataset is prepared only after migrations and exact
+Railway environment configuration pass:
+
+```text
+php artisan markado:presentation provision --confirm=<exact-environment-id>
+php artisan markado:presentation status
+```
+
+The command provisions synthetic Student, Professor, and read-only
+Administrator paths plus an unclaimed synthetic registration roster record. It
+generates passwords into private application storage and never prints them.
+See `../docs/PRESENTATION_RUNBOOK.md` and `../docs/DEMO_RESET.md`.
 
 ## Internal assessment-engine foundation
 
@@ -144,8 +164,9 @@ the local development schema.
 To activate a reviewed environment, set
 `MARKADO_ASSESSMENT_ROUTES_ENABLED=true`. Automatic expiration additionally
 requires `MARKADO_ASSESSMENT_EXPIRATION_ENABLED=true` and one supported Laravel
-scheduler runner (for example, `php artisan schedule:work` locally or a single
-once-per-minute `php artisan schedule:run` production trigger). Request-time
+scheduler runner (one one-replica `php artisan schedule:work` service backed by
+the shared database cache). Railway native cron cannot meet the required
+one-minute interval. Request-time
 deadline reconciliation stays authoritative if a worker is delayed; do not
 enable these flags before migrations, provisioned identities, monitoring, and
 the applicable policy approvals are verified.

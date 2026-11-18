@@ -8,6 +8,7 @@ use App\Assessment\Contracts\AuthoritativeClock;
 use App\Assessment\Contracts\ResultReleaseManager;
 use App\Assessment\Contracts\ScoreCalculator;
 use App\Assessment\Data\ScoreSummary;
+use App\Assessment\Support\ReconciliationRunObserver;
 use App\Enums\AccountRole;
 use App\Enums\AccountStatus;
 use App\Enums\QuestionType;
@@ -22,8 +23,11 @@ use App\Models\User;
 use App\Services\QuizPublicationService;
 use DateTimeImmutable;
 use DomainException;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Support\BuildsAssessmentFixtures;
 use Tests\Support\MutableAuthoritativeClock;
@@ -258,9 +262,16 @@ class AssessmentScoringSchedulingTest extends TestCase
         $attempt = QuizAttempt::query()->findOrFail($session->attemptId);
         $this->clock->advanceTo(new DateTimeImmutable('2026-10-24T01:02:30+00:00'));
 
+        Log::spy();
         $this->artisan('assessment:reconcile-expired --batch=10')
             ->expectsOutputToContain('Reconciled 1 assessment attempt')
             ->assertSuccessful();
+        Log::shouldHaveReceived('info')->once()->withArgs(fn (string $message, array $context): bool => $message === 'Assessment expiration reconciliation completed.'
+            && $context['event'] === 'assessment_expiration_reconciliation'
+            && $context['candidates'] === 1
+            && $context['processed'] === 1
+            && $context['batch_size'] === 10
+            && is_int($context['duration_ms']));
 
         $attempt->refresh();
         $receipt = $attempt->terminal_receipt_id;
@@ -272,5 +283,53 @@ class AssessmentScoringSchedulingTest extends TestCase
             ->expectsOutputToContain('Reconciled 0 assessment attempt')
             ->assertSuccessful();
         $this->assertSame($receipt, $attempt->fresh()->terminal_receipt_id);
+    }
+
+    public function test_expiration_schedule_is_once_per_minute_and_has_leader_and_overlap_locks(): void
+    {
+        $event = collect(app(Schedule::class)->events())
+            ->first(fn ($event) => $event->description === 'assessment-expiration-reconciliation');
+
+        $this->assertNotNull($event);
+        $this->assertSame('* * * * *', $event->expression);
+        $this->assertTrue($event->onOneServer);
+        $this->assertTrue($event->withoutOverlapping);
+        $this->assertSame(2, $event->expiresAt);
+        $this->assertNotSame($event->getDefaultOutput(), $event->output);
+    }
+
+    public function test_expiration_observer_logs_only_aggregate_processed_count(): void
+    {
+        Log::spy();
+
+        app(ReconciliationRunObserver::class)->recordSuccess(
+            new Stringable('Reconciled 3 assessment attempt(s). Synthetic private detail.'),
+        );
+
+        Log::shouldHaveReceived('info')->once()->with(
+            'Assessment expiration worker completed.',
+            ['event' => 'assessment_expiration_worker_completed', 'processed' => 3],
+        );
+    }
+
+    public function test_expiration_failure_is_reported_without_exposing_exception_details(): void
+    {
+        $this->app->instance(AuthoritativeClock::class, new class implements AuthoritativeClock
+        {
+            public function now(): DateTimeImmutable
+            {
+                throw new \RuntimeException('synthetic private exception detail');
+            }
+        });
+        Log::spy();
+
+        $this->artisan('assessment:reconcile-expired')
+            ->expectsOutputToContain('Assessment expiration reconciliation failed.')
+            ->assertFailed();
+
+        Log::shouldHaveReceived('error')->once()->with(
+            'Assessment expiration reconciliation failed.',
+            ['event' => 'assessment_expiration_reconciliation_failed', 'error_type' => \RuntimeException::class],
+        );
     }
 }

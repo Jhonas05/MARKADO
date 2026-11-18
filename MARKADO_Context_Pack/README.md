@@ -14,6 +14,8 @@ Files:
 - `decisions/ADR-005-v1-hard-close-auto-submission.md`: global hard close.
 - `decisions/ADR-006-v1-dual-timers-and-attempt-policy.md`: dual timers, expiry, resume, connectivity, and schedule boundaries.
 - `decisions/ADR-007-v1-final-question-scoring-and-result-release.md`: final-question finalization, objective scoring, and minimal manual result release.
+- `decisions/ADR-008-v1-institutional-student-onboarding.md` through `ADR-013-v94-local-student-registration.md`: institutional identity, Student self-registration, mailbox verification, cosmetic rewards, and guarded local registration decisions.
+- `decisions/ADR-014-production-readiness-and-reporting.md`: production identity readiness, fresh roster provenance, deterministic result views, and audited PDF/DOCX exports.
 - `examples/`: synthetic records **only**; never use them as actual school data.
 
 For an AI coding assistant: "Read context/00_START_HERE.md, context/13_architecture-and-interfaces.md, context/18_open-decisions.md and every applicable file in `decisions/` first. Produce a traceable plan. Never silently resolve an [OPEN] policy."

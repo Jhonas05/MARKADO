@@ -12,6 +12,7 @@ export default function StudentQuizLayout({ active = 'join', children, showRewar
       { href: '/student/characters/shop', icon: 'spark', label: 'Shop', key: 'shop' },
     ] : []),
     { href: '/student/dashboard#account', icon: 'user', label: 'Account', key: 'account' },
+    { href: '/help', icon: 'help', label: 'Help', key: 'help' },
   ]
   const initials = user.name
     .split(/\s+/)

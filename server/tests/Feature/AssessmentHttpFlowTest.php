@@ -130,6 +130,7 @@ class AssessmentHttpFlowTest extends TestCase
             'account_status' => AccountStatus::Active,
         ]);
         $this->actingAs($otherInstructor)->get("/professor/quizzes/{$quiz->id}/results")->assertForbidden();
+        $this->actingAs($otherInstructor)->get("/professor/quizzes/{$quiz->id}/results/export/pdf")->assertForbidden();
         $this->actingAs($otherInstructor)
             ->post("/professor/quizzes/{$quiz->id}/attempts/{$attempt->id}/release")
             ->assertForbidden();
@@ -147,7 +148,20 @@ class AssessmentHttpFlowTest extends TestCase
                 ->component('Professor/Quizzes/Results')
                 ->where('attempts.0.earnedPoints', 1)
                 ->where('attempts.0.maximumPoints', 2)
-                ->where('attempts.0.canRelease', true));
+                ->where('attempts.0.canRelease', true)
+                ->where('summary.attemptCount', 1)
+                ->where('summary.scoredCount', 1)
+                ->where('summary.averagePercent', 50)
+                ->where('sort', 'score'));
+
+        $pdf = $this->actingAs($owner)->get("/professor/quizzes/{$quiz->id}/results/export/pdf?sort=score");
+        $pdf->assertOk()->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF-1.4', $pdf->getContent());
+
+        $docx = $this->actingAs($owner)->get("/professor/quizzes/{$quiz->id}/results/export/docx?sort=student");
+        $docx->assertOk()->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        $this->assertStringStartsWith("PK\x03\x04", $docx->getContent());
+        $this->assertSame(2, AssessmentAuditEvent::query()->where('event_type', 'results_exported')->count());
 
         $this->actingAs($owner)
             ->post("/professor/quizzes/{$quiz->id}/attempts/{$attempt->id}/release")

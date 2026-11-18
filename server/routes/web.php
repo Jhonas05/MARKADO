@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AccountAccessController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\StudentRegistrationController;
 use App\Http\Controllers\AuthenticatedWorkspaceController;
+use App\Http\Controllers\HelpController;
 use App\Http\Controllers\ProfessorQuizController;
 use App\Http\Controllers\ProfessorQuizPublicationController;
 use App\Http\Controllers\ProfessorQuizQuestionController;
@@ -29,8 +30,8 @@ Route::get('/account/disabled', [AccountAccessController::class, 'disabled'])->n
 Route::get('/session-expired', [AccountAccessController::class, 'sessionExpired'])->name('session.expired');
 
 Route::middleware('guest')->group(function () {
-    if (config('identity.presentation_registration_enabled')) {
-        Route::middleware('local-registration')->group(function () {
+    if (config('identity.presentation_registration_enabled') || config('identity.public_student_registration_enabled')) {
+        Route::middleware('registration-enabled')->group(function () {
             Route::post('/register', [StudentRegistrationController::class, 'store'])
                 ->middleware('throttle:student-registration')->name('registration.store');
             Route::get('/register/verification', [StudentRegistrationController::class, 'show'])
@@ -55,6 +56,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('active-account')
         ->name('workspace');
     Route::delete('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::get('/help', HelpController::class)->middleware('active-account')->name('help');
 });
 
 Route::middleware(['auth', 'active-account', 'account-role:student'])
@@ -130,6 +132,10 @@ Route::middleware(['auth', 'active-account', 'account-role:instructor'])
         Route::get('quizzes/{quiz}/results', [ProfessorQuizResultController::class, 'index'])
             ->middleware('assessment-enabled')
             ->name('quizzes.results.index');
+        Route::get('quizzes/{quiz}/results/export/{format}', [ProfessorQuizResultController::class, 'export'])
+            ->whereIn('format', ['pdf', 'docx'])
+            ->middleware(['assessment-enabled', 'throttle:results-export'])
+            ->name('quizzes.results.export');
         Route::post('quizzes/{quiz}/attempts/{attempt}/release', [ProfessorQuizResultController::class, 'release'])
             ->middleware('assessment-enabled')
             ->name('quizzes.results.release');
