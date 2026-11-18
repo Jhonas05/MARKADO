@@ -1,5 +1,17 @@
 # MARKADO browser QA report
 
+## 18 November 2026: local signup surface regression
+
+Chrome and Playwright exercised a new synthetic trusted-roster identity on the
+guarded loopback PostgreSQL demo. Registration, loopback Mailpit verification,
+automatic Student activation, login and a dashboard refresh succeeded. A
+read-only database check confirmed the verified Student, linked roster and
+hashed credential. Existing presentation accounts and attempts were not used.
+At 1440, 768 and 390 px, login, registration and unavailable-recovery pages
+had no horizontal overflow; their nine axe-core 4.10.3 WCAG 2.0/2.1 A/AA
+scans reported no violations. This is local evidence only; automated scans do
+not replace assistive-technology testing or hosted mailbox delivery.
+
 ## 15 November 2026: complete local registration-to-results rehearsal
 
 In real Chrome, a separate synthetic roster identity registered through the

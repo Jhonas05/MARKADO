@@ -10,6 +10,8 @@ use App\Identity\Support\ResendHttpInstitutionalEmailVerificationDelivery;
 use App\Identity\Support\TrustedRosterRecordPolicy;
 use App\Models\SchoolStudentRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Inertia\Testing\AssertableInertia as Assert;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
@@ -119,12 +121,35 @@ class ProductionRegistrationReadinessTest extends TestCase
         $response = $middleware->handle(Request::create('https://markado.institution.invalid/register', 'POST'),
             fn () => new Response('ok'));
         $this->assertSame(200, $response->getStatusCode());
+        $this->assertTrue(RegistrationEnvironment::availableFor(Request::create('https://markado.institution.invalid/login')));
+        $this->assertFalse(RegistrationEnvironment::availableFor(Request::create('http://markado.institution.invalid/login')));
+        $this->assertFalse(RegistrationEnvironment::availableFor(Request::create('https://other.example.invalid/login')));
 
         try {
             $middleware->handle(Request::create('https://other.example.invalid/register', 'POST'), fn () => new Response('unexpected'));
             $this->fail('An unrelated HTTPS host was accepted.');
         } catch (HttpException $exception) {
             $this->assertSame(404, $exception->getStatusCode());
+        }
+    }
+
+    public function test_login_and_register_only_advertise_signup_when_the_route_and_origin_are_available(): void
+    {
+        $this->configureResendProductionControls();
+
+        $this->get('https://markado.institution.invalid/login')
+            ->assertInertia(fn (Assert $page) => $page->where('registration.available', false));
+
+        Route::post('/registration-test', fn () => response()->noContent())->name('registration.store');
+        Route::getRoutes()->refreshNameLookups();
+
+        foreach (['/login', '/register'] as $path) {
+            $this->get('https://markado.institution.invalid'.$path)
+                ->assertInertia(fn (Assert $page) => $page->where('registration.available', true));
+            $this->get('http://markado.institution.invalid'.$path)
+                ->assertInertia(fn (Assert $page) => $page->where('registration.available', false));
+            $this->get('https://other.example.invalid'.$path)
+                ->assertInertia(fn (Assert $page) => $page->where('registration.available', false));
         }
     }
 

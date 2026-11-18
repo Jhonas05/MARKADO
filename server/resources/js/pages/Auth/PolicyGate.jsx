@@ -26,14 +26,7 @@ export default function PolicyGate({ heading, message, state, title }) {
         <p className="section-kicker">{title}</p>
         <h1>{heading}</h1>
         <p>{message}</p>
-        {state === 'password-recovery' ? (
-          <div className="auth-field">
-            <label htmlFor="recovery-email">Email address</label>
-            <input id="recovery-email" type="email" autoComplete="email" disabled />
-          </div>
-        ) : null}
         <Link className="button button--primary button--full" href="/login">Return to sign in</Link>
-        {state === 'password-recovery' ? <Link className="auth-back-link" href="/reset-password">Password reset requirements</Link> : null}
       </main>
     </div>
   )
