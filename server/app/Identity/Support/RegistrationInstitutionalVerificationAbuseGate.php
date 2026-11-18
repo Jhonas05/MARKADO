@@ -10,7 +10,7 @@ final class RegistrationInstitutionalVerificationAbuseGate implements Institutio
 {
     public function evaluate(User $student, ?string $networkContext): StudentIdentityDecision
     {
-        return RegistrationEnvironment::enabled()
+        return (RegistrationEnvironment::enabled() || LocalRegistrationEnvironment::academicVerificationEnabled())
             ? StudentIdentityDecision::matched()
             : StudentIdentityDecision::denied('verification_abuse_policy_unavailable');
     }

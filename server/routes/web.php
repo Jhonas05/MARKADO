@@ -17,6 +17,7 @@ use App\Http\Controllers\ProfessorQuizStudentAssignmentController;
 use App\Http\Controllers\StudentAssessmentController;
 use App\Http\Controllers\StudentCharacterController;
 use App\Http\Controllers\StudentQuizJoinController;
+use App\Http\Controllers\StudentSchoolVerificationController;
 use App\Http\Controllers\StudentWorkspaceController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
@@ -67,6 +68,14 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'active-account', 'account-role:student'])
     ->get('/student/dashboard', StudentWorkspaceController::class)
     ->name('student.dashboard');
+
+if (config('identity.local_academic_verification_enabled') && app()->environment(['local', 'testing'])) {
+    Route::middleware(['auth', 'active-account', 'account-role:student', 'unverified-student-signup', 'throttle:student-verification'])
+        ->prefix('student/school-verification')->group(function () {
+            Route::post('send', [StudentSchoolVerificationController::class, 'send']);
+            Route::post('confirm', [StudentSchoolVerificationController::class, 'confirm']);
+        });
+}
 
 Route::middleware(['auth', 'active-account', 'account-role:student', 'gamification-enabled'])
     ->prefix('student/characters')

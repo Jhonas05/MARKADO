@@ -897,7 +897,7 @@
   border: 1px solid var(--line-strong);
   border-radius: 0.38rem;
   color: var(--ink);
-  background: #fff;
+  background: var(--surface);
   font-size: 0.73rem;
 }
 

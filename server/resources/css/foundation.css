@@ -2786,6 +2786,11 @@
   color: var(--ink);
 }
 
+.prof-assignment-row .button--danger-soft {
+  color: var(--danger);
+  background: var(--surface);
+}
+
 .prof-question-item--active small,
 .prof-publication-actions .button--danger-soft {
   color: var(--ink-mid);

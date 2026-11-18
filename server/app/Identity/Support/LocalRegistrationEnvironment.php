@@ -22,6 +22,22 @@ final class LocalRegistrationEnvironment
             return false;
         }
 
+        return self::isolatedRuntime();
+    }
+
+    public static function academicVerificationEnabled(): bool
+    {
+        return config('identity.local_academic_verification_enabled')
+            && UnverifiedStudentSignupEnvironment::enabled()
+            && config('identity.institutional_email_verification_enabled')
+            && config('identity.institutional_email_verification_delivery_enabled')
+            && config('identity.institutional_email_domains') !== []
+            && (app()->environment('testing') || config('session.driver') === 'database')
+            && self::isolatedRuntime();
+    }
+
+    private static function isolatedRuntime(): bool
+    {
         if (app()->environment('testing')) {
             return (config('database.default') === 'sqlite' && config('database.connections.sqlite.database') === ':memory:')
                 || (config('database.default') === 'pgsql' && (config('database.connections.pgsql.database') === 'markado_ci'

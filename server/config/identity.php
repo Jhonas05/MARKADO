@@ -19,6 +19,7 @@ $validatedRosterMaxAge = is_int($configuredRosterMaxAge) || is_string($configure
 $rosterMaxAgeHours = $validatedRosterMaxAge === false ? null : $validatedRosterMaxAge;
 
 return [
+    'local_academic_verification_enabled' => (bool) env('MARKADO_LOCAL_ACADEMIC_VERIFICATION_ENABLED', false),
     'presentation_registration_enabled' => (bool) env('MARKADO_PRESENTATION_REGISTRATION_ENABLED', false),
     'public_student_registration_enabled' => (bool) env('MARKADO_PUBLIC_STUDENT_REGISTRATION_ENABLED', false),
     // Independent, unverified account signup; never grants trusted roster or quiz eligibility.

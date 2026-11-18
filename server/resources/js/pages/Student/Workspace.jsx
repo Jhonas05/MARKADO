@@ -1,9 +1,10 @@
+import SchoolVerification from '../../Components/SchoolVerification.jsx'
 import { Link, usePage } from '@inertiajs/react'
 import Icon from '@prototype/components/Icon.jsx'
 import CharacterArtwork from '../../Components/CharacterArtwork.jsx'
 import StudentQuizLayout from '../../Layouts/StudentQuizLayout.jsx'
 
-export default function Workspace({ assessmentStartAvailable, eligibility, quizJoinUrl }) {
+export default function Workspace({ assessmentStartAvailable, eligibility, quizJoinUrl, schoolVerificationAvailable }) {
   const { gamification } = usePage().props
   const verified = eligibility.hasSchoolRecord
     && eligibility.isActive
@@ -53,6 +54,7 @@ export default function Workspace({ assessmentStartAvailable, eligibility, quizJ
               <div><dt>Roster identity match</dt><dd>{eligibility.identityMatched ? 'Matched' : 'Not confirmed'}</dd></div>
               <div><dt>Record status</dt><dd>{eligibility.isActive ? 'Active' : 'Unavailable'}</dd></div>
             </dl>
+            {schoolVerificationAvailable && <SchoolVerification />}
           </section>
           <section className="panel student-account-card" aria-labelledby="attempt-heading">
             <p className="section-kicker">Quiz access</p>

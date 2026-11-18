@@ -37,6 +37,7 @@ use App\Identity\Support\DatabaseRegistrationClaimVerifier;
 use App\Identity\Support\DatabaseStudentActivationService;
 use App\Identity\Support\DatabaseStudentIdentitySource;
 use App\Identity\Support\LaravelMailInstitutionalEmailVerificationDelivery;
+use App\Identity\Support\LocalRegistrationEnvironment;
 use App\Identity\Support\RegistrationEnvironment;
 use App\Identity\Support\RegistrationInstitutionalVerificationAbuseGate;
 use App\Identity\Support\RegistrationStudentActivationSecurityGate;
@@ -53,6 +54,7 @@ use App\Policies\QuizRevisionPolicy;
 use App\Policies\SchoolStudentRecordPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -67,6 +69,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(InstitutionalEmailPolicy::class, ConfiguredInstitutionalEmailPolicy::class);
         $this->app->bind(InstitutionalEmailVerificationService::class, DatabaseInstitutionalEmailVerificationService::class);
         $this->app->bind(InstitutionalEmailVerificationDelivery::class, function () {
+            if (LocalRegistrationEnvironment::academicVerificationEnabled()) {
+                return new LaravelMailInstitutionalEmailVerificationDelivery;
+            }
+
             if (! RegistrationEnvironment::enabled()) {
                 return new UnavailableInstitutionalEmailVerificationDelivery;
             }
@@ -100,6 +106,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (app()->environment('local') && config('identity.local_academic_verification_enabled')) {
+            app('router')->pushMiddlewareToGroup('web', AuthenticateSession::class);
+        }
+
         Gate::policy(Quiz::class, QuizPolicy::class);
         Gate::policy(QuizAttempt::class, QuizAttemptPolicy::class);
         Gate::policy(QuizRevision::class, QuizRevisionPolicy::class);

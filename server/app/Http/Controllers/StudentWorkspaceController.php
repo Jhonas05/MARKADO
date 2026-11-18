@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Identity\Contracts\StudentIdentitySource;
+use App\Identity\Support\LocalRegistrationEnvironment;
+use App\Identity\Support\UnverifiedStudentSignupEnvironment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -31,6 +33,9 @@ class StudentWorkspaceController extends Controller
                 'mailboxVerified' => $student->email_verified_at !== null,
                 'identityMatched' => $identity->matched,
             ],
+            'schoolVerificationAvailable' => $selfReportedNumber !== null
+                && LocalRegistrationEnvironment::academicVerificationEnabled()
+                && UnverifiedStudentSignupEnvironment::availableFor($request),
             'quizJoinUrl' => route('student.quizzes.join'),
             'assessmentStartAvailable' => (bool) config('assessment.routes_enabled'),
         ]);
