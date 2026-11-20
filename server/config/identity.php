@@ -21,8 +21,7 @@ $rosterMaxAgeHours = $validatedRosterMaxAge === false ? null : $validatedRosterM
 return [
     'presentation_registration_enabled' => (bool) env('MARKADO_PRESENTATION_REGISTRATION_ENABLED', false),
     'public_student_registration_enabled' => (bool) env('MARKADO_PUBLIC_STUDENT_REGISTRATION_ENABLED', false),
-    // Independent, unverified account signup; never grants trusted roster or quiz eligibility.
-    'unverified_student_signup_enabled' => (bool) env('MARKADO_UNVERIFIED_STUDENT_SIGNUP_ENABLED', false),
+    'student_claim_signup_enabled' => (bool) env('MARKADO_STUDENT_CLAIM_SIGNUP_ENABLED', false),
     /*
     | Student onboarding is default-deny. Production domains must come from
     | trusted server configuration and are never accepted from request input.

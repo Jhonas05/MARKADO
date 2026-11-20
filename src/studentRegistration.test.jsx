@@ -48,10 +48,11 @@ describe('Student registration form', () => {
     expect(screen.getByLabelText('Password')).toBeDisabled()
   })
 
-  it('keeps unavailable environments disabled', () => {
+  it('explains unavailability without exposing a form', () => {
     render(<Register registration={{ ...registration, available: false }} />)
-    expect(screen.getByRole('button', { name: 'Registration unavailable' })).toBeDisabled()
-    expect(screen.getByLabelText('Official student number')).toBeDisabled()
+    expect(screen.getByText('Registration is currently unavailable')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Create account' })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Official student number')).not.toBeInTheDocument()
     expect(state.post).not.toHaveBeenCalled()
   })
 })

@@ -37,9 +37,11 @@ export default function Welcome({ accountPolicies }) {
                 {user ? 'Continue to workspace' : 'Sign in to MARKADO'}
                 <Icon name="arrowRight" size={17} />
               </Link>
-              <Link className="button button--secondary" href="/register">
-                Student access requirements
-              </Link>
+              {!user && (
+                <Link className="button button--secondary" href="/register">
+                  {accountPolicies.publicStudentRegistration ? 'Create Student Account' : 'Student access requirements'}
+                </Link>
+              )}
             </div>
           </div>
 
@@ -63,7 +65,9 @@ export default function Welcome({ accountPolicies }) {
             <article>
               <Icon name="user" size={20} />
               <h3>Students</h3>
-              <p>Student access requires a school-issued email, official student number, and a matching school record.</p>
+              <p>{accountPolicies.studentClaimSignup
+                ? 'Verify your school email to open a Student account. Quizzes require school identity verification and an assignment.'
+                : 'Student access requires a school-issued email, official student number, and a matching school record.'}</p>
               <span>{accountPolicies.publicStudentRegistration ? 'Registration open' : 'Registration unavailable'}</span>
             </article>
             <article>

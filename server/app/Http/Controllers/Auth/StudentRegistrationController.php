@@ -12,6 +12,7 @@ use App\Identity\Contracts\InstitutionalEmailVerificationService;
 use App\Identity\Contracts\StudentActivationService;
 use App\Identity\Data\InstitutionalEmailVerificationResult;
 use App\Identity\Support\StudentRegistrationService;
+use App\Identity\Support\StudentSignupService;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,15 +23,21 @@ use Inertia\Response;
 
 class StudentRegistrationController extends Controller
 {
-    public function store(RegisterStudentRequest $request, StudentRegistrationService $registrations, InstitutionalEmailVerificationService $verification): RedirectResponse
+    public function store(RegisterStudentRequest $request, StudentRegistrationService $registrations, StudentSignupService $signup, InstitutionalEmailVerificationService $verification): RedirectResponse
     {
-        $student = $registrations->register(
-            $request->validated('student_number'),
-            $request->validated('email'),
-            $request->validated('password'),
-        );
+        $details = $request->safe()->only(['student_number', 'email', 'password']);
         $request->session()->regenerate();
-        $request->session()->forget('registration_user_id');
+        $request->session()->forget(['registration_user_id', 'registration_candidate']);
+        if (config('identity.student_claim_signup_enabled')) {
+            $attempt = $signup->start($details['student_number'], $details['email'], $details['password']);
+            $student = $attempt['student'] ?? null;
+            if ($attempt !== null) {
+                $request->session()->put('registration_candidate', $attempt['candidate']);
+            }
+        } else {
+            $student = $registrations->register($details['student_number'], $details['email'], $details['password']);
+        }
+
         if ($student !== null) {
             $request->session()->put('registration_user_id', $student->id);
             $verification->issue($student);
@@ -54,18 +61,19 @@ class StudentRegistrationController extends Controller
         return back()->with('success', InstitutionalEmailVerificationResult::PUBLIC_ACKNOWLEDGEMENT);
     }
 
-    public function verify(Request $request, InstitutionalEmailVerificationService $verification, StudentActivationService $activation): RedirectResponse
+    public function verify(Request $request, InstitutionalEmailVerificationService $verification, StudentActivationService $activation, StudentSignupService $signup): RedirectResponse
     {
         $request->validate(['verification_token' => ['required', 'string', 'size:43', 'regex:/\A[A-Za-z0-9_-]+\z/D']]);
         $student = $this->pendingStudent($request);
-        $completed = $student !== null && DB::transaction(function () use ($student, $request, $verification, $activation): bool {
-            if (! $verification->consume($student, $request->string('verification_token')->toString())->successful) {
+        $candidate = $request->session()->get('registration_candidate');
+        $token = $request->string('verification_token')->toString();
+        $completed = $student !== null && DB::transaction(function () use ($student, $token, $candidate, $verification, $activation, $signup): bool {
+            if (is_string($candidate)) {
+                if (! $signup->activate($student, $candidate, $token, $verification)) {
+                    return false;
+                }
+            } elseif (! $this->activateRosterStudent($student, $token, $verification, $activation)) {
                 return false;
-            }
-            $record = $student->schoolStudentRecord;
-            $result = $record === null ? null : $activation->activate($student->fresh(), $record->student_number, $student->email);
-            if (! $result?->successful) {
-                throw ValidationException::withMessages(['verification_token' => 'Verification cannot complete. Check your details with your school.']);
             }
 
             if (GamificationEnvironment::enabled()) {
@@ -78,10 +86,29 @@ class StudentRegistrationController extends Controller
         if (! $completed) {
             throw ValidationException::withMessages(['verification_token' => 'This code is invalid or no longer available. Request another verification email if needed.']);
         }
-        $request->session()->forget('registration_user_id');
+        $request->session()->forget(['registration_user_id', 'registration_candidate']);
         $request->session()->regenerate();
 
         return redirect()->route('login')->with('success', 'Email verified. Your Student account is active. You can now sign in.');
+    }
+
+    private function activateRosterStudent(
+        User $student,
+        #[\SensitiveParameter] string $token,
+        InstitutionalEmailVerificationService $verification,
+        StudentActivationService $activation,
+    ): bool {
+        if (! $verification->consume($student, $token)->successful) {
+            return false;
+        }
+
+        $record = $student->schoolStudentRecord;
+        $result = $record === null ? null : $activation->activate($student->fresh(), $record->student_number, $student->email);
+        if (! $result?->successful) {
+            throw ValidationException::withMessages(['verification_token' => 'Verification cannot complete. Check your details with your school.']);
+        }
+
+        return true;
     }
 
     private function pendingStudent(Request $request): ?User

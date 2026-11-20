@@ -22,7 +22,11 @@ class RegisterStudentRequest extends FormRequest
                     $fail('Use your authorized school-issued institutional email address.');
                 }
             }],
-            'password' => ['required', 'string', 'max:128', Password::min(12)->letters()->mixedCase()->numbers(), 'confirmed'],
+            'password' => ['bail', 'required', 'string', function ($attribute, $value, $fail): void {
+                if (str_contains($value, "\0") || strlen($value) > 72) {
+                    $fail('Use a password of at most 72 bytes without null characters.');
+                }
+            }, Password::min(12)->letters()->mixedCase()->numbers(), 'confirmed'],
             'password_confirmation' => ['required', 'string'],
         ];
     }

@@ -45,9 +45,7 @@ final class StudentRegistrationService
 
                 // Conservatively reject case-ambiguous existing email ownership.
                 // The accepted mailbox's local part and official number remain exact.
-                if (DB::getDriverName() === 'pgsql') {
-                    DB::select('select pg_advisory_xact_lock(hashtextextended(?, 0))', [hash_hmac('sha256', 'registration-email:'.strtolower($normalized), (string) config('app.key'))]);
-                }
+                self::lockMailbox($normalized);
                 if (SchoolStudentRecord::query()->whereRaw('lower(institutional_email) = ?', [strtolower($normalized)])->count() !== 1
                     || User::query()->whereRaw('lower(email) = ?', [strtolower($normalized)])->exists()) {
                     return null;
@@ -70,6 +68,15 @@ final class StudentRegistrationService
             }, 3);
         } catch (UniqueConstraintViolationException) {
             return null;
+        }
+    }
+
+    public static function lockMailbox(string $mailbox): void
+    {
+        if (DB::getDriverName() === 'pgsql') {
+            DB::select('select pg_advisory_xact_lock(hashtextextended(?, 0))', [
+                hash_hmac('sha256', 'registration-email:'.strtolower($mailbox), (string) config('app.key')),
+            ]);
         }
     }
 }

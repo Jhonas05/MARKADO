@@ -4,7 +4,6 @@ use App\Http\Controllers\AdministratorDashboardController;
 use App\Http\Controllers\Auth\AccountAccessController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\StudentRegistrationController;
-use App\Http\Controllers\Auth\UnverifiedStudentRegistrationController;
 use App\Http\Controllers\AuthenticatedWorkspaceController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\ProfessorQuizController;
@@ -42,10 +41,6 @@ Route::middleware('guest')->group(function () {
             Route::post('/register/resend', [StudentRegistrationController::class, 'resend'])
                 ->middleware('throttle:student-verification')->name('registration.resend');
         });
-    } elseif (config('identity.unverified_student_signup_enabled')) {
-        Route::post('/register', [UnverifiedStudentRegistrationController::class, 'store'])
-            ->middleware(['unverified-student-signup', 'throttle:student-registration'])
-            ->name('registration.store');
     }
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])

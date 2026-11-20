@@ -7,7 +7,7 @@ final class HostedRegistrationControls
     public static function enabled(): bool
     {
         return self::baseControlsEnabled()
-            && self::hasTrustedRosterConfiguration()
+            && (config('identity.student_claim_signup_enabled') || self::hasTrustedRosterConfiguration())
             && self::hasSecurePublicOrigin()
             && self::hasTransactionalMailTransport();
     }
